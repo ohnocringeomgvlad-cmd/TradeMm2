@@ -60,7 +60,7 @@ end
 
 task.spawn(keepAlive)
 
-MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+MainFrame.BackgroundColor3 = Color3.fromRGB(0, 25, 30)
 MainFrame.BorderSizePixel = 0
 MainFrame.BackgroundTransparency = 0.1
 
