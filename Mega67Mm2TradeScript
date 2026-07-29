@@ -1,0 +1,258 @@
+-- ============================================================
+-- 1. ЭКРАН ЗАГРУЗКИ
+-- ============================================================
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local TweenService = game:GetService("TweenService")
+local playerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "LoaderScreen"
+ScreenGui.Parent = playerGui
+ScreenGui.ResetOnSpawn = false
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Parent = ScreenGui
+MainFrame.Size = UDim2.new(0, 300, 0, 180)
+MainFrame.Position = UDim2.new(0.5, -150, 0.5, -90)
+MainFrame.BackgroundColor3 = Color3.fromRGB(18, 20, 22)
+MainFrame.BorderSizePixel = 0
+
+local UICorner = Instance.new("UICorner")
+UICorner.Parent = MainFrame
+UICorner.CornerRadius = UDim.new(0, 12)
+
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Parent = MainFrame
+CloseBtn.Size = UDim2.new(0, 30, 0, 30)
+CloseBtn.Position = UDim2.new(1, -35, 0, 5)
+CloseBtn.BackgroundTransparency = 1
+CloseBtn.Text = "X"
+CloseBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
+CloseBtn.TextSize = 14
+CloseBtn.Font = Enum.Font.GothamBold
+
+CloseBtn.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+local Title = Instance.new("TextLabel")
+Title.Parent = MainFrame
+Title.Size = UDim2.new(1, 0, 0, 50)
+Title.Position = UDim2.new(0, 0, 0, 10)
+Title.BackgroundTransparency = 1
+Title.Text = "Загрузка"
+Title.TextColor3 = Color3.fromRGB(220, 220, 220)
+Title.TextSize = 18
+Title.Font = Enum.Font.GothamBold
+
+local BarBg = Instance.new("Frame")
+BarBg.Parent = MainFrame
+BarBg.Size = UDim2.new(0, 260, 0, 10)
+BarBg.Position = UDim2.new(0.5, -130, 0.5, -5)
+BarBg.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+
+local BarCorner = Instance.new("UICorner")
+BarCorner.Parent = BarBg
+BarCorner.CornerRadius = UDim.new(1, 0)
+
+local ProgressBar = Instance.new("Frame")
+ProgressBar.Parent = BarBg
+ProgressBar.Size = UDim2.new(0, 0, 1, 0)
+ProgressBar.BackgroundColor3 = Color3.fromRGB(70, 130, 200)
+
+local ProgCorner = Instance.new("UICorner")
+ProgCorner.Parent = ProgressBar
+ProgCorner.CornerRadius = UDim.new(1, 0)
+
+local PercentText = Instance.new("TextLabel")
+PercentText.Parent = MainFrame
+PercentText.Size = UDim2.new(1, 0, 0, 30)
+PercentText.Position = UDim2.new(0, 0, 0, 90)
+PercentText.BackgroundTransparency = 1
+PercentText.Text = "0%"
+PercentText.TextColor3 = Color3.fromRGB(180, 180, 180)
+PercentText.TextSize = 14
+PercentText.Font = Enum.Font.Gotham
+
+local StatusText = Instance.new("TextLabel")
+StatusText.Parent = MainFrame
+StatusText.Size = UDim2.new(1, 0, 0, 40)
+StatusText.Position = UDim2.new(0, 0, 0, 120)
+StatusText.BackgroundTransparency = 1
+StatusText.Text = "Подождите пожалуйста..."
+StatusText.TextColor3 = Color3.fromRGB(150, 150, 150)
+StatusText.TextSize = 10
+StatusText.Font = Enum.Font.Gotham
+
+local function setProgress(value, text)
+    if value > 100 then value = 100 end
+    TweenService:Create(ProgressBar, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        Size = UDim2.new(value / 100, 0, 1, 0)
+    }):Play()
+    PercentText.Text = math.floor(value) .. "%"
+    if text then StatusText.Text = text end
+end
+
+task.spawn(function()
+    setProgress(0, "Инициализация...")
+    task.wait(0.5)
+    TweenService:Create(PercentText, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+    task.wait(0.3)
+    PercentText.Text = "22%"
+    TweenService:Create(PercentText, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
+    TweenService:Create(ProgressBar, TweenInfo.new(1.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        Size = UDim2.new(0.22, 0, 1, 0)
+    }):Play()
+    task.wait(2.0)
+    local jump = math.random(51, 60)
+    setProgress(jump, "Загрузка модулей...")
+    task.wait(0.5)
+    task.wait(4.0)
+    setProgress(99, "Подождите пожалуйста, это займет еще немного...")
+    task.wait(2.0)
+    setProgress(100, "Загрузка завершена!")
+    task.wait(0.5)
+    ScreenGui:Destroy()
+    
+    -- ============================================================
+    -- 2. ОСНОВНОЕ МЕНЮ (MM2 TRADE FREEZE)
+    -- ============================================================
+    local TweenService = game:GetService("TweenService")
+    local playerGui = LocalPlayer:WaitForChild("PlayerGui")
+    
+    local MenuGui = Instance.new("ScreenGui")
+    MenuGui.Name = "MM2TradeFreeze"
+    MenuGui.Parent = playerGui
+    MenuGui.ResetOnSpawn = false
+    
+    local MainFrame = Instance.new("Frame")
+    MainFrame.Parent = MenuGui
+    MainFrame.Size = UDim2.new(0, 320, 0, 220)
+    MainFrame.Position = UDim2.new(0.5, -160, 0.5, -110)
+    MainFrame.BackgroundColor3 = Color3.fromRGB(18, 20, 22)
+    MainFrame.BorderSizePixel = 0
+    
+    local UICorner = Instance.new("UICorner")
+    UICorner.Parent = MainFrame
+    UICorner.CornerRadius = UDim.new(0, 12)
+    
+    local Title = Instance.new("TextLabel")
+    Title.Parent = MainFrame
+    Title.Size = UDim2.new(1, 0, 0, 40)
+    Title.Position = UDim2.new(0, 15, 0, 0)
+    Title.BackgroundTransparency = 1
+    Title.Text = "mm2 trade freeze"
+    Title.TextColor3 = Color3.fromRGB(220, 220, 220)
+    Title.TextSize = 14
+    Title.Font = Enum.Font.GothamBold
+    Title.TextXAlignment = Enum.TextXAlignment.Left
+    
+    local CloseBtn = Instance.new("TextButton")
+    CloseBtn.Parent = MainFrame
+    CloseBtn.Size = UDim2.new(0, 30, 0, 30)
+    CloseBtn.Position = UDim2.new(1, -35, 0, 5)
+    CloseBtn.BackgroundTransparency = 1
+    CloseBtn.Text = "X"
+    CloseBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
+    CloseBtn.TextSize = 14
+    CloseBtn.Font = Enum.Font.GothamBold
+    
+    CloseBtn.MouseButton1Click:Connect(function()
+        MenuGui:Destroy()
+    end)
+    
+    local function createSwitch(yPos, labelText, callback)
+        local Container = Instance.new("Frame")
+        Container.Parent = MainFrame
+        Container.Size = UDim2.new(1, -30, 0, 50)
+        Container.Position = UDim2.new(0, 15, 0, yPos)
+        Container.BackgroundTransparency = 1
+    
+        local Label = Instance.new("TextLabel")
+        Label.Parent = Container
+        Label.Size = UDim2.new(0, 150, 1, 0)
+        Label.BackgroundTransparency = 1
+        Label.Text = labelText
+        Label.TextColor3 = Color3.fromRGB(220, 220, 220)
+        Label.TextSize = 13
+        Label.Font = Enum.Font.Gotham
+        Label.TextXAlignment = Enum.TextXAlignment.Left
+    
+        local SwitchBg = Instance.new("Frame")
+        SwitchBg.Parent = Container
+        SwitchBg.Size = UDim2.new(0, 50, 0, 28)
+        SwitchBg.Position = UDim2.new(1, -50, 0.5, -14)
+        SwitchBg.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+        
+        local BgCorner = Instance.new("UICorner")
+        BgCorner.Parent = SwitchBg
+        BgCorner.CornerRadius = UDim.new(1, 0)
+    
+        local Knob = Instance.new("Frame")
+        Knob.Parent = SwitchBg
+        Knob.Size = UDim2.new(0, 22, 0, 22)
+        Knob.Position = UDim2.new(0, 3, 0.5, -11)
+        Knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    
+        local KnobCorner = Instance.new("UICorner")
+        KnobCorner.Parent = Knob
+        KnobCorner.CornerRadius = UDim.new(1, 0)
+    
+        local isOn = false
+    
+        local function updateSwitch()
+            isOn = not isOn
+            local targetColor = isOn and Color3.fromRGB(255, 70, 70) or Color3.fromRGB(60, 60, 60)
+            local knobPos = isOn and UDim2.new(1, -25, 0.5, -11) or UDim2.new(0, 3, 0.5, -11)
+    
+            TweenService:Create(SwitchBg, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                BackgroundColor3 = targetColor
+            }):Play()
+    
+            TweenService:Create(Knob, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                Position = knobPos
+            }):Play()
+    
+            if callback then callback(isOn) end
+        end
+    
+        local ClickDetector = Instance.new("TextButton")
+        ClickDetector.Parent = Container
+        ClickDetector.Size = UDim2.new(1, 0, 1, 0)
+        ClickDetector.BackgroundTransparency = 1
+        ClickDetector.Text = ""
+    
+        ClickDetector.MouseButton1Click:Connect(updateSwitch)
+    
+        return { toggle = updateSwitch, getState = function() return isOn end }
+    end
+    
+    local switch1 = createSwitch(50, "FREEZE TRADE", function(state)
+        if state then
+            print("🟢 Freeze Trade включён")
+        else
+            print("🔴 Freeze Trade выключен")
+        end
+    end)
+    
+    local switch2 = createSwitch(110, "AUTO ACCEPT", function(state)
+        if state then
+            print("🟢 Auto Accept включён")
+        else
+            print("🔴 Auto Accept выключен")
+        end
+    end)
+    
+    local Footer = Instance.new("TextLabel")
+    Footer.Parent = MainFrame
+    Footer.Size = UDim2.new(1, 0, 0, 30)
+    Footer.Position = UDim2.new(0, 0, 1, -30)
+    Footer.BackgroundTransparency = 1
+    Footer.Text = "made by @MegaCoderRbx"
+    Footer.TextColor3 = Color3.fromRGB(90, 90, 90)
+    Footer.TextSize = 10
+    Footer.Font = Enum.Font.Gotham
+    
+    print("Загрузка завершена. Меню открыто.")
+end)
