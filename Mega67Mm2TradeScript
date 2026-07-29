@@ -5,6 +5,7 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local TweenService = game:GetService("TweenService")
 local playerGui = LocalPlayer:WaitForChild("PlayerGui")
+local UserInputService = game:GetService("UserInputService")
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "LoaderScreen"
@@ -109,18 +110,15 @@ task.spawn(function()
     setProgress(jump, "Загрузка модулей...")
     task.wait(0.5)
     task.wait(4.0)
-    setProgress(99, "Подождите пожалуйста, это займет еще немного...")
-    task.wait(2.0)
+    setProgress(99, "Подождите пожалуйста, это займет 20 секунд...")
+    task.wait(20.0) -- 20 секунд на 99%
     setProgress(100, "Загрузка завершена!")
     task.wait(0.5)
     ScreenGui:Destroy()
     
     -- ============================================================
-    -- 2. ОСНОВНОЕ МЕНЮ (MM2 TRADE FREEZE)
+    -- 2. ОСНОВНОЕ МЕНЮ (С ВОЗМОЖНОСТЬЮ ПЕРЕМЕЩЕНИЯ)
     -- ============================================================
-    local TweenService = game:GetService("TweenService")
-    local playerGui = LocalPlayer:WaitForChild("PlayerGui")
-    
     local MenuGui = Instance.new("ScreenGui")
     MenuGui.Name = "MM2TradeFreeze"
     MenuGui.Parent = playerGui
@@ -162,6 +160,35 @@ task.spawn(function()
         MenuGui:Destroy()
     end)
     
+    -- ДВИЖЕНИЕ ОКНА
+    local dragging, dragInput, dragStart, startPos
+    MainFrame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = MainFrame.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+    
+    MainFrame.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+    
+    -- ПЕРЕКЛЮЧАТЕЛИ
     local function createSwitch(yPos, labelText, callback)
         local Container = Instance.new("Frame")
         Container.Parent = MainFrame
