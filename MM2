@@ -8,7 +8,7 @@ end)
 -- ============================================================
 -- 1. КЛЮЧЕВАЯ СИСТЕМА
 -- ============================================================
-local CorrectKey = "PRIVATE-1208-b112-uixz-PRIVATE"
+local CorrectKey = "PRIVATE-1207-b112-uixz-PRIVATE"
 local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
