@@ -6,11 +6,7 @@ task.spawn(function()
 end)
 
 -- ============================================================
--- 1. ПРИВЕТСТВИЕ И КЛЮЧ
--- ============================================================
-
--- ============================================================
--- 1. ПРИВЕТСТВИЕ И КЛЮЧ
+-- 1. ПРИВЕТСТВИЕ
 -- ============================================================
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
@@ -18,13 +14,11 @@ local LocalPlayer = Players.LocalPlayer
 local playerGui = LocalPlayer:WaitForChild("PlayerGui")
 local UserInputService = game:GetService("UserInputService")
 
--- Приветствие
 local WelcomeGui = Instance.new("ScreenGui")
 WelcomeGui.Name = "WelcomeScreen"
 WelcomeGui.Parent = playerGui
 WelcomeGui.ResetOnSpawn = false
 
--- ЧЁРНЫЙ ФОН С ПЛАВНЫМ ПОЯВЛЕНИЕМ
 local WelcomeFrame = Instance.new("Frame")
 WelcomeFrame.Parent = WelcomeGui
 WelcomeFrame.Size = UDim2.new(1, 0, 1, 0)
@@ -44,30 +38,16 @@ WelcomeText.TextStrokeTransparency = 0
 WelcomeText.TextStrokeColor3 = Color3.fromRGB(120, 40, 200)
 WelcomeText.TextTransparency = 1
 
--- ПЛАВНОЕ ПОЯВЛЕНИЕ ФОНА И НАДПИСИ ОДНОВРЕМЕННО
-TweenService:Create(WelcomeFrame, TweenInfo.new(1.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-    BackgroundTransparency = 0
-}):Play()
-
-TweenService:Create(WelcomeText, TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-    TextTransparency = 0
-}):Play()
-
-task.wait(3) -- Ждём 3 секунды
-
--- ПЛАВНОЕ ИСЧЕЗНОВЕНИЕ ФОНА И НАДПИСИ ОДНОВРЕМЕННО
-TweenService:Create(WelcomeFrame, TweenInfo.new(1.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-    BackgroundTransparency = 1
-}):Play()
-
-TweenService:Create(WelcomeText, TweenInfo.new(1.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-    TextTransparency = 1
-}):Play()
-
+TweenService:Create(WelcomeFrame, TweenInfo.new(1.5), {BackgroundTransparency = 0}):Play()
+TweenService:Create(WelcomeText, TweenInfo.new(2), {TextTransparency = 0}):Play()
+task.wait(3)
+TweenService:Create(WelcomeFrame, TweenInfo.new(1.5), {BackgroundTransparency = 1}):Play()
+TweenService:Create(WelcomeText, TweenInfo.new(1.5), {TextTransparency = 1}):Play()
 task.wait(1.5)
 WelcomeGui:Destroy()
+
 -- ============================================================
--- 2. КЛЮЧЕВАЯ СИСТЕМА (ПЛАВНОЕ ПОЯВЛЕНИЕ)
+-- 2. КЛЮЧЕВАЯ СИСТЕМА
 -- ============================================================
 local CorrectKey = "PRIVATE-1207-b112-uixz-PRIVATE"
 
@@ -151,23 +131,12 @@ KeyInput.FocusLost:Connect(function()
     KeyBtn.MouseButton1Click:Fire()
 end)
 
--- Плавное появление окна ключа
 KeyGui.Enabled = true
-TweenService:Create(KeyMain, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-    BackgroundTransparency = 0
-}):Play()
-TweenService:Create(KeyTitle, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-    TextTransparency = 0
-}):Play()
-TweenService:Create(KeyInput, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-    BackgroundTransparency = 0
-}):Play()
-TweenService:Create(KeyBtn, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-    BackgroundTransparency = 0
-}):Play()
-TweenService:Create(KeyStatus, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-    TextTransparency = 0
-}):Play()
+TweenService:Create(KeyMain, TweenInfo.new(0.8), {BackgroundTransparency = 0}):Play()
+TweenService:Create(KeyTitle, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+TweenService:Create(KeyInput, TweenInfo.new(0.5), {BackgroundTransparency = 0}):Play()
+TweenService:Create(KeyBtn, TweenInfo.new(0.5), {BackgroundTransparency = 0}):Play()
+TweenService:Create(KeyStatus, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
 
 -- ============================================================
 -- 3. ЗАГРУЗКА
@@ -266,9 +235,7 @@ function LoadMainScript()
             local step = math.random(3, 8)
             current = current + step
             if current > 100 then current = 100 end
-            TweenService:Create(PBar, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-                Size = UDim2.new(current / 100, 0, 1, 0)
-            }):Play()
+            TweenService:Create(PBar, TweenInfo.new(0.5), {Size = UDim2.new(current / 100, 0, 1, 0)}):Play()
             PText.Text = math.floor(current) .. "%"
             elapsed = elapsed + 1
             task.wait(1)
@@ -277,14 +244,8 @@ function LoadMainScript()
         LoaderGui:Destroy()
         
         -- ============================================================
-        -- 4. МЕНЮ (СОХРАНЕНИЕ, ТЕМЫ, СВОРАЧИВАНИЕ)
+        -- 4. МЕНЮ
         -- ============================================================
-        local Settings = {
-            Speed = 16,
-            Jump = 50,
-            Theme = "Чёрный"
-        }
-        
         local MenuGui = Instance.new("ScreenGui")
         MenuGui.Name = "MM2TradeFreeze"
         MenuGui.Parent = playerGui
@@ -300,7 +261,6 @@ function LoadMainScript()
         MCorner.Parent = MFrame
         MCorner.CornerRadius = UDim.new(0, 12)
         
-        -- Драга
         local dragging, dragInput, dragStart, startPos
         MFrame.InputBegan:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -366,7 +326,6 @@ function LoadMainScript()
             end
         end)
         
-        -- ВКЛАДКИ И КОНТЕЙНЕРЫ
         local TabBar = Instance.new("Frame")
         TabBar.Parent = MFrame
         TabBar.Size = UDim2.new(1, 0, 0, 30)
@@ -408,7 +367,7 @@ function LoadMainScript()
             end)
         end
         
-        -- ================= FREEZE =================
+        -- FREEZE
         local function createSwitch(parent, yPos, label, cb)
             local c = Instance.new("Frame")
             c.Parent = parent
@@ -439,7 +398,7 @@ function LoadMainScript()
         createSwitch(containers[1], 10, "FREEZE TRADE")
         createSwitch(containers[1], 70, "AUTO ACCEPT")
         
-        -- ================= ESP =================
+        -- ESP
         local EspLines = {}
         local EspRunning = false
         local EspConn = nil
@@ -500,7 +459,7 @@ function LoadMainScript()
             EspLines = {}
         end
         
-        -- ================= ИГРОК =================
+        -- ИГРОК
         local PlayerSettings = containers[3]
         
         local function createSlider(parent, yPos, label, min, max, default, unit, cb)
@@ -545,7 +504,6 @@ function LoadMainScript()
         local speedSlider = createSlider(PlayerSettings, 10, "Скорость", 1, 100, 16, "", function(v) Settings.Speed = v end)
         local jumpSlider = createSlider(PlayerSettings, 80, "Прыжок", 1, 300, 50, "", function(v) Settings.Jump = v end)
         
-        -- Сохранение после смерти
         local function applyStats()
             local char = LocalPlayer.Character
             if char then
@@ -561,12 +519,11 @@ function LoadMainScript()
             task.wait(0.5)
             applyStats()
         end)
-        
         task.spawn(function()
             while task.wait(0.5) do applyStats() end
         end)
         
-        -- ================= ДОПОЛНИТЕЛЬНО =================
+        -- ДОПОЛНИТЕЛЬНО
         local ExtraContainer = containers[4]
         
         local TgLabel = Instance.new("TextLabel")
@@ -630,3 +587,33 @@ function LoadMainScript()
             MFrame.BackgroundColor3 = bg
             MTitle.TextColor3 = txt
             TgLabel.TextColor3 = txt
+            ThemeLabel.TextColor3 = txt
+            for _, btn in ipairs(btns) do btn.TextColor3 = txt end
+            for _, c in ipairs(containers) do
+                for _, child in ipairs(c:GetChildren()) do
+                    if child:IsA("TextLabel") then child.TextColor3 = txt end
+                end
+            end
+        end
+        
+        for i, theme in ipairs(themes) do
+            local btn = Instance.new("TextButton")
+            btn.Parent = ThemeList
+            btn.Size = UDim2.new(0, 100, 0, 30)
+            btn.Position = UDim2.new((i-1)%3 * 0.34, 5, math.floor((i-1)/3) * 0.25, 5)
+            btn.BackgroundColor3 = themeColors[theme]
+            btn.Text = theme
+            btn.TextColor3 = textColor[theme] or Color3.fromRGB(255,255,255)
+            btn.TextSize = 10
+            btn.Font = Enum.Font.GothamBold
+            btn.MouseButton1Click:Connect(function()
+                applyTheme(theme)
+                ThemeList.Visible = false
+            end)
+        end
+        
+        local ThemeToggle = Instance.new("TextButton")
+        ThemeToggle.Parent = ExtraContainer
+        ThemeToggle.Size = UDim2.new(0, 150, 0, 30)
+        ThemeToggle.Position = UDim2.new(0.5, -75, 0, 100)
+        ThemeToggle.BackgroundColor3 = Color3.fromRGB(50
