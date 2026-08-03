@@ -616,4 +616,6 @@ function LoadMainScript()
         ThemeToggle.Parent = ExtraContainer
         ThemeToggle.Size = UDim2.new(0, 150, 0, 30)
         ThemeToggle.Position = UDim2.new(0.5, -75, 0, 100)
-        ThemeToggle.BackgroundColor3 = Color3.fromRGB(50
+        ThemeToggle.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+        ThemeToggle.Text = "Открыть темы"
+        ThemeToggle.TextColor3 = Color3.from
