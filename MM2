@@ -6,7 +6,7 @@ task.spawn(function()
 end)
 
 -- ============================================================
--- 1. ПРИВЕТСТВИЕ
+-- 1. ПРИВЕТСТВИЕ (ИСПРАВЛЕННЫЙ ЧЁРНЫЙ ФОН И ТЕКСТ)
 -- ============================================================
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
@@ -18,16 +18,18 @@ WelcomeGui.Name = "WelcomeScreen"
 WelcomeGui.Parent = playerGui
 WelcomeGui.ResetOnSpawn = false
 
+-- ЧЁРНЫЙ ФОН (САМЫЙ НИЗКИЙ СЛОЙ)
 local WelcomeFrame = Instance.new("Frame")
 WelcomeFrame.Parent = WelcomeGui
 WelcomeFrame.Size = UDim2.new(1, 0, 1, 0)
 WelcomeFrame.Position = UDim2.new(0, 0, 0, 0)
 WelcomeFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 WelcomeFrame.BackgroundTransparency = 1
-WelcomeFrame.ZIndex = 999
+WelcomeFrame.ZIndex = 1
 
+-- ТЕКСТ (ПОВЕРХ ФОНА)
 local WelcomeText = Instance.new("TextLabel")
-WelcomeText.Parent = WelcomeFrame
+WelcomeText.Parent = WelcomeGui -- ВАЖНО: Родитель WelcomeGui, а не WelcomeFrame
 WelcomeText.Size = UDim2.new(1, 0, 0, 100)
 WelcomeText.Position = UDim2.new(0, 0, 0.4, -50)
 WelcomeText.BackgroundTransparency = 1
@@ -38,12 +40,18 @@ WelcomeText.Font = Enum.Font.GothamBold
 WelcomeText.TextStrokeTransparency = 0
 WelcomeText.TextStrokeColor3 = Color3.fromRGB(120, 40, 200)
 WelcomeText.TextTransparency = 1
+WelcomeText.ZIndex = 2
 
+-- ПЛАВНОЕ ПОЯВЛЕНИЕ
 TweenService:Create(WelcomeFrame, TweenInfo.new(1.5), {BackgroundTransparency = 0}):Play()
 TweenService:Create(WelcomeText, TweenInfo.new(2), {TextTransparency = 0}):Play()
+
 task.wait(3)
+
+-- ПЛАВНОЕ ИСЧЕЗНОВЕНИЕ
 TweenService:Create(WelcomeFrame, TweenInfo.new(1.5), {BackgroundTransparency = 1}):Play()
 TweenService:Create(WelcomeText, TweenInfo.new(1.5), {TextTransparency = 1}):Play()
+
 task.wait(1.5)
 WelcomeGui:Destroy()
 
@@ -254,7 +262,7 @@ function LoadMainScript()
         LoaderGui:Destroy()
         
         -- ============================================================
-        -- 4. МЕНЮ (С ЛЕВОЙ ПАНЕЛЬЮ)
+        -- 4. МЕНЮ (С ЛЕВОЙ ПАНЕЛЬЮ И РАБОЧИМИ ПОЛЗУНКАМИ)
         -- ============================================================
         local MenuGui = Instance.new("ScreenGui")
         MenuGui.Name = "MM2TradeFreeze"
@@ -271,14 +279,12 @@ function LoadMainScript()
         MCorner.Parent = MFrame
         MCorner.CornerRadius = UDim.new(0, 12)
 
-        -- ПАНЕЛЬ ВКЛАДОК (СЛЕВА)
         local SideBar = Instance.new("Frame")
         SideBar.Parent = MFrame
         SideBar.Size = UDim2.new(0, 120, 1, 0)
         SideBar.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
         SideBar.BorderSizePixel = 0
         
-        -- КОНТЕЙНЕР КОНТЕНТА (СПРАВА)
         local Content = Instance.new("Frame")
         Content.Parent = MFrame
         Content.Size = UDim2.new(1, -120, 1, 0)
@@ -314,7 +320,6 @@ function LoadMainScript()
             end)
         end
 
-        -- ЗАГОЛОВОК
         local MTitle = Instance.new("TextLabel")
         MTitle.Parent = MFrame
         MTitle.Size = UDim2.new(1, -120, 0, 40)
@@ -451,7 +456,7 @@ function LoadMainScript()
             EspLines = {}
         end
         
-        -- ================= ИГРОК (С РАБОЧИМИ ПОЛЗУНКАМИ) =================
+        -- ================= ИГРОК (РАБОЧИЕ ПОЛЗУНКИ) =================
         local PlayerSettings = containers[3]
         local Settings = { Speed = 16, Jump = 50 }
         
