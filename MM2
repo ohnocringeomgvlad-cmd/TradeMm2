@@ -25,6 +25,7 @@ WelcomeFrame.Position = UDim2.new(0, 0, 0, 0)
 WelcomeFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 WelcomeFrame.BackgroundTransparency = 1
 WelcomeFrame.ZIndex = 1
+WelcomeFrame.IgnoreGuiInset = true
 
 local WelcomeText = Instance.new("TextLabel")
 WelcomeText.Parent = WelcomeGui
