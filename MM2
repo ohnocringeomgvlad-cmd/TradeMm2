@@ -400,7 +400,7 @@ function LoadMainScript()
         local EspRunning = false
         local EspConn = nil
         
-        local EspSwitch = createSwitch(containers[2], 10, "Видеть роли", function(state)
+        local EspSwitch = createSwitch(containers[2], 10, "Видеть роли (в разработке)", function(state)
             if state then RunESP() else StopESP() end
         end)
         
