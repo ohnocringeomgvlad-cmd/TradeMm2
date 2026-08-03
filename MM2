@@ -204,22 +204,23 @@ function LoadMainScript()
         task.wait(2)
         updateStatus("Последняя загрузка, она идёт примерно 2-5 минут в зависимости от интернета.", 0)
         
-        local elapsed = 0
-        local target = 180
+                local elapsed = 0
+        local target = 180 -- 3 минуты
         local current = 0
         
         while elapsed < target do
-            local step = math.random(3, 8)
+            local step = math.random(5, 15) / 10
             current = current + step
             if current > 100 then current = 100 end
-            setProgress(current)
+            
+            TweenService:Create(ProgressBar, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                Size = UDim2.new(current / 100, 0, 1, 0)
+            }):Play()
+            PercentText.Text = math.floor(current) .. "%"
+            
             elapsed = elapsed + 1
             task.wait(1)
         end
-        
-        setProgress(100)
-        task.wait(0.5)
-        ScreenGui:Destroy()
         
         -- ============================================================
         -- 3. МЕНЮ
