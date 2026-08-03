@@ -21,8 +21,10 @@ WelcomeGui.ResetOnSpawn = false
 local WelcomeFrame = Instance.new("Frame")
 WelcomeFrame.Parent = WelcomeGui
 WelcomeFrame.Size = UDim2.new(1, 0, 1, 0)
+WelcomeFrame.Position = UDim2.new(0, 0, 0, 0)
 WelcomeFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 WelcomeFrame.BackgroundTransparency = 1
+WelcomeFrame.ZIndex = 999
 
 local WelcomeText = Instance.new("TextLabel")
 WelcomeText.Parent = WelcomeFrame
@@ -213,7 +215,7 @@ function LoadMainScript()
         task.wait(delay)
         LStatus.Text = text
     end
-    
+
     task.spawn(function()
         updateStatus("Спасибо за использование!", 0)
         task.wait(3)
@@ -229,23 +231,30 @@ function LoadMainScript()
         task.wait(2)
         updateStatus("Последняя загрузка, она идёт примерно 2-5 минут в зависимости от интернета.", 0)
         
-        local elapsed = 0
-        local target = 180
-        local current = 0
-        while elapsed < target do
-            local step = math.random(3, 8)
-            current = current + step
-            if current > 100 then current = 100 end
-            TweenService:Create(PBar, TweenInfo.new(0.5), {Size = UDim2.new(current / 100, 0, 1, 0)}):Play()
-            PText.Text = math.floor(current) .. "%"
-            elapsed = elapsed + 1
-            task.wait(1)
+        local startTime = tick()
+        local targetTime = 180
+        local currentPercent = 0
+        
+        while currentPercent < 100 do
+            local elapsed = tick() - startTime
+            local targetPercent = (elapsed / targetTime) * 100
+            local randomJump = math.random(0, 4)
+            currentPercent = math.min(targetPercent + randomJump, 100)
+            
+            TweenService:Create(PBar, TweenInfo.new(0.1), {
+                Size = UDim2.new(currentPercent / 100, 0, 1, 0)
+            }):Play()
+            PText.Text = math.floor(currentPercent) .. "%"
+            
+            task.wait(0.1)
         end
+        
+        PText.Text = "100%"
         task.wait(0.5)
         LoaderGui:Destroy()
         
         -- ============================================================
-        -- 4. МЕНЮ
+        -- 4. МЕНЮ (С ЛЕВОЙ ПАНЕЛЬЮ)
         -- ============================================================
         local MenuGui = Instance.new("ScreenGui")
         MenuGui.Name = "MM2TradeFreeze"
@@ -254,39 +263,62 @@ function LoadMainScript()
         
         local MFrame = Instance.new("Frame")
         MFrame.Parent = MenuGui
-        MFrame.Size = UDim2.new(0, 480, 0, 380)
-        MFrame.Position = UDim2.new(0.5, -240, 0.5, -190)
+        MFrame.Size = UDim2.new(0, 520, 0, 400)
+        MFrame.Position = UDim2.new(0.5, -260, 0.5, -200)
         MFrame.BackgroundColor3 = Color3.fromRGB(18, 20, 22)
         MFrame.BorderSizePixel = 0
         local MCorner = Instance.new("UICorner")
         MCorner.Parent = MFrame
         MCorner.CornerRadius = UDim.new(0, 12)
+
+        -- ПАНЕЛЬ ВКЛАДОК (СЛЕВА)
+        local SideBar = Instance.new("Frame")
+        SideBar.Parent = MFrame
+        SideBar.Size = UDim2.new(0, 120, 1, 0)
+        SideBar.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+        SideBar.BorderSizePixel = 0
         
-        local dragging, dragInput, dragStart, startPos
-        MFrame.InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                dragging = true; dragStart = input.Position; startPos = MFrame.Position
-                input.Changed:Connect(function()
-                    if input.UserInputState == Enum.UserInputState.End then dragging = false end
-                end)
-            end
-        end)
-        MFrame.InputChanged:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-                dragInput = input
-            end
-        end)
-        UserInputService.InputChanged:Connect(function(input)
-            if input == dragInput and dragging then
-                local delta = input.Position - dragStart
-                MFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-            end
-        end)
+        -- КОНТЕЙНЕР КОНТЕНТА (СПРАВА)
+        local Content = Instance.new("Frame")
+        Content.Parent = MFrame
+        Content.Size = UDim2.new(1, -120, 1, 0)
+        Content.Position = UDim2.new(0, 120, 0, 0)
+        Content.BackgroundTransparency = 1
+
+        local tabs = {"Freeze", "ESP", "Игрок", "Дополнительно"}
+        local containers = {}
+        local btns = {}
         
+        for i, name in ipairs(tabs) do
+            local btn = Instance.new("TextButton")
+            btn.Parent = SideBar
+            btn.Size = UDim2.new(1, 0, 0, 40)
+            btn.Position = UDim2.new(0, 0, 0, 20 + (i-1) * 50)
+            btn.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+            btn.Text = name
+            btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            btn.TextSize = 12
+            btn.Font = Enum.Font.GothamBold
+            table.insert(btns, btn)
+            
+            local cont = Instance.new("Frame")
+            cont.Parent = Content
+            cont.Size = UDim2.new(1, 0, 1, 0)
+            cont.BackgroundTransparency = 1
+            cont.Visible = (i == 1)
+            table.insert(containers, cont)
+            
+            btn.MouseButton1Click:Connect(function()
+                for _, c in ipairs(containers) do c.Visible = false end
+                cont.Visible = true
+            end)
+        end
+
+        -- ЗАГОЛОВОК
         local MTitle = Instance.new("TextLabel")
         MTitle.Parent = MFrame
-        MTitle.Size = UDim2.new(1, 0, 0, 40)
-        MTitle.Position = UDim2.new(0, 15, 0, 0)
+        MTitle.Size = UDim2.new(1, -120, 0, 40)
+        MTitle.Position = UDim2.new(0, 120, 0, 0)
         MTitle.BackgroundTransparency = 1
         MTitle.Text = "mm2 trade freeze"
         MTitle.TextColor3 = Color3.fromRGB(220, 220, 220)
@@ -320,54 +352,13 @@ function LoadMainScript()
             isMin = not isMin
             if isMin then
                 MFrame.Size = UDim2.new(0, 35, 0, 35)
-                MTitle.Visible = false; TabBar.Visible = false; Content.Visible = false; MMin.Text = "+"
+                MTitle.Visible = false; SideBar.Visible = false; Content.Visible = false; MMin.Text = "+"
             else
-                MFrame.Size = UDim2.new(0, 480, 0, 380)
-                MTitle.Visible = true; TabBar.Visible = true; Content.Visible = true; MMin.Text = "-"
+                MFrame.Size = UDim2.new(0, 520, 0, 400)
+                MTitle.Visible = true; SideBar.Visible = true; Content.Visible = true; MMin.Text = "-"
             end
         end)
-        
-        local TabBar = Instance.new("Frame")
-        TabBar.Parent = MFrame
-        TabBar.Size = UDim2.new(1, 0, 0, 30)
-        TabBar.Position = UDim2.new(0, 0, 0, 40)
-        TabBar.BackgroundTransparency = 1
-        
-        local Content = Instance.new("Frame")
-        Content.Parent = MFrame
-        Content.Size = UDim2.new(1, 0, 1, -70)
-        Content.Position = UDim2.new(0, 0, 0, 70)
-        Content.BackgroundTransparency = 1
-        
-        local tabs = {"Freeze", "ESP", "Игрок", "Дополнительно"}
-        local containers = {}
-        local btns = {}
-        
-        for i, name in ipairs(tabs) do
-            local btn = Instance.new("TextButton")
-            btn.Parent = TabBar
-            btn.Size = UDim2.new(0, 120, 1, 0)
-            btn.Position = UDim2.new((i-1)*0.25, 0, 0, 0)
-            btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-            btn.Text = name
-            btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-            btn.TextSize = 12
-            btn.Font = Enum.Font.GothamBold
-            table.insert(btns, btn)
-            
-            local cont = Instance.new("Frame")
-            cont.Parent = Content
-            cont.Size = UDim2.new(1, 0, 1, 0)
-            cont.BackgroundTransparency = 1
-            cont.Visible = (i == 1)
-            table.insert(containers, cont)
-            
-            btn.MouseButton1Click:Connect(function()
-                for _, c in ipairs(containers) do c.Visible = false end
-                cont.Visible = true
-            end)
-        end
-        
+
         -- ================= FREEZE =================
         local function createSwitch(parent, yPos, label, cb)
             local c = Instance.new("Frame")
@@ -460,8 +451,9 @@ function LoadMainScript()
             EspLines = {}
         end
         
-        -- ================= ИГРОК =================
+        -- ================= ИГРОК (С РАБОЧИМИ ПОЛЗУНКАМИ) =================
         local PlayerSettings = containers[3]
+        local Settings = { Speed = 16, Jump = 50 }
         
         local function createSlider(parent, yPos, label, min, max, default, unit, cb)
             local c = Instance.new("Frame")
@@ -486,24 +478,30 @@ function LoadMainScript()
             knob.BackgroundColor3 = Color3.fromRGB(255,255,255); local kc = Instance.new("UICorner"); kc.Parent = knob; kc.CornerRadius = UDim.new(1,0)
             local value = default
             local dragging = false
-            local function update(x)
-                local pos = math.clamp((x - bg.AbsolutePosition.X) / bg.AbsoluteSize.X, 0, 1)
-                value = math.floor(min + (max - min) * pos)
-                TweenService:Create(fill, TweenInfo.new(0.05), {Size = UDim2.new(pos, 0, 1, 0)}):Play()
-                TweenService:Create(knob, TweenInfo.new(0.05), {Position = UDim2.new(pos, -6, 0.5, -6)}):Play()
-                val.Text = tostring(value)..unit
-                if cb then cb(value) end
-            end
+            
             local d = Instance.new("TextButton")
             d.Parent = c; d.Size = UDim2.new(1,0,1,0); d.BackgroundTransparency = 1; d.Text = ""
-            d.MouseButton1Down:Connect(function() dragging = true end)
-            d.MouseButton1Up:Connect(function() dragging = false end)
-            d.MouseMove:Connect(function(x) if dragging then update(x) end end)
-            return {get = function() return value end}
+            
+            d.MouseButton1Down:Connect(function()
+                dragging = true
+            end)
+            d.MouseButton1Up:Connect(function()
+                dragging = false
+            end)
+            d.MouseMove:Connect(function(x)
+                if dragging then
+                    local pos = math.clamp((x.X - bg.AbsolutePosition.X) / bg.AbsoluteSize.X, 0, 1)
+                    value = math.floor(min + (max - min) * pos)
+                    TweenService:Create(fill, TweenInfo.new(0.05), {Size = UDim2.new(pos, 0, 1, 0)}):Play()
+                    TweenService:Create(knob, TweenInfo.new(0.05), {Position = UDim2.new(pos, -6, 0.5, -6)}):Play()
+                    val.Text = tostring(value)..unit
+                    if cb then cb(value) end
+                end
+            end)
         end
         
-        local speedSlider = createSlider(PlayerSettings, 10, "Скорость", 1, 100, 16, "", function(v) Settings.Speed = v end)
-        local jumpSlider = createSlider(PlayerSettings, 80, "Прыжок", 1, 300, 50, "", function(v) Settings.Jump = v end)
+        createSlider(PlayerSettings, 10, "Скорость", 1, 100, 16, "", function(v) Settings.Speed = v end)
+        createSlider(PlayerSettings, 80, "Прыжок", 1, 300, 50, "", function(v) Settings.Jump = v end)
         
         local function applyStats()
             local char = LocalPlayer.Character
