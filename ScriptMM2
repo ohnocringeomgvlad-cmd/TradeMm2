@@ -1,0 +1,378 @@
+-- 🌐 Mertily's Trade Scam v4 (с кастомной ошибкой)
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+local TweenService = game:GetService("TweenService")
+local UIS = game:GetService("UserInputService")
+local SoundService = game:GetService("SoundService")
+
+local playerGui = Player:WaitForChild("PlayerGui")
+
+-- 🛡️ Защита от пропадания после смерти
+if playerGui:FindFirstChild("MainMenu") then
+    playerGui.MainMenu:Destroy()
+end
+
+-- 📦 Создаём главный ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "MainMenu"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = playerGui
+
+-- 🖤 Чёрный фон для всей загрузки
+local bg = Instance.new("Frame")
+bg.Size = UDim2.new(1, 0, 1, 0)
+bg.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+bg.BackgroundTransparency = 0
+bg.Parent = screenGui
+
+-- 🟦 Функция создания сглаженной рамки
+local function createRoundedFrame(parent, size, pos, color, transparent)
+    local frame = Instance.new("Frame")
+    frame.Size = size
+    frame.Position = pos
+    frame.BackgroundColor3 = color or Color3.fromRGB(30, 30, 30)
+    frame.BackgroundTransparency = transparent or 0
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 12)
+    corner.Parent = frame
+    return frame
+end
+
+-- 🚪 ОКНО ВВОДА КЛЮЧА
+local keyWindow = createRoundedFrame(screenGui, UDim2.new(0, 400, 0, 220), UDim2.new(0.5, -200, 0.5, -110), Color3.fromRGB(20, 20, 20), 0)
+local shadow = Instance.new("UIStroke")
+shadow.Color = Color3.fromRGB(255, 255, 255)
+shadow.Thickness = 2
+shadow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+shadow.Parent = keyWindow
+
+local keyLabel = Instance.new("TextLabel")
+keyLabel.Size = UDim2.new(1, 0, 0, 30)
+keyLabel.Position = UDim2.new(0, 0, 0, 10)
+keyLabel.BackgroundTransparency = 1
+keyLabel.Text = "ВВЕДИТЕ КЛЮЧ"
+keyLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+keyLabel.TextScaled = true
+keyLabel.Font = Enum.Font.GothamBold
+keyLabel.TextWrapped = true
+keyLabel.Parent = keyWindow
+
+local keyBox = Instance.new("TextBox")
+keyBox.Size = UDim2.new(0.8, 0, 0, 40)
+keyBox.Position = UDim2.new(0.1, 0, 0.3, 0)
+keyBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+keyBox.TextColor3 = Color3.fromRGB(0, 0, 0)
+keyBox.TextScaled = true
+keyBox.Font = Enum.Font.Gotham
+keyBox.PlaceholderText = "Вставьте ключ..."
+keyBox.Parent = keyWindow
+
+local submitBtn = Instance.new("TextButton")
+submitBtn.Size = UDim2.new(0.4, 0, 0, 40)
+submitBtn.Position = UDim2.new(0.3, 0, 0.6, 0)
+submitBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+submitBtn.TextColor3 = Color3.fromRGB(0, 0, 0)
+submitBtn.TextScaled = true
+submitBtn.Font = Enum.Font.GothamBold
+submitBtn.Text = "ВОЙТИ"
+submitBtn.Parent = keyWindow
+
+local btnCorner = Instance.new("UICorner")
+btnCorner.CornerRadius = UDim.new(0, 8)
+btnCorner.Parent = submitBtn
+
+-- ❌ НОВОЕ СООБЩЕНИЕ ОБ ОШИБКЕ
+local errorLabel = Instance.new("TextLabel")
+errorLabel.Size = UDim2.new(1, 0, 0, 40)
+errorLabel.Position = UDim2.new(0, 0, 0.85, 0)
+errorLabel.BackgroundTransparency = 1
+errorLabel.Text = ""
+errorLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+errorLabel.TextScaled = true
+errorLabel.Font = Enum.Font.GothamBold
+errorLabel.TextWrapped = true
+errorLabel.Parent = keyWindow
+
+-- 🔑 Ключ
+local CORRECT_KEY = "Private-i832-shin-923Z-Private"
+
+-- 🌟 Функция плавного перехода (Tween)
+local function tweenObject(obj, props, time)
+    local tween = TweenService:Create(obj, TweenInfo.new(time, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), props)
+    tween:Play()
+    return tween
+end
+
+-- 🎵 Звук
+local soundId = 1841647093
+local function playMusic()
+    local sound = Instance.new("Sound")
+    sound.SoundId = "rbxassetid://" .. soundId
+    sound.Looped = false
+    sound.Volume = 0.5
+    sound.Parent = SoundService
+    sound:Play()
+    return sound
+end
+
+local function fadeOutMusic(sound, duration)
+    if not sound then return end
+    local startVol = sound.Volume
+    local steps = 30
+    for i = 1, steps do
+        sound.Volume = startVol * (1 - i / steps)
+        task.wait(duration / steps)
+    end
+    sound:Stop()
+    sound:Destroy()
+end
+
+-- 🖥️ Создание главного меню (пока скрыто)
+local mainFrame = createRoundedFrame(screenGui, UDim2.new(0, 600, 0, 400), UDim2.new(0.5, -300, 0.5, -200), Color3.fromRGB(15, 15, 15), 1)
+mainFrame.Visible = false
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 50)
+title.Position = UDim2.new(0, 0, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "Mertily's trade scam"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.TextScaled = true
+title.Font = Enum.Font.GothamBold
+title.Parent = mainFrame
+
+-- 🔘 Переключатели
+local switchFrame = Instance.new("Frame")
+switchFrame.Size = UDim2.new(1, 0, 0, 200)
+switchFrame.Position = UDim2.new(0, 0, 0, 70)
+switchFrame.BackgroundTransparency = 1
+switchFrame.Parent = mainFrame
+
+local switches = {}
+for i = 1, 3 do
+    local sw = Instance.new("Frame")
+    sw.Size = UDim2.new(0.9, 0, 0, 40)
+    sw.Position = UDim2.new(0.05, 0, 0, (i-1) * 50 + 10)
+    sw.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    sw.BorderSizePixel = 0
+    sw.Parent = switchFrame
+
+    local swCorner = Instance.new("UICorner")
+    swCorner.CornerRadius = UDim.new(0, 10)
+    swCorner.Parent = sw
+
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(0.7, 0, 1, 0)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = "Функция " .. i
+    lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+    lbl.TextScaled = true
+    lbl.Font = Enum.Font.Gotham
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.Position = UDim2.new(0.05, 0, 0, 0)
+    lbl.Parent = sw
+
+    local toggle = Instance.new("Frame")
+    toggle.Size = UDim2.new(0, 60, 0, 30)
+    toggle.Position = UDim2.new(0.85, 0, 0.5, -15)
+    toggle.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+    toggle.BorderSizePixel = 0
+    toggle.Parent = sw
+
+    local toggleCorner = Instance.new("UICorner")
+    toggleCorner.CornerRadius = UDim.new(0, 15)
+    toggleCorner.Parent = toggle
+
+    local knob = Instance.new("Frame")
+    knob.Size = UDim2.new(0, 26, 0, 26)
+    knob.Position = UDim2.new(0, 2, 0, 2)
+    knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    knob.BorderSizePixel = 0
+    knob.Parent = toggle
+
+    local knobCorner = Instance.new("UICorner")
+    knobCorner.CornerRadius = UDim.new(0, 13)
+    knobCorner.Parent = knob
+
+    switches[i] = {
+        frame = sw,
+        toggle = toggle,
+        knob = knob,
+        state = false
+    }
+
+    toggle.MouseButton1Click:Connect(function()
+        switches[i].state = not switches[i].state
+        local targetPos = switches[i].state and UDim2.new(0, 32, 0, 2) or UDim2.new(0, 2, 0, 2)
+        local targetColor = switches[i].state and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(100, 100, 100)
+        tweenObject(knob, {Position = targetPos}, 0.3)
+        tweenObject(toggle, {BackgroundColor3 = targetColor}, 0.3)
+    end)
+end
+
+-- 🟥 Функция показа красного неона
+local function showNeonLogo()
+    local neonFrame = Instance.new("Frame")
+    neonFrame.Size = UDim2.new(1, 0, 1, 0)
+    neonFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    neonFrame.BackgroundTransparency = 0
+    neonFrame.Parent = screenGui
+
+    local logo = Instance.new("TextLabel")
+    logo.Size = UDim2.new(1, 0, 1, 0)
+    logo.BackgroundTransparency = 1
+    logo.Text = "Mertily's Script"
+    logo.TextColor3 = Color3.fromRGB(255, 0, 0)
+    logo.TextScaled = true
+    logo.Font = Enum.Font.GothamBold
+    logo.TextWrapped = true
+    logo.Parent = neonFrame
+
+    local glow = Instance.new("UIStroke")
+    glow.Color = Color3.fromRGB(255, 0, 0)
+    glow.Thickness = 5
+    glow.Transparency = 0.5
+    glow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    glow.Parent = logo
+
+    tweenObject(logo, {TextColor3 = Color3.fromRGB(255, 50, 50)}, 0.5)
+    wait(3)
+    tweenObject(logo, {TextTransparency = 1}, 0.8)
+    wait(0.8)
+    neonFrame:Destroy()
+end
+
+-- ⏳ Окно загрузки
+local function showLoading()
+    local music = playMusic()
+
+    local loadFrame = createRoundedFrame(screenGui, UDim2.new(0, 400, 0, 150), UDim2.new(0.5, -200, 0.5, -75), Color3.fromRGB(10, 10, 10), 0)
+    loadFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+
+    local loadLabel = Instance.new("TextLabel")
+    loadLabel.Size = UDim2.new(1, 0, 0, 40)
+    loadLabel.Position = UDim2.new(0, 0, 0, 20)
+    loadLabel.BackgroundTransparency = 1
+    loadLabel.Text = "Ожидайте пока идет загрузка..."
+    loadLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    loadLabel.TextScaled = true
+    loadLabel.Font = Enum.Font.GothamBold
+    loadLabel.Parent = loadFrame
+
+    local progressLabel = Instance.new("TextLabel")
+    progressLabel.Size = UDim2.new(1, 0, 0, 40)
+    progressLabel.Position = UDim2.new(0, 0, 0, 80)
+    progressLabel.BackgroundTransparency = 1
+    progressLabel.Text = "0%"
+    progressLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    progressLabel.TextScaled = true
+    progressLabel.Font = Enum.Font.Gotham
+    progressLabel.Parent = loadFrame
+
+    local topLabel = Instance.new("TextLabel")
+    topLabel.Size = UDim2.new(1, 0, 0, 60)
+    topLabel.Position = UDim2.new(0, 0, 0, 20)
+    topLabel.BackgroundTransparency = 1
+    topLabel.Text = "Приватная версия скачивается, брат откуда у тебя 7к на скрипт, хаха:)"
+    topLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    topLabel.TextScaled = true
+    topLabel.Font = Enum.Font.GothamBold
+    topLabel.TextWrapped = true
+    topLabel.Parent = screenGui
+
+    local startTime = tick()
+    local duration = 120
+
+    while tick() - startTime < duration do
+        local elapsed = tick() - startTime
+        local percent = math.min(elapsed / duration * 100, 100)
+        progressLabel.Text = math.floor(percent) .. "%"
+        task.wait(0.1)
+    end
+
+    progressLabel.Text = "100%"
+    wait(0.5)
+
+    fadeOutMusic(music, 2)
+
+    tweenObject(topLabel, {TextTransparency = 1}, 0.8)
+    wait(0.8)
+    topLabel:Destroy()
+
+    tweenObject(loadFrame, {BackgroundTransparency = 1}, 0.5)
+    for _, child in ipairs(loadFrame:GetChildren()) do
+        tweenObject(child, {TextTransparency = 1}, 0.5)
+    end
+    wait(0.6)
+    loadFrame:Destroy()
+
+    mainFrame.Visible = true
+    mainFrame.BackgroundTransparency = 1
+    tweenObject(mainFrame, {BackgroundTransparency = 0}, 0.8)
+    for _, child in ipairs(mainFrame:GetChildren()) do
+        if child:IsA("TextLabel") or child:IsA("Frame") then
+            tweenObject(child, {BackgroundTransparency = 0}, 0.6)
+        end
+    end
+end
+
+-- 🔐 ПРОВЕРКА КЛЮЧА (С НОВЫМ ТЕКСТОМ ОШИБКИ)
+submitBtn.MouseButton1Click:Connect(function()
+    local input = keyBox.Text
+    if input == CORRECT_KEY then
+        tweenObject(keyWindow, {BackgroundTransparency = 1}, 0.5)
+        for _, child in ipairs(keyWindow:GetChildren()) do
+            tweenObject(child, {TextTransparency = 1}, 0.5)
+        end
+        wait(0.6)
+        keyWindow:Destroy()
+        showNeonLogo()
+        wait(4)
+        showLoading()
+    else
+        errorLabel.Text = "Братан либо неправильно ключ ввел либо ты захотел халявы😎"
+        errorLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+        tweenObject(errorLabel, {TextTransparency = 0}, 0.3)
+        wait(2.5)
+        tweenObject(errorLabel, {TextTransparency = 1}, 0.3)
+        errorLabel.Text = ""
+    end
+end)
+
+-- 🖱️ Перетаскивание окна
+local function makeDraggable(frame)
+    local dragging = false
+    local dragInput, dragStart, startPos
+
+    frame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPos = frame.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    frame.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement then
+            dragInput = input
+        end
+    end)
+
+    UIS.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+end
+
+makeDraggable(keyWindow)
+makeDraggable(mainFrame)
