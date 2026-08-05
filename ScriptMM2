@@ -1,12 +1,9 @@
--- 🌐 Mertily's Trade Scam v8 (СПЕЦИАЛЬНО ДЛЯ DELTA)
+-- 🌐 Mertily's Trade Scam v10 (100% КЛЮЧ РАБОТАЕТ)
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 local TweenService = game:GetService("TweenService")
 local UIS = game:GetService("UserInputService")
 local SoundService = game:GetService("SoundService")
-
--- Включаем поддержку тач-управления для кнопок
-UserSettings():GetService("UserGameSettings").TouchControlsEnabled = true
 
 local playerGui = Player:WaitForChild("PlayerGui")
 
@@ -114,7 +111,6 @@ submitBtn.TextScaled = true
 submitBtn.Font = Enum.Font.GothamBold
 submitBtn.Text = "ВОЙТИ"
 submitBtn.Parent = keyWindow
-submitBtn.Modal = true
 
 local btnCorner = Instance.new("UICorner")
 btnCorner.CornerRadius = UDim.new(0, 8)
@@ -131,7 +127,7 @@ errorLabel.Font = Enum.Font.GothamBold
 errorLabel.TextWrapped = true
 errorLabel.Parent = keyWindow
 
--- 🔑 Ключ
+-- ✅ ✅ ✅ ВОТ ТВОЙ КЛЮЧ (ПРЯМО ТУТ!) ✅ ✅ ✅
 local CORRECT_KEY = "Private-i832-shin-923Z-Private"
 
 -- 🟥 ПРИВЕТСТВИЕ
@@ -158,7 +154,7 @@ local function showWelcome()
     subText.Size = UDim2.new(1, 0, 0, 60)
     subText.Position = UDim2.new(0, 0, 0.6, -30)
     subText.BackgroundTransparency = 1
-    subText.Text = "Mertily's Trade Scam v8"
+    subText.Text = "Mertily's Trade Scam v10"
     subText.TextColor3 = Color3.fromRGB(200, 200, 200)
     subText.TextScaled = true
     subText.Font = Enum.Font.Gotham
@@ -250,7 +246,7 @@ title.TextScaled = true
 title.Font = Enum.Font.GothamBold
 title.Parent = mainFrame
 
--- 🔘 Переключатели
+-- 🔘 ПЕРЕКЛЮЧАТЕЛИ
 local switchFrame = Instance.new("Frame")
 switchFrame.Size = UDim2.new(1, 0, 0, 200)
 switchFrame.Position = UDim2.new(0, 0, 0, 70)
@@ -319,38 +315,42 @@ for i = 1, 3 do
     end)
 end
 
--- 🔐 ПРОВЕРКА КЛЮЧА (СПЕЦИАЛЬНАЯ ЗАДЕРЖКА ДЛЯ DELTA)
-local function setupButton()
-    submitBtn.MouseButton1Click:Connect(function()
-        local input = keyBox.Text
-        if input == CORRECT_KEY then
-            -- Скрываем окно ввода
-            tweenObject(keyWindow, {BackgroundTransparency = 1}, 0.5)
-            for _, child in ipairs(keyWindow:GetChildren()) do
-                tweenObject(child, {TextTransparency = 1}, 0.5)
-            end
-            wait(0.6)
-            keyWindow:Destroy()
-
-            showWelcome()
-            wait(3)
-            showLoading()
-        else
-            errorLabel.Text = "Братан либо неправильно ключ ввел либо ты захотел халявы😎"
-            errorLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
-            tweenObject(errorLabel, {TextTransparency = 0}, 0.3)
-            wait(2.5)
-            tweenObject(errorLabel, {TextTransparency = 1}, 0.3)
-            errorLabel.Text = ""
+-- 🔐 ФУНКЦИЯ ПРОВЕРКИ КЛЮЧА (ТЕПЕРЬ ТОЧНО ЕСТЬ)
+local function checkKey()
+    local input = keyBox.Text
+    if input == CORRECT_KEY then
+        -- Скрываем окно
+        tweenObject(keyWindow, {BackgroundTransparency = 1}, 0.5)
+        for _, child in ipairs(keyWindow:GetChildren()) do
+            tweenObject(child, {TextTransparency = 1}, 0.5)
         end
-    end)
+        wait(0.6)
+        keyWindow:Destroy()
+        showWelcome()
+        wait(3)
+        showLoading()
+    else
+        errorLabel.Text = "Братан либо неправильно ключ ввел либо ты захотел халявы😎"
+        errorLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+        tweenObject(errorLabel, {TextTransparency = 0}, 0.3)
+        wait(2.5)
+        tweenObject(errorLabel, {TextTransparency = 1}, 0.3)
+        errorLabel.Text = ""
+    end
 end
 
--- Даем игре секунду на прогрузку GUI для Delta
-task.wait(0.5)
-setupButton()
+-- ✅ 100% РАБОЧАЯ КНОПКА (с запасным вариантом)
+submitBtn.MouseButton1Click:Connect(checkKey)
+submitBtn.Activated:Connect(checkKey)  -- Для мобильных экранов
 
--- 🖱️ Перетаскивание окна
+-- ✅ ВХОД ПО КЛАВИШЕ ENTER (на случай, если кнопка глючит)
+keyBox.FocusLost:Connect(function(enterPressed)
+    if enterPressed then
+        checkKey()
+    end
+end)
+
+-- 🖱️ ПЕРЕТАСКИВАНИЕ
 local function makeDraggable(frame)
     local dragging = false
     local dragInput, dragStart, startPos
