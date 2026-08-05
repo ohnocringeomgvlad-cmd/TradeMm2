@@ -1,4 +1,4 @@
--- Mertily's Private Script UI v2.1 + Стилак после приветствия
+-- Mertily's Private Script UI v2.1приветствия
 -- Delta executor compatible
 
 local Players = game:GetService("Players")
