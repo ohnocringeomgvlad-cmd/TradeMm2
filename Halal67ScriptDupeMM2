@@ -1,5 +1,5 @@
 -- ===========================================
--- CoolMenu v2.0 — исправленная версия
+-- CoolMenu v2.1 — полная версия с проверкой инвентаря
 -- ===========================================
 
 local Players = game:GetService("Players")
@@ -7,9 +7,9 @@ local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
 
 -- Очистка предыдущего GUI
-local playerGui = player:WaitForChild("PlayerGui")
 if playerGui:FindFirstChild("CoolMenu") then
     playerGui.CoolMenu:Destroy()
 end
@@ -22,7 +22,7 @@ screenGui.ResetOnSpawn = false
 screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 screenGui.Parent = playerGui
 
--- === Функция для создания скругленных фреймов ===
+-- === Утилиты ===
 local function createRoundedFrame(parent, size, position, color, cornerRadius)
     local frame = Instance.new("Frame")
     frame.Size = size
@@ -38,7 +38,6 @@ local function createRoundedFrame(parent, size, position, color, cornerRadius)
     return frame
 end
 
--- === Функция плавного появления/исчезновения ===
 local function fadeIn(obj, dur, prop)
     prop = prop or "Transparency"
     obj[prop] = 1
@@ -54,22 +53,13 @@ local function fadeOut(obj, dur, prop)
     return tween
 end
 
--- === DRAG ФУНКЦИЯ (исправляет баг с Draggable) ===
+-- === Drag функция ===
 local function makeDraggable(frame, handle)
     handle = handle or frame
     local dragging = false
     local dragInput
     local dragStart
     local startPos
-    
-    local function update(input)
-        local delta = input.Position - dragStart
-        local targetPos = UDim2.new(
-            startPos.X.Scale, startPos.X.Offset + delta.X,
-            startPos.Y.Scale, startPos.Y.Offset + delta.Y
-        )
-        frame.Position = targetPos
-    end
     
     handle.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -93,18 +83,80 @@ local function makeDraggable(frame, handle)
     
     UserInputService.InputChanged:Connect(function(input)
         if input == dragInput and dragging then
-            update(input)
+            local delta = input.Position - dragStart
+            frame.Position = UDim2.new(
+                startPos.X.Scale, startPos.X.Offset + delta.X,
+                startPos.Y.Scale, startPos.Y.Offset + delta.Y
+            )
         end
     end)
 end
 
--- === Создаем главное меню ===
+-- === Проверка инвентаря ===
+local DEFAULT_ITEMS = {
+    ["Gun"] = true,
+    ["Knife"] = true,
+    ["Default Gun"] = true,
+    ["Default Knife"] = true,
+    ["Pistol"] = true,
+    ["DefaultPistol"] = true,
+    ["Sword"] = true,
+    ["LinkedSword"] = true,
+    ["ClassicSword"] = true,
+    ["WoodenSword"] = true,
+}
+
+local function getInventoryItems()
+    local items = {}
+    pcall(function()
+        local backpack = player:FindFirstChild("Backpack")
+        if backpack then
+            for _, item in ipairs(backpack:GetChildren()) do
+                if item:IsA("Tool") then
+                    table.insert(items, item.Name)
+                end
+            end
+        end
+        local character = player.Character
+        if character then
+            for _, item in ipairs(character:GetChildren()) do
+                if item:IsA("Tool") then
+                    table.insert(items, item.Name)
+                end
+            end
+        end
+    end)
+    return items
+end
+
+local function hasDuplicatableItems()
+    local items = getInventoryItems()
+    
+    if #items == 0 then
+        return false, "пустой"
+    end
+    
+    local duplCount = 0
+    for _, itemName in ipairs(items) do
+        if not DEFAULT_ITEMS[itemName] then
+            duplCount = duplCount + 1
+        end
+    end
+    
+    if duplCount == 0 then
+        return false, "только дефолтные"
+    end
+    
+    return true, "готово"
+end
+
+-- === Главное меню ===
 local menuSize = UDim2.new(0, 280, 0, 300)
 local menuPosition = UDim2.new(0.5, -140, 0.5, -150)
 
 local mainMenu = createRoundedFrame(screenGui, menuSize, menuPosition, Color3.fromRGB(25, 25, 35), 16)
-mainMenu.BackgroundTransparency = 1  -- начинаем невидимым
-mainMenu.ClipsDescendants = true  -- обрезаем контент при сворачивании
+mainMenu.BackgroundTransparency = 1
+mainMenu.ClipsDescendants = true
 mainMenu.Visible = false
 
 local mainStroke = Instance.new("UIStroke")
@@ -113,7 +165,7 @@ mainStroke.Thickness = 1.5
 mainStroke.Transparency = 0.5
 mainStroke.Parent = mainMenu
 
--- === Заголовок ===
+-- Заголовок
 local titleBar = createRoundedFrame(mainMenu, UDim2.new(1, 0, 0, 40), UDim2.new(0, 0, 0, 0), Color3.fromRGB(40, 40, 55), 12)
 titleBar.BackgroundTransparency = 1
 
@@ -129,7 +181,6 @@ titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 titleLabel.TextTransparency = 1
 titleLabel.Parent = titleBar
 
--- Кнопка сворачивания
 local collapseButton = Instance.new("TextButton")
 collapseButton.Size = UDim2.new(0, 30, 0, 30)
 collapseButton.Position = UDim2.new(1, -35, 0, 5)
@@ -147,10 +198,9 @@ local collapseCorner = Instance.new("UICorner")
 collapseCorner.CornerRadius = UDim.new(0, 8)
 collapseCorner.Parent = collapseButton
 
--- Делаем меню перетаскиваемым за заголовок
 makeDraggable(mainMenu, titleBar)
 
--- === Контент ===
+-- Контент
 local contentFrame = createRoundedFrame(mainMenu, UDim2.new(1, -20, 1, -50), UDim2.new(0, 10, 0, 45), Color3.fromRGB(0, 0, 0), 0)
 contentFrame.BackgroundTransparency = 1
 
@@ -170,7 +220,6 @@ antiCheatLabel.TextXAlignment = Enum.TextXAlignment.Left
 antiCheatLabel.TextTransparency = 1
 antiCheatLabel.Parent = antiCheatFrame
 
--- Ползунок
 local sliderFrame = Instance.new("Frame")
 sliderFrame.Size = UDim2.new(0, 50, 0, 24)
 sliderFrame.Position = UDim2.new(1, -65, 0.5, -12)
@@ -232,7 +281,7 @@ sliderButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- === 2. Дюпать годли (кнопка) ===
+-- === 2. Дюпать годли ===
 local dupFrame = createRoundedFrame(contentFrame, UDim2.new(1, 0, 0, 50), UDim2.new(0, 0, 0, 65), Color3.fromRGB(40, 40, 55), 10)
 dupFrame.BackgroundTransparency = 1
 
@@ -265,7 +314,7 @@ local dupCorner = Instance.new("UICorner")
 dupCorner.CornerRadius = UDim.new(0, 8)
 dupCorner.Parent = dupButton
 
--- === Шкала прогресса ===
+-- Шкала прогресса
 local progressFrame = createRoundedFrame(contentFrame, UDim2.new(1, 0, 0, 60), UDim2.new(0, 0, 0, 125), Color3.fromRGB(40, 40, 55), 8)
 progressFrame.BackgroundTransparency = 1
 progressFrame.Visible = false
@@ -331,14 +380,49 @@ local function resetDupUI()
     progressFrame.Visible = false
     completeLabel.Visible = false
     completeLabel.Text = ""
+    completeLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
     dupButton.Text = "▶ Дюп"
     dupButton.BackgroundColor3 = Color3.fromRGB(255, 70, 70)
     pbFill.Size = UDim2.new(0, 0, 1, 0)
     progressLabel.Text = "Дюп: 0%"
 end
 
+local function showError(message)
+    completeLabel.Text = message
+    completeLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+    completeLabel.Visible = true
+    progressFrame.Visible = true
+    progressFrame.BackgroundTransparency = 1
+    fadeIn(progressFrame, 0.3, "BackgroundTransparency")
+    fadeIn(completeLabel, 0.3, "TextTransparency")
+    
+    task.delay(3, function()
+        fadeOut(progressFrame, 0.3, "BackgroundTransparency")
+        fadeOut(completeLabel, 0.3, "TextTransparency")
+        task.wait(0.4)
+        progressFrame.Visible = false
+        completeLabel.Visible = false
+        completeLabel.Text = ""
+        completeLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+    end)
+end
+
 local function startDup()
     if isDuping then return end
+    
+    -- Проверка инвентаря
+    local canDup, reason = hasDuplicatableItems()
+    
+    if not canDup then
+        if reason == "пустой" then
+            showError("❌ У вас нету вещей для дюпа :(")
+        elseif reason == "только дефолтные" then
+            showError("❌ У вас только дефолтный пестолет и нож :(")
+        end
+        return
+    end
+    
+    -- Если есть что дюпать
     isDuping = true
     dupStartTime = tick()
     progressFrame.Visible = true
@@ -350,20 +434,21 @@ local function startDup()
     dupButton.Text = "⏹ Стоп"
     dupButton.BackgroundColor3 = Color3.fromRGB(255, 200, 50)
     
+    local items = getInventoryItems()
+    print("[CoolMenu] Найдено предметов: " .. #items)
+    
     dupConnection = RunService.Heartbeat:Connect(function()
-        if not isDuping then return end -- защита
+        if not isDuping then return end
         
         local elapsed = tick() - dupStartTime
         local progress = math.min(elapsed / 60 * 100, 100)
         
-        -- Плавное заполнение
         TweenService:Create(pbFill, TweenInfo.new(0.1, Enum.EasingStyle.Linear), {
             Size = UDim2.new(progress / 100, 0, 1, 0)
         }):Play()
         
         progressLabel.Text = string.format("Дюп: %.1f%%", progress)
         
-        -- Цвет шкалы
         if progress > 80 then
             pbFill.BackgroundColor3 = Color3.fromRGB(255, 200, 50)
         elseif progress > 50 then
@@ -372,7 +457,6 @@ local function startDup()
             pbFill.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
         end
         
-        -- Завершение
         if progress >= 100 then
             isDuping = false
             if dupConnection then
@@ -380,13 +464,13 @@ local function startDup()
                 dupConnection = nil
             end
             completeLabel.Text = "✅ Успешно задюпано! Если у вас пустой инвентарь то мы задюпали воздух XD"
+            completeLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
             completeLabel.Visible = true
             fadeIn(completeLabel, 0.3, "TextTransparency")
             dupButton.Text = "✅ Готово"
             dupButton.BackgroundColor3 = Color3.fromRGB(70, 255, 70)
             print("[CoolMenu] Дюп завершён!")
             
-            -- Авто-сброс через 5 сек
             task.delay(5, function()
                 if not isDuping then
                     resetDupUI()
@@ -419,7 +503,6 @@ collapseButton.MouseButton1Click:Connect(function()
     collapseButton.Text = isCollapsed and "+" or "−"
 end)
 
--- Hover на collapseButton
 collapseButton.MouseEnter:Connect(function()
     TweenService:Create(collapseButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(80, 80, 100)}):Play()
 end)
@@ -427,7 +510,6 @@ collapseButton.MouseLeave:Connect(function()
     TweenService:Create(collapseButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(60, 60, 80)}):Play()
 end)
 
--- Hover на dupButton
 dupButton.MouseEnter:Connect(function()
     if not isDuping then
         TweenService:Create(dupButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(255, 90, 90)}):Play()
@@ -439,7 +521,7 @@ dupButton.MouseLeave:Connect(function()
     end
 end)
 
--- === Показ/скрытие меню ===
+-- === Показ/скрытие ===
 local menuVisible = false
 
 local function showMenu()
@@ -448,7 +530,6 @@ local function showMenu()
     mainMenu.Size = UDim2.new(0, 0, 0, 0)
     mainMenu.BackgroundTransparency = 1
     
-    -- Плавное появление
     local bgIn = fadeIn(mainMenu, 0.4, "BackgroundTransparency")
     fadeIn(mainStroke, 0.4, "Transparency")
     fadeIn(titleBar, 0.4, "BackgroundTransparency")
@@ -465,7 +546,6 @@ local function showMenu()
     fadeIn(dupLabel, 0.3, "TextTransparency")
     fadeIn(dupButton, 0.3, "TextTransparency")
     
-    -- Размер с анимацией
     bgIn.Completed:Wait()
     TweenService:Create(mainMenu, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
         Size = menuSize
@@ -474,7 +554,6 @@ end
 
 local function hideMenu()
     menuVisible = false
-    -- Плавное исчезновение
     fadeOut(mainMenu, 0.3, "BackgroundTransparency")
     fadeOut(mainStroke, 0.3, "Transparency")
     fadeOut(titleBar, 0.3, "BackgroundTransparency")
@@ -490,7 +569,6 @@ local function hideMenu()
     mainMenu.Visible = false
 end
 
--- Открытие по клавише RightAlt (менее конфликтная чем RightControl)
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
     if input.KeyCode == Enum.KeyCode.RightAlt then
@@ -502,9 +580,8 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     end
 end)
 
--- Показываем меню при запуске
 task.spawn(function()
     task.wait(0.5)
     showMenu()
-    print("[CoolMenu] Загружено! Нажмите RightAlt для показа/скрытия")
+    print("[CoolMenu] Загружено! RightAlt - показать/скрыть")
 end)
