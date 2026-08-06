@@ -89,7 +89,7 @@ glow.ImageTransparency = 1
 glow.ScaleType = Enum.ScaleType.Slice
 glow.Parent = Splash
 
--- Флаг для запуска стилака после приветствия
+-- Флаг для запуска приветствия
 local stealScriptLoaded = false
 
 task.spawn(function()
