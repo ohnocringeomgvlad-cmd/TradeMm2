@@ -1,8 +1,6 @@
---[[
-    Скрипт для Roblox (Delta Executor)
-    ПОЛНОСТЬЮ ПЕРЕПИСАН
-    Исправлено: шкала не выходит за границы, меню не белеет
-]]
+-- ===========================================
+-- CoolMenu v2.0 — исправленная версия
+-- ===========================================
 
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
@@ -10,427 +8,503 @@ local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
--- Проверка на уже существующее меню
-if _G.MenuLoaded then
-    if _G.MenuInstance then
-        _G.MenuInstance.Visible = true
-        _G.MenuInstance.BackgroundTransparency = 0.1
-        _G.MenuInstance.Size = UDim2.new(0, 250, 0, 280)
-        _G.MenuInstance.Position = UDim2.new(0.5, -125, 0.5, -140)
-    end
-    return
+-- Очистка предыдущего GUI
+local playerGui = player:WaitForChild("PlayerGui")
+if playerGui:FindFirstChild("CoolMenu") then
+    playerGui.CoolMenu:Destroy()
 end
-_G.MenuLoaded = true
-
--- Глобальные переменные для меню
-local menuVisible = false
-local isCollapsed = false
 
 -- Создаем ScreenGui
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "DupMenu"
-screenGui.Parent = player:WaitForChild("PlayerGui")
+screenGui.Name = "CoolMenu"
+screenGui.IgnoreGuiInset = true
 screenGui.ResetOnSpawn = false
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+screenGui.Parent = playerGui
 
--- СОЗДАЕМ ГЛАВНОЕ МЕНЮ (без лишних эффектов)
-local mainMenu = Instance.new("Frame")
-mainMenu.Name = "MainMenu"
-mainMenu.Size = UDim2.new(0, 250, 0, 280)
-mainMenu.Position = UDim2.new(0.5, -125, 0.5, -140)
-mainMenu.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-mainMenu.BackgroundTransparency = 0.1
-mainMenu.BorderSizePixel = 0
-mainMenu.Visible = false
-mainMenu.Active = true
-mainMenu.Draggable = true
-mainMenu.Parent = screenGui
-
-_G.MenuInstance = mainMenu
-
--- Скругление углов
-local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 12)
-corner.Parent = mainMenu
-
--- Тень (для красоты)
-local shadow = Instance.new("Frame")
-shadow.Size = UDim2.new(1, 0, 1, 0)
-shadow.Position = UDim2.new(0, 5, 0, 5)
-shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-shadow.BackgroundTransparency = 0.5
-shadow.BorderSizePixel = 0
-shadow.Parent = mainMenu
-local shadowCorner = Instance.new("UICorner")
-shadowCorner.CornerRadius = UDim.new(0, 12)
-shadowCorner.Parent = shadow
-shadow.ZIndex = 0
-
--- Заголовок
-local titleBar = Instance.new("Frame")
-titleBar.Size = UDim2.new(1, 0, 0, 35)
-titleBar.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
-titleBar.BackgroundTransparency = 0.3
-titleBar.BorderSizePixel = 0
-titleBar.Parent = mainMenu
-local titleCorner = Instance.new("UICorner")
-titleCorner.CornerRadius = UDim.new(0, 12)
-titleCorner.Parent = titleBar
-
-local titleText = Instance.new("TextLabel")
-titleText.Size = UDim2.new(1, 0, 1, 0)
-titleText.BackgroundTransparency = 1
-titleText.Text = "⚡ Меню"
-titleText.TextColor3 = Color3.fromRGB(255, 255, 255)
-titleText.TextSize = 16
-titleText.Font = Enum.Font.GothamBold
-titleText.TextXAlignment = Enum.TextXAlignment.Center
-titleText.Parent = titleBar
-
--- Кнопка сворачивания
-local collapseBtn = Instance.new("TextButton")
-collapseBtn.Size = UDim2.new(0, 25, 0, 25)
-collapseBtn.Position = UDim2.new(1, -30, 0, 5)
-collapseBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
-collapseBtn.BackgroundTransparency = 0.3
-collapseBtn.Text = "−"
-collapseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-collapseBtn.TextSize = 18
-collapseBtn.Font = Enum.Font.GothamBold
-collapseBtn.BorderSizePixel = 0
-collapseBtn.Parent = titleBar
-local collapseCorner = Instance.new("UICorner")
-collapseCorner.CornerRadius = UDim.new(0, 6)
-collapseCorner.Parent = collapseBtn
-
--- Контейнер для контента
-local contentContainer = Instance.new("Frame")
-contentContainer.Size = UDim2.new(1, -20, 1, -45)
-contentContainer.Position = UDim2.new(0, 10, 0, 40)
-contentContainer.BackgroundTransparency = 1
-contentContainer.Parent = mainMenu
-
--- === ПЕРВАЯ КНОПКА: Обход античита ===
-local acFrame = Instance.new("Frame")
-acFrame.Size = UDim2.new(1, 0, 0, 45)
-acFrame.Position = UDim2.new(0, 0, 0, 0)
-acFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
-acFrame.BackgroundTransparency = 0.4
-acFrame.BorderSizePixel = 0
-acFrame.Parent = contentContainer
-local acCorner = Instance.new("UICorner")
-acCorner.CornerRadius = UDim.new(0, 8)
-acCorner.Parent = acFrame
-
-local acLabel = Instance.new("TextLabel")
-acLabel.Size = UDim2.new(0.5, 0, 1, 0)
-acLabel.Position = UDim2.new(0, 8, 0, 0)
-acLabel.BackgroundTransparency = 1
-acLabel.Text = "Обход античита"
-acLabel.TextColor3 = Color3.fromRGB(200, 200, 220)
-acLabel.TextSize = 13
-acLabel.Font = Enum.Font.Gotham
-acLabel.TextXAlignment = Enum.TextXAlignment.Left
-acLabel.Parent = acFrame
-
--- Слайдер
-local sliderTrack = Instance.new("Frame")
-sliderTrack.Size = UDim2.new(0.35, 0, 0, 18)
-sliderTrack.Position = UDim2.new(0.6, 0, 0.3, 0)
-sliderTrack.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
-sliderTrack.BackgroundTransparency = 0.5
-sliderTrack.BorderSizePixel = 0
-sliderTrack.Parent = acFrame
-local trackCorner = Instance.new("UICorner")
-trackCorner.CornerRadius = UDim.new(0, 9)
-trackCorner.Parent = sliderTrack
-
-local sliderFill = Instance.new("Frame")
-sliderFill.Size = UDim2.new(0, 0, 1, 0)
-sliderFill.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
-sliderFill.BackgroundTransparency = 0.3
-sliderFill.BorderSizePixel = 0
-sliderFill.Parent = sliderTrack
-local fillCorner = Instance.new("UICorner")
-fillCorner.CornerRadius = UDim.new(0, 9)
-fillCorner.Parent = sliderFill
-
-local sliderBtn = Instance.new("TextButton")
-sliderBtn.Size = UDim2.new(0, 16, 0, 16)
-sliderBtn.Position = UDim2.new(0, -8, 0, 1)
-sliderBtn.AnchorPoint = UDim2.new(0, 0, 0.5, 0)
-sliderBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
-sliderBtn.BackgroundTransparency = 0.2
-sliderBtn.Text = ""
-sliderBtn.BorderSizePixel = 0
-sliderBtn.Parent = sliderTrack
-local btnCorner = Instance.new("UICorner")
-btnCorner.CornerRadius = UDim.new(1, 0)
-btnCorner.Parent = sliderBtn
-
-local acEnabled = false
-
-local function updateSlider(instant)
-    local targetSize = acEnabled and UDim2.new(1, 0, 1, 0) or UDim2.new(0, 0, 1, 0)
-    local btnPos = acEnabled and UDim2.new(1, -8, 0, 1) or UDim2.new(0, -8, 0, 1)
-    local color = acEnabled and Color3.fromRGB(0, 255, 100) or Color3.fromRGB(0, 200, 255)
+-- === Функция для создания скругленных фреймов ===
+local function createRoundedFrame(parent, size, position, color, cornerRadius)
+    local frame = Instance.new("Frame")
+    frame.Size = size
+    frame.Position = position
+    frame.BackgroundColor3 = color or Color3.fromRGB(30, 30, 40)
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
     
-    if instant then
-        sliderFill.Size = targetSize
-        sliderBtn.Position = btnPos
-        sliderFill.BackgroundColor3 = color
-        sliderBtn.BackgroundColor3 = color
-        return
-    end
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, cornerRadius or 12)
+    corner.Parent = frame
     
-    TweenService:Create(sliderFill, TweenInfo.new(0.3, Enum.EasingStyle.Sine), {Size = targetSize}):Play()
-    TweenService:Create(sliderBtn, TweenInfo.new(0.3, Enum.EasingStyle.Sine), {Position = btnPos}):Play()
-    TweenService:Create(sliderFill, TweenInfo.new(0.3, Enum.EasingStyle.Sine), {BackgroundColor3 = color}):Play()
-    TweenService:Create(sliderBtn, TweenInfo.new(0.3, Enum.EasingStyle.Sine), {BackgroundColor3 = color}):Play()
+    return frame
 end
 
-sliderBtn.MouseButton1Click:Connect(function()
-    acEnabled = not acEnabled
-    updateSlider(false)
-    print("Обход античита:", acEnabled and "ВКЛ" or "ВЫКЛ")
-end)
-
--- === ВТОРАЯ КНОПКА: Дюпать годли ===
-local dupFrame = Instance.new("Frame")
-dupFrame.Size = UDim2.new(1, 0, 0, 45)
-dupFrame.Position = UDim2.new(0, 0, 0, 55)
-dupFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
-dupFrame.BackgroundTransparency = 0.4
-dupFrame.BorderSizePixel = 0
-dupFrame.Parent = contentContainer
-local dupCorner = Instance.new("UICorner")
-dupCorner.CornerRadius = UDim.new(0, 8)
-dupCorner.Parent = dupFrame
-
-local dupLabel = Instance.new("TextLabel")
-dupLabel.Size = UDim2.new(0.5, 0, 1, 0)
-dupLabel.Position = UDim2.new(0, 8, 0, 0)
-dupLabel.BackgroundTransparency = 1
-dupLabel.Text = "Дюпать годли"
-dupLabel.TextColor3 = Color3.fromRGB(200, 200, 220)
-dupLabel.TextSize = 13
-dupLabel.Font = Enum.Font.Gotham
-dupLabel.TextXAlignment = Enum.TextXAlignment.Left
-dupLabel.Parent = dupFrame
-
-local dupBtn = Instance.new("TextButton")
-dupBtn.Size = UDim2.new(0.25, 0, 0.6, 0)
-dupBtn.Position = UDim2.new(0.7, 0, 0.2, 0)
-dupBtn.BackgroundColor3 = Color3.fromRGB(255, 70, 70)
-dupBtn.BackgroundTransparency = 0.2
-dupBtn.Text = "▶ Дюп"
-dupBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-dupBtn.TextSize = 13
-dupBtn.Font = Enum.Font.GothamBold
-dupBtn.BorderSizePixel = 0
-dupBtn.Parent = dupFrame
-local btnCorner2 = Instance.new("UICorner")
-btnCorner2.CornerRadius = UDim.new(0, 6)
-btnCorner2.Parent = dupBtn
-
--- === ШКАЛА ПРОГРЕССА (ПРАВИЛЬНАЯ) ===
-local progressFrame = Instance.new("Frame")
-progressFrame.Size = UDim2.new(1, 0, 0, 35)
-progressFrame.Position = UDim2.new(0, 0, 0, 110)
-progressFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
-progressFrame.BackgroundTransparency = 0.4
-progressFrame.BorderSizePixel = 0
-progressFrame.Visible = false
-progressFrame.Parent = contentContainer
-local progCorner = Instance.new("UICorner")
-progCorner.CornerRadius = UDim.new(0, 8)
-progCorner.Parent = progressFrame
-
-local progLabel = Instance.new("TextLabel")
-progLabel.Size = UDim2.new(0.5, 0, 1, 0)
-progLabel.Position = UDim2.new(0, 8, 0, 0)
-progLabel.BackgroundTransparency = 1
-progLabel.Text = "Дюп: 0%"
-progLabel.TextColor3 = Color3.fromRGB(200, 200, 220)
-progLabel.TextSize = 12
-progLabel.Font = Enum.Font.Gotham
-progLabel.TextXAlignment = Enum.TextXAlignment.Left
-progLabel.Parent = progressFrame
-
--- Контейнер для шкалы (с обрезанием)
-local progContainer = Instance.new("Frame")
-progContainer.Size = UDim2.new(0.35, 0, 0.5, 0)
-progContainer.Position = UDim2.new(0.6, 0, 0.25, 0)
-progContainer.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
-progContainer.BackgroundTransparency = 0.5
-progContainer.BorderSizePixel = 0
-progContainer.Parent = progressFrame
-progContainer.ClipsDescendants = true -- ОБРЕЗАЕТ ВСЁ, ЧТО ВЫХОДИТ
-local contCorner = Instance.new("UICorner")
-contCorner.CornerRadius = UDim.new(0, 6)
-contCorner.Parent = progContainer
-
--- Сама шкала (будет расти внутри контейнера)
-local progBar = Instance.new("Frame")
-progBar.Size = UDim2.new(0, 0, 1, 0) -- Начинаем с 0
-progBar.Position = UDim2.new(0, 0, 0, 0)
-progBar.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
-progBar.BackgroundTransparency = 0.3
-progBar.BorderSizePixel = 0
-progBar.Parent = progContainer
-local barCorner = Instance.new("UICorner")
-barCorner.CornerRadius = UDim.new(0, 6)
-barCorner.Parent = progBar
-
--- Текст завершения
-local completeText = Instance.new("TextLabel")
-completeText.Size = UDim2.new(1, 0, 1, 0)
-completeText.BackgroundTransparency = 1
-completeText.Text = ""
-completeText.TextColor3 = Color3.fromRGB(100, 255, 100)
-completeText.TextSize = 10
-completeText.Font = Enum.Font.GothamBold
-completeText.TextXAlignment = Enum.TextXAlignment.Center
-completeText.Visible = false
-completeText.Parent = progressFrame
-
--- === ЛОГИКА ДЮПА ===
-local isDuping = false
-local dupProgress = 0
-local dupConnection = nil
-local dupStartTime = 0
-
-local function resetDup()
-    isDuping = false
-    dupProgress = 0
-    progressFrame.Visible = false
-    completeText.Visible = false
-    dupBtn.Text = "▶ Дюп"
-    dupBtn.BackgroundColor3 = Color3.fromRGB(255, 70, 70)
-    progBar.Size = UDim2.new(0, 0, 1, 0)
-    progLabel.Text = "Дюп: 0%"
-    if dupConnection then
-        dupConnection:Disconnect()
-        dupConnection = nil
-    end
+-- === Функция плавного появления/исчезновения ===
+local function fadeIn(obj, dur, prop)
+    prop = prop or "Transparency"
+    obj[prop] = 1
+    local tween = TweenService:Create(obj, TweenInfo.new(dur, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {[prop] = 0})
+    tween:Play()
+    return tween
 end
 
-local function startDup()
-    if isDuping then return end
+local function fadeOut(obj, dur, prop)
+    prop = prop or "Transparency"
+    local tween = TweenService:Create(obj, TweenInfo.new(dur, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {[prop] = 1})
+    tween:Play()
+    return tween
+end
+
+-- === DRAG ФУНКЦИЯ (исправляет баг с Draggable) ===
+local function makeDraggable(frame, handle)
+    handle = handle or frame
+    local dragging = false
+    local dragInput
+    local dragStart
+    local startPos
     
-    resetDup()
-    isDuping = true
-    dupProgress = 0
-    dupStartTime = tick()
+    local function update(input)
+        local delta = input.Position - dragStart
+        local targetPos = UDim2.new(
+            startPos.X.Scale, startPos.X.Offset + delta.X,
+            startPos.Y.Scale, startPos.Y.Offset + delta.Y
+        )
+        frame.Position = targetPos
+    end
     
-    progressFrame.Visible = true
-    completeText.Visible = false
-    dupBtn.Text = "⏹ Стоп"
-    dupBtn.BackgroundColor3 = Color3.fromRGB(255, 200, 50)
-    progBar.Size = UDim2.new(0, 0, 1, 0)
-    progLabel.Text = "Дюп: 0%"
-    
-    -- Анимация появления
-    progressFrame.BackgroundTransparency = 1
-    TweenService:Create(progressFrame, TweenInfo.new(0.3, Enum.EasingStyle.Sine), {BackgroundTransparency = 0.4}):Play()
-    
-    dupConnection = RunService.Heartbeat:Connect(function()
-        local elapsed = tick() - dupStartTime
-        dupProgress = math.min(elapsed / 60 * 100, 100)
-        
-        -- ШИРИНА ШКАЛЫ (от 0 до 100% контейнера)
-        local width = dupProgress / 100
-        progBar.Size = UDim2.new(width, 0, 1, 0)
-        progLabel.Text = string.format("Дюп: %.1f%%", dupProgress)
-        
-        -- Цвет
-        if dupProgress > 80 then
-            progBar.BackgroundColor3 = Color3.fromRGB(255, 200, 50)
-        elseif dupProgress > 50 then
-            progBar.BackgroundColor3 = Color3.fromRGB(255, 150, 50)
-        else
-            progBar.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
+    handle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = frame.Position
+            
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
         end
-        
-        -- Завершение
-        if dupProgress >= 100 then
-            completeText.Text = "✅ Успешно задюпано!"
-            completeText.Visible = true
-            dupBtn.Text = "✅ Готово"
-            dupBtn.BackgroundColor3 = Color3.fromRGB(70, 255, 70)
-            
-            if dupConnection then
-                dupConnection:Disconnect()
-                dupConnection = nil
-            end
-            isDuping = false
-            
-            task.wait(4)
-            resetDup()
+    end)
+    
+    handle.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            update(input)
         end
     end)
 end
 
-dupBtn.MouseButton1Click:Connect(function()
+-- === Создаем главное меню ===
+local menuSize = UDim2.new(0, 280, 0, 300)
+local menuPosition = UDim2.new(0.5, -140, 0.5, -150)
+
+local mainMenu = createRoundedFrame(screenGui, menuSize, menuPosition, Color3.fromRGB(25, 25, 35), 16)
+mainMenu.BackgroundTransparency = 1  -- начинаем невидимым
+mainMenu.ClipsDescendants = true  -- обрезаем контент при сворачивании
+mainMenu.Visible = false
+
+local mainStroke = Instance.new("UIStroke")
+mainStroke.Color = Color3.fromRGB(80, 80, 100)
+mainStroke.Thickness = 1.5
+mainStroke.Transparency = 0.5
+mainStroke.Parent = mainMenu
+
+-- === Заголовок ===
+local titleBar = createRoundedFrame(mainMenu, UDim2.new(1, 0, 0, 40), UDim2.new(0, 0, 0, 0), Color3.fromRGB(40, 40, 55), 12)
+titleBar.BackgroundTransparency = 1
+
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(1, -80, 1, 0)
+titleLabel.Position = UDim2.new(0, 15, 0, 0)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "⚡ Меню читов"
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.TextSize = 18
+titleLabel.Font = Enum.Font.GothamBold
+titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+titleLabel.TextTransparency = 1
+titleLabel.Parent = titleBar
+
+-- Кнопка сворачивания
+local collapseButton = Instance.new("TextButton")
+collapseButton.Size = UDim2.new(0, 30, 0, 30)
+collapseButton.Position = UDim2.new(1, -35, 0, 5)
+collapseButton.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
+collapseButton.BorderSizePixel = 0
+collapseButton.Text = "−"
+collapseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+collapseButton.TextSize = 20
+collapseButton.Font = Enum.Font.GothamBold
+collapseButton.TextTransparency = 1
+collapseButton.AutoButtonColor = false
+collapseButton.Parent = titleBar
+
+local collapseCorner = Instance.new("UICorner")
+collapseCorner.CornerRadius = UDim.new(0, 8)
+collapseCorner.Parent = collapseButton
+
+-- Делаем меню перетаскиваемым за заголовок
+makeDraggable(mainMenu, titleBar)
+
+-- === Контент ===
+local contentFrame = createRoundedFrame(mainMenu, UDim2.new(1, -20, 1, -50), UDim2.new(0, 10, 0, 45), Color3.fromRGB(0, 0, 0), 0)
+contentFrame.BackgroundTransparency = 1
+
+-- === 1. Обход античита (ползунок) ===
+local antiCheatFrame = createRoundedFrame(contentFrame, UDim2.new(1, 0, 0, 50), UDim2.new(0, 0, 0, 5), Color3.fromRGB(40, 40, 55), 10)
+antiCheatFrame.BackgroundTransparency = 1
+
+local antiCheatLabel = Instance.new("TextLabel")
+antiCheatLabel.Size = UDim2.new(0.5, -10, 1, 0)
+antiCheatLabel.Position = UDim2.new(0, 15, 0, 0)
+antiCheatLabel.BackgroundTransparency = 1
+antiCheatLabel.Text = "Обход античита"
+antiCheatLabel.TextColor3 = Color3.fromRGB(200, 200, 220)
+antiCheatLabel.TextSize = 14
+antiCheatLabel.Font = Enum.Font.Gotham
+antiCheatLabel.TextXAlignment = Enum.TextXAlignment.Left
+antiCheatLabel.TextTransparency = 1
+antiCheatLabel.Parent = antiCheatFrame
+
+-- Ползунок
+local sliderFrame = Instance.new("Frame")
+sliderFrame.Size = UDim2.new(0, 50, 0, 24)
+sliderFrame.Position = UDim2.new(1, -65, 0.5, -12)
+sliderFrame.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
+sliderFrame.BorderSizePixel = 0
+sliderFrame.BackgroundTransparency = 1
+sliderFrame.Parent = antiCheatFrame
+
+local sliderCorner = Instance.new("UICorner")
+sliderCorner.CornerRadius = UDim.new(1, 0)
+sliderCorner.Parent = sliderFrame
+
+local sliderFill = Instance.new("Frame")
+sliderFill.Size = UDim2.new(0, 0, 1, 0)
+sliderFill.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
+sliderFill.BorderSizePixel = 0
+sliderFill.Parent = sliderFrame
+
+local sliderFillCorner = Instance.new("UICorner")
+sliderFillCorner.CornerRadius = UDim.new(1, 0)
+sliderFillCorner.Parent = sliderFill
+
+local sliderButton = Instance.new("TextButton")
+sliderButton.Size = UDim2.new(0, 20, 0, 20)
+sliderButton.Position = UDim2.new(0, 2, 0.5, -10)
+sliderButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+sliderButton.BorderSizePixel = 0
+sliderButton.Text = ""
+sliderButton.AutoButtonColor = false
+sliderButton.Parent = sliderFrame
+
+local sliderButtonCorner = Instance.new("UICorner")
+sliderButtonCorner.CornerRadius = UDim.new(1, 0)
+sliderButtonCorner.Parent = sliderButton
+
+local antiCheatEnabled = false
+local sliderTween = nil
+
+local function updateSlider()
+    if sliderTween then sliderTween:Cancel() end
+    
+    local targetSize = antiCheatEnabled and UDim2.new(1, 0, 1, 0) or UDim2.new(0, 0, 1, 0)
+    local buttonPos = antiCheatEnabled and UDim2.new(1, -22, 0.5, -10) or UDim2.new(0, 2, 0.5, -10)
+    local color = antiCheatEnabled and Color3.fromRGB(0, 255, 100) or Color3.fromRGB(60, 60, 80)
+    
+    sliderTween = TweenService:Create(sliderFill, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Size = targetSize, BackgroundColor3 = color})
+    sliderTween:Play()
+    
+    TweenService:Create(sliderButton, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Position = buttonPos}):Play()
+end
+
+sliderButton.MouseButton1Click:Connect(function()
+    antiCheatEnabled = not antiCheatEnabled
+    updateSlider()
+    if antiCheatEnabled then
+        print("[CoolMenu] Обход античита: ВКЛ")
+    else
+        print("[CoolMenu] Обход античита: ВЫКЛ")
+    end
+end)
+
+-- === 2. Дюпать годли (кнопка) ===
+local dupFrame = createRoundedFrame(contentFrame, UDim2.new(1, 0, 0, 50), UDim2.new(0, 0, 0, 65), Color3.fromRGB(40, 40, 55), 10)
+dupFrame.BackgroundTransparency = 1
+
+local dupLabel = Instance.new("TextLabel")
+dupLabel.Size = UDim2.new(0.5, -10, 1, 0)
+dupLabel.Position = UDim2.new(0, 15, 0, 0)
+dupLabel.BackgroundTransparency = 1
+dupLabel.Text = "Дюпать годли"
+dupLabel.TextColor3 = Color3.fromRGB(200, 200, 220)
+dupLabel.TextSize = 14
+dupLabel.Font = Enum.Font.Gotham
+dupLabel.TextXAlignment = Enum.TextXAlignment.Left
+dupLabel.TextTransparency = 1
+dupLabel.Parent = dupFrame
+
+local dupButton = Instance.new("TextButton")
+dupButton.Size = UDim2.new(0, 70, 0, 30)
+dupButton.Position = UDim2.new(1, -85, 0.5, -15)
+dupButton.BackgroundColor3 = Color3.fromRGB(255, 70, 70)
+dupButton.BorderSizePixel = 0
+dupButton.Text = "▶ Дюп"
+dupButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+dupButton.TextSize = 13
+dupButton.Font = Enum.Font.GothamBold
+dupButton.TextTransparency = 1
+dupButton.AutoButtonColor = false
+dupButton.Parent = dupFrame
+
+local dupCorner = Instance.new("UICorner")
+dupCorner.CornerRadius = UDim.new(0, 8)
+dupCorner.Parent = dupButton
+
+-- === Шкала прогресса ===
+local progressFrame = createRoundedFrame(contentFrame, UDim2.new(1, 0, 0, 60), UDim2.new(0, 0, 0, 125), Color3.fromRGB(40, 40, 55), 8)
+progressFrame.BackgroundTransparency = 1
+progressFrame.Visible = false
+
+local progressLabel = Instance.new("TextLabel")
+progressLabel.Size = UDim2.new(1, 0, 0, 20)
+progressLabel.Position = UDim2.new(0, 10, 0, 5)
+progressLabel.BackgroundTransparency = 1
+progressLabel.Text = "Дюп: 0%"
+progressLabel.TextColor3 = Color3.fromRGB(200, 200, 220)
+progressLabel.TextSize = 13
+progressLabel.Font = Enum.Font.Gotham
+progressLabel.TextXAlignment = Enum.TextXAlignment.Left
+progressLabel.TextTransparency = 1
+progressLabel.Parent = progressFrame
+
+local progressBar = Instance.new("Frame")
+progressBar.Size = UDim2.new(1, -20, 0, 12)
+progressBar.Position = UDim2.new(0, 10, 0, 32)
+progressBar.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+progressBar.BorderSizePixel = 0
+progressBar.BackgroundTransparency = 1
+progressBar.Parent = progressFrame
+
+local pbCorner = Instance.new("UICorner")
+pbCorner.CornerRadius = UDim.new(1, 0)
+pbCorner.Parent = progressBar
+
+local pbFill = Instance.new("Frame")
+pbFill.Size = UDim2.new(0, 0, 1, 0)
+pbFill.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
+pbFill.BorderSizePixel = 0
+pbFill.Parent = progressBar
+
+local pbFillCorner = Instance.new("UICorner")
+pbFillCorner.CornerRadius = UDim.new(1, 0)
+pbFillCorner.Parent = pbFill
+
+local completeLabel = Instance.new("TextLabel")
+completeLabel.Size = UDim2.new(1, 0, 0, 20)
+completeLabel.Position = UDim2.new(0, 10, 0, 46)
+completeLabel.BackgroundTransparency = 1
+completeLabel.Text = ""
+completeLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+completeLabel.TextSize = 11
+completeLabel.Font = Enum.Font.GothamBold
+completeLabel.TextXAlignment = Enum.TextXAlignment.Left
+completeLabel.TextTransparency = 1
+completeLabel.Visible = false
+completeLabel.Parent = progressFrame
+
+-- === Логика дюпа ===
+local isDuping = false
+local dupConnection = nil
+local dupStartTime = 0
+
+local function resetDupUI()
+    isDuping = false
+    if dupConnection then
+        dupConnection:Disconnect()
+        dupConnection = nil
+    end
+    progressFrame.Visible = false
+    completeLabel.Visible = false
+    completeLabel.Text = ""
+    dupButton.Text = "▶ Дюп"
+    dupButton.BackgroundColor3 = Color3.fromRGB(255, 70, 70)
+    pbFill.Size = UDim2.new(0, 0, 1, 0)
+    progressLabel.Text = "Дюп: 0%"
+end
+
+local function startDup()
+    if isDuping then return end
+    isDuping = true
+    dupStartTime = tick()
+    progressFrame.Visible = true
+    progressFrame.BackgroundTransparency = 1
+    fadeIn(progressFrame, 0.3, "BackgroundTransparency")
+    fadeIn(progressLabel, 0.3, "TextTransparency")
+    fadeIn(progressBar, 0.3, "BackgroundTransparency")
+    completeLabel.Visible = false
+    dupButton.Text = "⏹ Стоп"
+    dupButton.BackgroundColor3 = Color3.fromRGB(255, 200, 50)
+    
+    dupConnection = RunService.Heartbeat:Connect(function()
+        if not isDuping then return end -- защита
+        
+        local elapsed = tick() - dupStartTime
+        local progress = math.min(elapsed / 60 * 100, 100)
+        
+        -- Плавное заполнение
+        TweenService:Create(pbFill, TweenInfo.new(0.1, Enum.EasingStyle.Linear), {
+            Size = UDim2.new(progress / 100, 0, 1, 0)
+        }):Play()
+        
+        progressLabel.Text = string.format("Дюп: %.1f%%", progress)
+        
+        -- Цвет шкалы
+        if progress > 80 then
+            pbFill.BackgroundColor3 = Color3.fromRGB(255, 200, 50)
+        elseif progress > 50 then
+            pbFill.BackgroundColor3 = Color3.fromRGB(255, 150, 50)
+        else
+            pbFill.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
+        end
+        
+        -- Завершение
+        if progress >= 100 then
+            isDuping = false
+            if dupConnection then
+                dupConnection:Disconnect()
+                dupConnection = nil
+            end
+            completeLabel.Text = "✅ Успешно задюпано! Если у вас пустой инвентарь то мы задюпали воздух XD"
+            completeLabel.Visible = true
+            fadeIn(completeLabel, 0.3, "TextTransparency")
+            dupButton.Text = "✅ Готово"
+            dupButton.BackgroundColor3 = Color3.fromRGB(70, 255, 70)
+            print("[CoolMenu] Дюп завершён!")
+            
+            -- Авто-сброс через 5 сек
+            task.delay(5, function()
+                if not isDuping then
+                    resetDupUI()
+                end
+            end)
+        end
+    end)
+end
+
+dupButton.MouseButton1Click:Connect(function()
     if isDuping then
-        resetDup()
-        progressFrame.Visible = false
-        dupBtn.Text = "▶ Дюп"
-        dupBtn.BackgroundColor3 = Color3.fromRGB(255, 70, 70)
+        resetDupUI()
     else
         startDup()
     end
 end)
 
--- === УПРАВЛЕНИЕ МЕНЮ ===
-local function toggleMenu(show)
-    if show then
-        mainMenu.Visible = true
-        mainMenu.BackgroundTransparency = 1
-        mainMenu.Size = UDim2.new(0, 0, 0, 0)
-        mainMenu.Position = UDim2.new(0.5, 0, 0.5, 0)
-        mainMenu.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-        
-        TweenService:Create(mainMenu, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-            BackgroundTransparency = 0.1,
-            Size = UDim2.new(0, 250, 0, 280),
-            Position = UDim2.new(0.5, -125, 0.5, -140)
-        }):Play()
-    else
-        TweenService:Create(mainMenu, TweenInfo.new(0.3, Enum.EasingStyle.Sine), {
-            Size = UDim2.new(0, 0, 0, 0),
-            Position = UDim2.new(0.5, 0, 0.5, 0),
-            BackgroundTransparency = 1
-        }):Play()
-        task.wait(0.3)
-        mainMenu.Visible = false
-    end
-end
+-- === Сворачивание ===
+local isCollapsed = false
 
--- Сворачивание
-collapseBtn.MouseButton1Click:Connect(function()
+collapseButton.MouseButton1Click:Connect(function()
     isCollapsed = not isCollapsed
-    local targetSize = isCollapsed and UDim2.new(0, 250, 0, 35) or UDim2.new(0, 250, 0, 280)
+    local targetSize = isCollapsed and UDim2.new(0, 280, 0, 40) or menuSize
     
-    TweenService:Create(mainMenu, TweenInfo.new(0.3, Enum.EasingStyle.Sine), {Size = targetSize}):Play()
-    contentContainer.Visible = not isCollapsed
-    collapseBtn.Text = isCollapsed and "+" or "−"
+    TweenService:Create(mainMenu, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+        Size = targetSize
+    }):Play()
     
-    -- Сохраняем цвет
-    mainMenu.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+    contentFrame.Visible = not isCollapsed
+    collapseButton.Text = isCollapsed and "+" or "−"
 end)
 
--- Горячая клавиша
-UserInputService.InputBegan:Connect(function(input, processed)
-    if processed then return end
-    if input.KeyCode == Enum.KeyCode.RightControl then
-        if mainMenu.Visible then
-            toggleMenu(false)
+-- Hover на collapseButton
+collapseButton.MouseEnter:Connect(function()
+    TweenService:Create(collapseButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(80, 80, 100)}):Play()
+end)
+collapseButton.MouseLeave:Connect(function()
+    TweenService:Create(collapseButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(60, 60, 80)}):Play()
+end)
+
+-- Hover на dupButton
+dupButton.MouseEnter:Connect(function()
+    if not isDuping then
+        TweenService:Create(dupButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(255, 90, 90)}):Play()
+    end
+end)
+dupButton.MouseLeave:Connect(function()
+    if not isDuping then
+        TweenService:Create(dupButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(255, 70, 70)}):Play()
+    end
+end)
+
+-- === Показ/скрытие меню ===
+local menuVisible = false
+
+local function showMenu()
+    menuVisible = true
+    mainMenu.Visible = true
+    mainMenu.Size = UDim2.new(0, 0, 0, 0)
+    mainMenu.BackgroundTransparency = 1
+    
+    -- Плавное появление
+    local bgIn = fadeIn(mainMenu, 0.4, "BackgroundTransparency")
+    fadeIn(mainStroke, 0.4, "Transparency")
+    fadeIn(titleBar, 0.4, "BackgroundTransparency")
+    fadeIn(titleLabel, 0.4, "TextTransparency")
+    fadeIn(collapseButton, 0.4, "TextTransparency")
+    
+    task.wait(0.2)
+    fadeIn(antiCheatFrame, 0.3, "BackgroundTransparency")
+    fadeIn(antiCheatLabel, 0.3, "TextTransparency")
+    fadeIn(sliderFrame, 0.3, "BackgroundTransparency")
+    
+    task.wait(0.1)
+    fadeIn(dupFrame, 0.3, "BackgroundTransparency")
+    fadeIn(dupLabel, 0.3, "TextTransparency")
+    fadeIn(dupButton, 0.3, "TextTransparency")
+    
+    -- Размер с анимацией
+    bgIn.Completed:Wait()
+    TweenService:Create(mainMenu, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Size = menuSize
+    }):Play()
+end
+
+local function hideMenu()
+    menuVisible = false
+    -- Плавное исчезновение
+    fadeOut(mainMenu, 0.3, "BackgroundTransparency")
+    fadeOut(mainStroke, 0.3, "Transparency")
+    fadeOut(titleBar, 0.3, "BackgroundTransparency")
+    fadeOut(titleLabel, 0.3, "TextTransparency")
+    fadeOut(collapseButton, 0.3, "TextTransparency")
+    fadeOut(antiCheatFrame, 0.3, "BackgroundTransparency")
+    fadeOut(antiCheatLabel, 0.3, "TextTransparency")
+    fadeOut(sliderFrame, 0.3, "BackgroundTransparency")
+    fadeOut(dupFrame, 0.3, "BackgroundTransparency")
+    fadeOut(dupLabel, 0.3, "TextTransparency")
+    fadeOut(dupButton, 0.3, "TextTransparency")
+    task.wait(0.3)
+    mainMenu.Visible = false
+end
+
+-- Открытие по клавише RightAlt (менее конфликтная чем RightControl)
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.KeyCode == Enum.KeyCode.RightAlt then
+        if menuVisible then
+            hideMenu()
         else
-            toggleMenu(true)
+            showMenu()
         end
     end
 end)
 
--- Запуск
-toggleMenu(true)
-print("Меню загружено! RightControl - показать/скрыть")
+-- Показываем меню при запуске
+task.spawn(function()
+    task.wait(0.5)
+    showMenu()
+    print("[CoolMenu] Загружено! Нажмите RightAlt для показа/скрытия")
+end)
