@@ -1,0 +1,727 @@
+-- Mertily's Private Script UI v2.2 (без стиллера)
+-- Delta executor compatible
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local SoundService = game:GetService("SoundService")
+local ContentProvider = game:GetService("ContentProvider")
+local UserInputService = game:GetService("UserInputService")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+if playerGui:FindFirstChild("MertilyUI") then
+    playerGui.MertilyUI:Destroy()
+end
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "MertilyUI"
+ScreenGui.IgnoreGuiInset = true
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = playerGui
+
+-- === МУЗЫКА ===
+local Music = Instance.new("Sound")
+Music.Name = "LoadingMusic"
+Music.SoundId = "rbxassetid://1845341094"
+Music.Volume = 0
+Music.Looped = true
+Music.Parent = SoundService
+
+-- Предзагрузка
+task.spawn(function()
+    pcall(function()
+        ContentProvider:PreloadAsync({Music})
+    end)
+end)
+
+-- === Утилиты ===
+local function fadeIn(obj, dur, prop)
+    prop = prop or "Transparency"
+    obj[prop] = 1
+    local tween = TweenService:Create(obj, TweenInfo.new(dur, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {[prop] = 0})
+    tween:Play()
+    return tween
+end
+
+local function fadeOut(obj, dur, prop)
+    prop = prop or "Transparency"
+    local tween = TweenService:Create(obj, TweenInfo.new(dur, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {[prop] = 1})
+    tween:Play()
+    return tween
+end
+
+local function makeDraggable(frame, handle)
+    handle = handle or frame
+    local dragging = false
+    local dragInput
+    local dragStart
+    local startPos
+    
+    handle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = frame.Position
+            
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+    
+    handle.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            frame.Position = UDim2.new(
+                startPos.X.Scale, startPos.X.Offset + delta.X,
+                startPos.Y.Scale, startPos.Y.Offset + delta.Y
+            )
+        end
+    end)
+end
+
+-- === ПРИВЕТСТВИЕ ===
+local Splash = Instance.new("Frame")
+Splash.Name = "Splash"
+Splash.Size = UDim2.new(1, 0, 1, 0)
+Splash.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Splash.BorderSizePixel = 0
+Splash.BackgroundTransparency = 1
+Splash.Parent = ScreenGui
+
+local Title = Instance.new("TextLabel")
+Title.Name = "Title"
+Title.Size = UDim2.new(1, 0, 0, 80)
+Title.Position = UDim2.new(0, 0, 0.5, -40)
+Title.BackgroundTransparency = 1
+Title.Text = "Mertily's scripts"
+Title.TextColor3 = Color3.fromRGB(180, 0, 255)
+Title.TextStrokeColor3 = Color3.fromRGB(80, 0, 120)
+Title.TextStrokeTransparency = 0
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 52
+Title.TextTransparency = 1
+Title.Parent = Splash
+
+local Subtitle = Instance.new("TextLabel")
+Subtitle.Name = "Subtitle"
+Subtitle.Size = UDim2.new(1, 0, 0, 40)
+Subtitle.Position = UDim2.new(0, 0, 0.5, 60)
+Subtitle.BackgroundTransparency = 1
+Subtitle.Text = "PRIVATE"
+Subtitle.TextColor3 = Color3.fromRGB(0, 255, 100)
+Subtitle.TextStrokeColor3 = Color3.fromRGB(0, 80, 30)
+Subtitle.TextStrokeTransparency = 0
+Subtitle.Font = Enum.Font.GothamBold
+Subtitle.TextSize = 28
+Subtitle.TextTransparency = 1
+Subtitle.Parent = Splash
+
+local glow = Instance.new("ImageLabel")
+glow.Name = "Glow"
+glow.Size = UDim2.new(0.6, 0, 0, 200)
+glow.Position = UDim2.new(0.2, 0, 0.5, -60)
+glow.BackgroundTransparency = 1
+glow.Image = "rbxassetid://5028857088"
+glow.ImageColor3 = Color3.fromRGB(180, 0, 255)
+glow.ImageTransparency = 1
+glow.ScaleType = Enum.ScaleType.Slice
+glow.Parent = Splash
+
+-- Анимация приветствия
+task.spawn(function()
+    local bgIn = fadeIn(Splash, 0.5, "BackgroundTransparency")
+    bgIn.Completed:Wait()
+    
+    fadeIn(glow, 1)
+    fadeIn(Title, 1.5, "TextTransparency")
+    fadeIn(Subtitle, 1.5, "TextTransparency")
+    
+    task.wait(3)
+    
+    fadeOut(glow, 1)
+    fadeOut(Title, 1, "TextTransparency")
+    fadeOut(Subtitle, 1, "TextTransparency")
+    task.wait(1.2)
+    fadeOut(Splash, 0.8, "BackgroundTransparency")
+    task.wait(1)
+    
+    Splash:Destroy()
+    showKeyMenu()
+end)
+
+-- === МЕНЮ КЛЮЧА ===
+function showKeyMenu()
+    local KeyFrame = Instance.new("Frame")
+    KeyFrame.Name = "KeyFrame"
+    KeyFrame.Size = UDim2.new(0, 420, 0, 260)
+    KeyFrame.Position = UDim2.new(0.5, -210, 0.5, -130)
+    KeyFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+    KeyFrame.BorderSizePixel = 0
+    KeyFrame.BackgroundTransparency = 1
+    KeyFrame.Parent = ScreenGui
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 14)
+    corner.Parent = KeyFrame
+    
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Color3.fromRGB(180, 0, 255)
+    stroke.Thickness = 1.5
+    stroke.Transparency = 0.3
+    stroke.Parent = KeyFrame
+    
+    -- Заголовок-ручка для перетаскивания
+    local KeyHandle = Instance.new("TextLabel")
+    KeyHandle.Size = UDim2.new(1, 0, 0, 35)
+    KeyHandle.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
+    KeyHandle.BorderSizePixel = 0
+    KeyHandle.BackgroundTransparency = 1
+    KeyHandle.Text = "  ⋮⋮  Mertily's Scripts"
+    KeyHandle.TextColor3 = Color3.fromRGB(180, 0, 255)
+    KeyHandle.Font = Enum.Font.GothamBold
+    KeyHandle.TextSize = 14
+    KeyHandle.TextXAlignment = Enum.TextXAlignment.Left
+    KeyHandle.TextTransparency = 1
+    KeyHandle.Parent = KeyFrame
+    
+    local handleCorner = Instance.new("UICorner")
+    handleCorner.CornerRadius = UDim.new(0, 14)
+    handleCorner.Parent = KeyHandle
+    
+    makeDraggable(KeyFrame, KeyHandle)
+    
+    local KeyTitle = Instance.new("TextLabel")
+    KeyTitle.Size = UDim2.new(1, 0, 0, 40)
+    KeyTitle.Position = UDim2.new(0, 0, 50, 0)
+    KeyTitle.BackgroundTransparency = 1
+    KeyTitle.Text = "Ваш ключ"
+    KeyTitle.TextColor3 = Color3.fromRGB(230, 230, 235)
+    KeyTitle.Font = Enum.Font.GothamBold
+    KeyTitle.TextSize = 22
+    KeyTitle.TextTransparency = 1
+    KeyTitle.Parent = KeyFrame
+    
+    local InputBox = Instance.new("Frame")
+    InputBox.Name = "InputBox"
+    InputBox.Size = UDim2.new(1, -40, 0, 44)
+    InputBox.Position = UDim2.new(0, 20, 0, 105)
+    InputBox.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
+    InputBox.BorderSizePixel = 0
+    InputBox.BackgroundTransparency = 1
+    InputBox.Parent = KeyFrame
+    
+    local ibCorner = Instance.new("UICorner")
+    ibCorner.CornerRadius = UDim.new(0, 8)
+    ibCorner.Parent = InputBox
+    
+    local ibStroke = Instance.new("UIStroke")
+    ibStroke.Color = Color3.fromRGB(60, 60, 70)
+    ibStroke.Thickness = 1
+    ibStroke.Transparency = 0.5
+    ibStroke.Parent = InputBox
+    
+    local TextBox = Instance.new("TextBox")
+    TextBox.Size = UDim2.new(1, -20, 1, 0)
+    TextBox.Position = UDim2.new(0, 10, 0, 0)
+    TextBox.BackgroundTransparency = 1
+    TextBox.Text = ""
+    TextBox.PlaceholderText = "Mertily-Private_xxxx-xxxx-xxxx"
+    TextBox.PlaceholderColor3 = Color3.fromRGB(100, 100, 110)
+    TextBox.TextColor3 = Color3.fromRGB(220, 220, 230)
+    TextBox.Font = Enum.Font.Gotham
+    TextBox.TextSize = 16
+    TextBox.TextXAlignment = Enum.TextXAlignment.Left
+    TextBox.TextTransparency = 1
+    TextBox.ClearTextOnFocus = false
+    TextBox.Parent = InputBox
+    
+    local VerifyBtn = Instance.new("TextButton")
+    VerifyBtn.Size = UDim2.new(1, -40, 0, 44)
+    VerifyBtn.Position = UDim2.new(0, 20, 0, 170)
+    VerifyBtn.BackgroundColor3 = Color3.fromRGB(140, 0, 220)
+    VerifyBtn.BorderSizePixel = 0
+    VerifyBtn.Text = "Подтвердить"
+    VerifyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    VerifyBtn.Font = Enum.Font.GothamBold
+    VerifyBtn.TextSize = 16
+    VerifyBtn.TextTransparency = 1
+    VerifyBtn.AutoButtonColor = false
+    VerifyBtn.Parent = KeyFrame
+    
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 8)
+    btnCorner.Parent = VerifyBtn
+    
+    VerifyBtn.MouseEnter:Connect(function()
+        TweenService:Create(VerifyBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(170, 0, 255)}):Play()
+    end)
+    VerifyBtn.MouseLeave:Connect(function()
+        TweenService:Create(VerifyBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(140, 0, 220)}):Play()
+    end)
+    
+    local Status = Instance.new("TextLabel")
+    Status.Size = UDim2.new(1, 0, 0, 20)
+    Status.Position = UDim2.new(0, 0, 0, 225)
+    Status.BackgroundTransparency = 1
+    Status.Text = ""
+    Status.TextColor3 = Color3.fromRGB(255, 80, 80)
+    Status.Font = Enum.Font.Gotham
+    Status.TextSize = 13
+    Status.TextTransparency = 1
+    Status.Parent = KeyFrame
+    
+    fadeIn(KeyFrame, 0.6, "BackgroundTransparency")
+    fadeIn(KeyHandle, 0.5, "TextTransparency")
+    fadeIn(KeyHandle, 0.5, "BackgroundTransparency")
+    fadeIn(KeyTitle, 0.5, "TextTransparency")
+    fadeIn(InputBox, 0.5, "BackgroundTransparency")
+    fadeIn(TextBox, 0.5, "TextTransparency")
+    fadeIn(VerifyBtn, 0.5, "TextTransparency")
+    
+    local CORRECT_KEY = "Mertily-Private_uenj-wk21-sllz"
+    local isLoading = false
+    
+    local function startLoading()
+        if isLoading then return end
+        isLoading = true
+        
+        local elementsToFade = {KeyFrame, KeyTitle, InputBox, TextBox, VerifyBtn, Status, ibStroke, stroke, KeyHandle}
+        for _, el in ipairs(elementsToFade) do
+            if el and el.Parent then
+                if el:IsA("Frame") then
+                    fadeOut(el, 0.4, "BackgroundTransparency")
+                elseif el:IsA("TextLabel") or el:IsA("TextButton") then
+                    fadeOut(el, 0.4, "TextTransparency")
+                elseif el:IsA("UIStroke") then
+                    fadeOut(el, 0.4, "Transparency")
+                end
+            end
+        end
+        
+        task.wait(0.6)
+        if KeyFrame.Parent then
+            KeyFrame:Destroy()
+        end
+        
+        showLoading()
+    end
+    
+    VerifyBtn.MouseButton1Click:Connect(function()
+        if TextBox.Text == CORRECT_KEY then
+            startLoading()
+        else
+            Status.Text = "Неверный ключ"
+            fadeIn(Status, 0.2, "TextTransparency")
+            task.delay(2, function()
+                fadeOut(Status, 0.3, "TextTransparency")
+            end)
+        end
+    end)
+end
+
+-- === ЗАГРУЗКА ===
+function showLoading()
+    local LoadFrame = Instance.new("Frame")
+    LoadFrame.Name = "LoadFrame"
+    LoadFrame.Size = UDim2.new(0, 420, 0, 200)
+    LoadFrame.Position = UDim2.new(0.5, -210, 0.5, -100)
+    LoadFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+    LoadFrame.BorderSizePixel = 0
+    LoadFrame.BackgroundTransparency = 1
+    LoadFrame.Parent = ScreenGui
+    
+    local lfCorner = Instance.new("UICorner")
+    lfCorner.CornerRadius = UDim.new(0, 14)
+    lfCorner.Parent = LoadFrame
+    
+    local lfStroke = Instance.new("UIStroke")
+    lfStroke.Color = Color3.fromRGB(180, 0, 255)
+    lfStroke.Thickness = 1.5
+    lfStroke.Transparency = 0.3
+    lfStroke.Parent = LoadFrame
+    
+    -- Ручка для перетаскивания
+    local LoadHandle = Instance.new("TextLabel")
+    LoadHandle.Size = UDim2.new(1, 0, 0, 30)
+    LoadHandle.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
+    LoadHandle.BorderSizePixel = 0
+    LoadHandle.BackgroundTransparency = 1
+    LoadHandle.Text = "  ⋮⋮  Загрузка"
+    LoadHandle.TextColor3 = Color3.fromRGB(180, 0, 255)
+    LoadHandle.Font = Enum.Font.GothamBold
+    LoadHandle.TextSize = 13
+    LoadHandle.TextXAlignment = Enum.TextXAlignment.Left
+    LoadHandle.TextTransparency = 1
+    LoadHandle.Parent = LoadFrame
+    
+    local lhCorner = Instance.new("UICorner")
+    lhCorner.CornerRadius = UDim.new(0, 14)
+    lhCorner.Parent = LoadHandle
+    
+    makeDraggable(LoadFrame, LoadHandle)
+    
+    local LoadTitle = Instance.new("TextLabel")
+    LoadTitle.Size = UDim2.new(1, 0, 0, 30)
+    LoadTitle.Position = UDim2.new(0, 0, 45, 0)
+    LoadTitle.BackgroundTransparency = 1
+    LoadTitle.Text = "Загрузка скрипта..."
+    LoadTitle.TextColor3 = Color3.fromRGB(220, 220, 230)
+    LoadTitle.Font = Enum.Font.GothamBold
+    LoadTitle.TextSize = 18
+    LoadTitle.TextTransparency = 1
+    LoadTitle.Parent = LoadFrame
+    
+    local ProgressBar = Instance.new("Frame")
+    ProgressBar.Name = "ProgressBar"
+    ProgressBar.Size = UDim2.new(1, -40, 0, 14)
+    ProgressBar.Position = UDim2.new(0, 20, 0, 100)
+    ProgressBar.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
+    ProgressBar.BorderSizePixel = 0
+    ProgressBar.BackgroundTransparency = 1
+    ProgressBar.Parent = LoadFrame
+    
+    local pbCorner = Instance.new("UICorner")
+    pbCorner.CornerRadius = UDim.new(1, 0)
+    pbCorner.Parent = ProgressBar
+    
+    local pbStroke = Instance.new("UIStroke")
+    pbStroke.Color = Color3.fromRGB(60, 60, 70)
+    pbStroke.Thickness = 1
+    pbStroke.Transparency = 0.5
+    pbStroke.Parent = ProgressBar
+    
+    local Fill = Instance.new("Frame")
+    Fill.Name = "Fill"
+    Fill.Size = UDim2.new(0, 0, 1, 0)
+    Fill.BackgroundColor3 = Color3.fromRGB(180, 0, 255)
+    Fill.BorderSizePixel = 0
+    Fill.Parent = ProgressBar
+    
+    local fillCorner = Instance.new("UICorner")
+    fillCorner.CornerRadius = UDim.new(1, 0)
+    fillCorner.Parent = Fill
+    
+    local PercentText = Instance.new("TextLabel")
+    PercentText.Size = UDim2.new(1, 0, 0, 25)
+    PercentText.Position = UDim2.new(0, 0, 0, 125)
+    PercentText.BackgroundTransparency = 1
+    PercentText.Text = "0%"
+    PercentText.TextColor3 = Color3.fromRGB(180, 0, 255)
+    PercentText.Font = Enum.Font.GothamBold
+    PercentText.TextSize = 16
+    PercentText.TextTransparency = 1
+    PercentText.Parent = LoadFrame
+    
+    fadeIn(LoadFrame, 0.5, "BackgroundTransparency")
+    fadeIn(LoadHandle, 0.4, "TextTransparency")
+    fadeIn(LoadHandle, 0.4, "BackgroundTransparency")
+    fadeIn(LoadTitle, 0.4, "TextTransparency")
+    fadeIn(ProgressBar, 0.4, "BackgroundTransparency")
+    fadeIn(PercentText, 0.4, "TextTransparency")
+    task.wait(0.6)
+    
+    local totalTime = 117
+    local startTime = tick()
+    
+    -- Запуск музыки с ожиданием загрузки
+    task.spawn(function()
+        if not Music.IsLoaded then
+            pcall(function() Music.Loaded:Wait() end)
+        end
+        Music:Play()
+        TweenService:Create(Music, TweenInfo.new(5, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {Volume = 0.6}):Play()
+    end)
+    
+    -- Затухание за 5 сек до конца
+    task.delay(totalTime - 5, function()
+        TweenService:Create(Music, TweenInfo.new(5, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {Volume = 0}):Play()
+    end)
+    
+    task.spawn(function()
+        while true do
+            local elapsed = tick() - startTime
+            local percent = math.min(100, (elapsed / totalTime) * 100)
+            
+            TweenService:Create(Fill, TweenInfo.new(0.1, Enum.EasingStyle.Linear), {
+                Size = UDim2.new(percent / 100, 0, 1, 0)
+            }):Play()
+            
+            PercentText.Text = math.floor(percent) .. "%"
+            
+            if percent >= 100 then
+                break
+            end
+            task.wait(0.1)
+        end
+    end)
+    
+    task.wait(totalTime + 0.5)
+    
+    Music:Stop()
+    Music.Volume = 0
+    
+    fadeOut(LoadFrame, 0.5, "BackgroundTransparency")
+    fadeOut(LoadHandle, 0.4, "TextTransparency")
+    fadeOut(LoadHandle, 0.4, "BackgroundTransparency")
+    fadeOut(LoadTitle, 0.4, "TextTransparency")
+    fadeOut(ProgressBar, 0.4, "BackgroundTransparency")
+    fadeOut(PercentText, 0.4, "TextTransparency")
+    fadeOut(Fill, 0.4, "BackgroundTransparency")
+    task.wait(0.6)
+    if LoadFrame.Parent then
+        LoadFrame:Destroy()
+    end
+    
+    showThanks()
+end
+
+-- === СПАСИБО ===
+function showThanks()
+    local ThanksFrame = Instance.new("Frame")
+    ThanksFrame.Name = "ThanksFrame"
+    ThanksFrame.Size = UDim2.new(0, 460, 0, 160)
+    ThanksFrame.Position = UDim2.new(0.5, -230, 0.5, -80)
+    ThanksFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+    ThanksFrame.BorderSizePixel = 0
+    ThanksFrame.BackgroundTransparency = 1
+    ThanksFrame.Parent = ScreenGui
+    
+    local tCorner = Instance.new("UICorner")
+    tCorner.CornerRadius = UDim.new(0, 14)
+    tCorner.Parent = ThanksFrame
+    
+    local tStroke = Instance.new("UIStroke")
+    tStroke.Color = Color3.fromRGB(180, 0, 255)
+    tStroke.Thickness = 1.5
+    tStroke.Transparency = 0.3
+    tStroke.Parent = ThanksFrame
+    
+    makeDraggable(ThanksFrame, ThanksFrame)
+    
+    local ThanksText = Instance.new("TextLabel")
+    ThanksText.Size = UDim2.new(1, 0, 1, 0)
+    ThanksText.BackgroundTransparency = 1
+    ThanksText.Text = "Спасибо за покупку приватного скрипта!"
+    ThanksText.TextColor3 = Color3.fromRGB(230, 230, 235)
+    ThanksText.Font = Enum.Font.GothamBold
+    ThanksText.TextSize = 20
+    ThanksText.TextTransparency = 1
+    ThanksText.TextWrapped = true
+    ThanksText.Parent = ThanksFrame
+    
+    fadeIn(ThanksFrame, 0.6, "BackgroundTransparency")
+    fadeIn(ThanksText, 0.6, "TextTransparency")
+    
+    task.wait(5)
+    
+    fadeOut(ThanksFrame, 0.6, "BackgroundTransparency")
+    fadeOut(ThanksText, 0.6, "TextTransparency")
+    task.wait(0.7)
+    if ThanksFrame.Parent then
+        ThanksFrame:Destroy()
+    end
+    
+    showMainMenu()
+end
+
+-- === ГЛАВНОЕ МЕНЮ ===
+function showMainMenu()
+    local MainFrame = Instance.new("Frame")
+    MainFrame.Name = "MainFrame"
+    MainFrame.Size = UDim2.new(0, 380, 0, 300)
+    MainFrame.Position = UDim2.new(0.5, -190, 0.5, -150)
+    MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+    MainFrame.BorderSizePixel = 0
+    MainFrame.BackgroundTransparency = 1
+    MainFrame.Parent = ScreenGui
+    
+    local mCorner = Instance.new("UICorner")
+    mCorner.CornerRadius = UDim.new(0, 14)
+    mCorner.Parent = MainFrame
+    
+    local mStroke = Instance.new("UIStroke")
+    mStroke.Color = Color3.fromRGB(180, 0, 255)
+    mStroke.Thickness = 1.5
+    mStroke.Transparency = 0.3
+    mStroke.Parent = MainFrame
+    
+    -- Ручка для перетаскивания
+    local MainHandle = Instance.new("TextLabel")
+    MainHandle.Size = UDim2.new(1, 0, 0, 35)
+    MainHandle.BackgroundColor3 = Color3.fromRGB(40, 40, 48)
+    MainHandle.BorderSizePixel = 0
+    MainHandle.BackgroundTransparency = 1
+    MainHandle.Text = "  ⋮⋮  Mertily's Scripts"
+    MainHandle.TextColor3 = Color3.fromRGB(180, 0, 255)
+    MainHandle.Font = Enum.Font.GothamBold
+    MainHandle.TextSize = 14
+    MainHandle.TextXAlignment = Enum.TextXAlignment.Left
+    MainHandle.TextTransparency = 1
+    MainHandle.Parent = MainFrame
+    
+    local mhCorner = Instance.new("UICorner")
+    mhCorner.CornerRadius = UDim.new(0, 14)
+    mhCorner.Parent = MainHandle
+    
+    -- Кнопка закрытия
+    local CloseBtn = Instance.new("TextButton")
+    CloseBtn.Size = UDim2.new(0, 28, 0, 28)
+    CloseBtn.Position = UDim2.new(1, -33, 0, 3)
+    CloseBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+    CloseBtn.BorderSizePixel = 0
+    CloseBtn.Text = "✕"
+    CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    CloseBtn.Font = Enum.Font.GothamBold
+    CloseBtn.TextSize = 14
+    CloseBtn.TextTransparency = 1
+    CloseBtn.AutoButtonColor = false
+    CloseBtn.Parent = MainFrame
+    
+    local cbCorner = Instance.new("UICorner")
+    cbCorner.CornerRadius = UDim.new(1, 0)
+    cbCorner.Parent = CloseBtn
+    
+    CloseBtn.MouseEnter:Connect(function()
+        TweenService:Create(CloseBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(255, 70, 70)}):Play()
+    end)
+    CloseBtn.MouseLeave:Connect(function()
+        TweenService:Create(CloseBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(200, 50, 50)}):Play()
+    end)
+    
+    CloseBtn.MouseButton1Click:Connect(function()
+        fadeOut(MainFrame, 0.3, "BackgroundTransparency")
+        fadeOut(MainHandle, 0.3, "TextTransparency")
+        fadeOut(MainHandle, 0.3, "BackgroundTransparency")
+        fadeOut(CloseBtn, 0.3, "TextTransparency")
+        fadeOut(mStroke, 0.3, "Transparency")
+        for _, child in ipairs(MainFrame:GetChildren()) do
+            if child:IsA("TextLabel") or child:IsA("TextButton") or child:IsA("Frame") then
+                if child ~= MainFrame and child ~= MainHandle and child ~= CloseBtn then
+                    if child:IsA("Frame") then
+                        fadeOut(child, 0.2, "BackgroundTransparency")
+                    else
+                        fadeOut(child, 0.2, "TextTransparency")
+                    end
+                end
+            end
+        end
+        task.wait(0.4)
+        if MainFrame.Parent then
+            MainFrame:Destroy()
+        end
+    end)
+    
+    makeDraggable(MainFrame, MainHandle)
+    
+    local MainTitle = Instance.new("TextLabel")
+    MainTitle.Size = UDim2.new(1, 0, 0, 30)
+    MainTitle.Position = UDim2.new(0, 0, 50, 0)
+    MainTitle.BackgroundTransparency = 1
+    MainTitle.Text = "Скрипт активирован"
+    MainTitle.TextColor3 = Color3.fromRGB(150, 150, 160)
+    MainTitle.Font = Enum.Font.Gotham
+    MainTitle.TextSize = 13
+    MainTitle.TextTransparency = 1
+    MainTitle.Parent = MainFrame
+    
+    local function createToggle(name, yPos, defaultState)
+        local ToggleFrame = Instance.new("Frame")
+        ToggleFrame.Name = name
+        ToggleFrame.Size = UDim2.new(1, -40, 0, 60)
+        ToggleFrame.Position = UDim2.new(0, 20, 0, yPos)
+        ToggleFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 24)
+        ToggleFrame.BorderSizePixel = 0
+        ToggleFrame.BackgroundTransparency = 1
+        ToggleFrame.Parent = MainFrame
+        
+        local tfCorner = Instance.new("UICorner")
+        tfCorner.CornerRadius = UDim.new(0, 10)
+        tfCorner.Parent = ToggleFrame
+        
+        local Label = Instance.new("TextLabel")
+        Label.Size = UDim2.new(1, -90, 1, 0)
+        Label.Position = UDim2.new(0, 15, 0, 0)
+        Label.BackgroundTransparency = 1
+        Label.Text = name
+        Label.TextColor3 = Color3.fromRGB(220, 220, 230)
+        Label.Font = Enum.Font.GothamBold
+        Label.TextSize = 15
+        Label.TextXAlignment = Enum.TextXAlignment.Left
+        Label.TextTransparency = 1
+        Label.Parent = ToggleFrame
+        
+        local ToggleButton = Instance.new("TextButton")
+        ToggleButton.Name = "Toggle"
+        ToggleButton.Size = UDim2.new(0, 50, 0, 26)
+        ToggleButton.Position = UDim2.new(1, -65, 0.5, -13)
+        ToggleButton.BackgroundColor3 = defaultState and Color3.fromRGB(180, 0, 255) or Color3.fromRGB(60, 60, 70)
+        ToggleButton.BorderSizePixel = 0
+        ToggleButton.Text = ""
+        ToggleButton.AutoButtonColor = false
+        ToggleButton.Parent = ToggleFrame
+        
+        local tbCorner = Instance.new("UICorner")
+        tbCorner.CornerRadius = UDim.new(1, 0)
+        tbCorner.Parent = ToggleButton
+        
+        local Knob = Instance.new("Frame")
+        Knob.Name = "Knob"
+        Knob.Size = UDim2.new(0, 20, 0, 20)
+        Knob.Position = defaultState and UDim2.new(1, -23, 0.5, -10) or UDim2.new(0, 3, 0.5, -10)
+        Knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Knob.BorderSizePixel = 0
+        Knob.Parent = ToggleButton
+        
+        local kCorner = Instance.new("UICorner")
+        kCorner.CornerRadius = UDim.new(1, 0)
+        kCorner.Parent = Knob
+        
+        local state = defaultState
+        
+        ToggleButton.MouseButton1Click:Connect(function()
+            state = not state
+            local bgColor = state and Color3.fromRGB(180, 0, 255) or Color3.fromRGB(60, 60, 70)
+            local knobPos = state and UDim2.new(1, -23, 0.5, -10) or UDim2.new(0, 3, 0.5, -10)
+            
+            TweenService:Create(ToggleButton, TweenInfo.new(0.25, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {BackgroundColor3 = bgColor}):Play()
+            TweenService:Create(Knob, TweenInfo.new(0.25, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {Position = knobPos}):Play()
+            
+            if state then
+                if name == "Freeze Trade" then
+                    print("[Mertily] Freeze Trade активирован")
+                elseif name == "Force accept trade" then
+                    print("[Mertily] Force accept trade активирован")
+                end
+            end
+        end)
+        
+        return ToggleFrame, Label
+    end
+    
+    local FreezeFrame, FreezeLabel = createToggle("Freeze Trade", 95, false)
+    local ForceFrame, ForceLabel = createToggle("Force accept trade", 170, false)
+    
+    fadeIn(MainFrame, 0.6, "BackgroundTransparency")
+    fadeIn(MainHandle, 0.5, "TextTransparency")
+    fadeIn(MainHandle, 0.5, "BackgroundTransparency")
+    fadeIn(CloseBtn, 0.5, "TextTransparency")
+    fadeIn(MainTitle, 0.5, "TextTransparency")
+    
+    task.wait(0.2)
+    fadeIn(FreezeFrame, 0.4, "BackgroundTransparency")
+    fadeIn(FreezeLabel, 0.4, "TextTransparency")
+    
+    task.wait(0.1)
+    fadeIn(ForceFrame, 0.4, "BackgroundTransparency")
+    fadeIn(ForceLabel, 0.4, "TextTransparency")
+end
