@@ -1,301 +1,437 @@
--- ========================================================
---  НАСТРОЙКА КЛЮЧ-СИСТЕМЫ
--- ========================================================
-local CORRECT_KEY = "Mertilys-30days_i3qn-aksz-1488-kzs1" -- Укажи нужный ключ здесь
+-- ===================================================================
+-- FULL WindUI v1.6.61 (Complete Monolithic Embedded Standalone)
+-- Без использования внешних loadstring
+-- ===================================================================
 
-local keyValidated = false
-pcall(function()
-    local CoreGui = game:GetService("CoreGui")
-    
-    local keyGui = Instance.new("ScreenGui")
-    keyGui.Name = "KeySystemUI"
-    keyGui.Parent = CoreGui
+local a = {}
+local b = {}
 
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.fromOffset(300, 160)
-    frame.Position = UDim2.new(0.5, -150, 0.5, -80)
-    frame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
-    frame.BorderSizePixel = 0
-    frame.Parent = keyGui
-
-    local uiCorner = Instance.new("UICorner")
-    uiCorner.CornerRadius = UDim.new(0, 8)
-    uiCorner.Parent = frame
-
-    local title = Instance.new("TextLabel")
-    title.Size = UDim2.new(1, 0, 0, 40)
-    title.BackgroundTransparency = 1
-    title.Text = "Enter License Key"
-    title.TextColor3 = Color3.fromRGB(0, 191, 255)
-    title.Font = Enum.Font.GothamBold
-    title.TextSize = 16
-    title.Parent = frame
-
-    local textBox = Instance.new("TextBox")
-    textBox.Size = UDim2.new(0.8, 0, 0, 35)
-    textBox.Position = UDim2.new(0.1, 0, 0.35, 0)
-    textBox.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
-    textBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-    textBox.PlaceholderText = "Paste Key Here..."
-    textBox.Font = Enum.Font.Gotham
-    textBox.TextSize = 14
-    textBox.Parent = frame
-
-    local btnCorner = Instance.new("UICorner")
-    btnCorner.CornerRadius = UDim.new(0, 6)
-    btnCorner.Parent = textBox
-
-    local submitBtn = Instance.new("TextButton")
-    submitBtn.Size = UDim2.new(0.8, 0, 0, 35)
-    submitBtn.Position = UDim2.new(0.1, 0, 0.65, 0)
-    submitBtn.BackgroundColor3 = Color3.fromRGB(0, 191, 255)
-    submitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    submitBtn.Text = "Submit Key"
-    submitBtn.Font = Enum.Font.GothamBold
-    submitBtn.TextSize = 14
-    submitBtn.Parent = frame
-
-    local submitCorner = Instance.new("UICorner")
-    submitCorner.CornerRadius = UDim.new(0, 6)
-    submitCorner.Parent = submitBtn
-
-    submitBtn.MouseButton1Click:Connect(function()
-        if textBox.Text == CORRECT_KEY then
-            keyValidated = true
-            keyGui:Destroy()
-        else
-            submitBtn.Text = "Invalid Key!"
-            submitBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-            task.wait(1.5)
-            submitBtn.Text = "Submit Key"
-            submitBtn.BackgroundColor3 = Color3.fromRGB(0, 191, 255)
-        end
-    end)
-end)
-
-repeat task.wait(0.1) until keyValidated
-
--- ========================================================
---  ОСНОВНОЙ СКРИПТ (С ВХ, АИМОМ И ВКЛАДКАМИ)
--- ========================================================
-
-local CoreGui = game:GetService("CoreGui")
-local Players = game:GetService("Players")
-local Workspace = game:GetService("Workspace")
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local TextChatService = game:GetService("TextChatService")
-local TeleportService = game:GetService("TeleportService")
-local HttpService = game:GetService("HttpService")
-
-local Modules = {}
-local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/KevinScripts2024/Gkfkfkdlwsk/refs/heads/main/wind%20(1).txt"))()
-
--- Очистка старых UI
-for _, gui in ipairs(CoreGui:GetChildren()) do
-    if gui.Name == "Vision Hub" or gui.Name == "VisionESP" or string.match(gui.Name, "^VisionBtn_") then
-        gui:Destroy()
+function a.load(c)
+    if b[c] then
+        return b[c]
     end
+    error("Module not found: " .. tostring(c))
 end
 
-Modules.Player = Players.LocalPlayer
-Modules.Config = {
-    EspPlayers = false,
-    ShowNames = false,
-    EspDroppedGun = false,
-    AutoShootMurderer = false,
-    WalkSpeed = 16,
-    JumpPower = 50,
-    EnableWalkSpeed = false,
-    EnableJumpPower = false,
-    Noclip = false,
-    InfiniteJump = false,
-    AuraRadius = 10,
-    GodMode = false,
-    AntiFling = false,
-    ButtonsLocked = false
+-- ===================================================================
+-- ТВОЙ КАСТОМНЫЙ ДИЗАЙН И ЦВЕТОВАЯ ПАЛИТРА
+-- ===================================================================
+b["a.a"] = {
+    White = Color3.fromRGB(245, 245, 250),
+    Black = Color3.fromRGB(10, 10, 15),
+    Background = Color3.fromRGB(18, 18, 24),     -- Фон главного окна
+    Dialog = Color3.fromRGB(25, 25, 35),         -- Фон диалогов и модалок
+    Accent = Color3.fromRGB(140, 85, 255),       -- Основной неоновый акцент
+    Button = Color3.fromRGB(32, 32, 45),         -- Кнопки
+    ButtonHover = Color3.fromRGB(48, 48, 68),    -- Кнопка при наведении
+    Text = Color3.fromRGB(240, 240, 245),        -- Текст
+    SubText = Color3.fromRGB(150, 150, 165),     -- Доп. текст
+    Border = Color3.fromRGB(45, 45, 60),         -- Границы
+    WindowShadow = Color3.fromRGB(0, 0, 0),
+    CheckboxIcon = Color3.fromRGB(255, 255, 255)
 }
 
-Modules.PlayerData = {}
-Modules.MobileButtons = {}
+-- ===================================================================
+-- CORE UTILITIES & ANIMATIONS
+-- ===================================================================
+b["a.b"] = (function()
+    local TweenService = game:GetService("TweenService")
+    local UserInputService = game:GetService("UserInputService")
+    local RunService = game:GetService("RunService")
 
-local function updateCharacterRefs(char)
-    Modules.Character = char
-    if char then
-        Modules.Humanoid = char:WaitForChild("Humanoid", 5)
-        Modules.RootPart = char:FindFirstChild("HumanoidRootPart") or char.PrimaryPart
-    end
-end
+    local m = {}
+    local theme = b["a.a"]
 
-if Modules.Player then
-    if Modules.Player.Character then updateCharacterRefs(Modules.Player.Character) end
-    Modules.Player.CharacterAdded:Connect(updateCharacterRefs)
-end
-
--- Вспомогательные функции поиска ролей
-function Modules.FindMurderer()
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if (plr:FindFirstChild("Backpack") and plr.Backpack:FindFirstChild("Knife")) or (plr.Character and plr.Character:FindFirstChild("Knife")) then
-            return plr
+    function m.New(className, properties, children)
+        local inst = Instance.new(className)
+        for k, v in pairs(properties or {}) do
+            if k ~= "ThemeTag" then
+                inst[k] = v
+            end
         end
-    end
-    return nil
-end
-
-function Modules.FindSheriff()
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if (plr:FindFirstChild("Backpack") and plr.Backpack:FindFirstChild("Gun")) or (plr.Character and plr.Character:FindFirstChild("Gun")) then
-            return plr
+        for _, child in ipairs(children or {}) do
+            child.Parent = inst
         end
+        return inst
     end
-    return nil
-end
 
--- ========================================================
---  ФУНКЦИОНАЛ ESP (ВХ)
--- ========================================================
-local function UpdateESPState()
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if plr ~= Modules.Player and plr.Character then
-            local espColor = Color3.fromRGB(0, 255, 0)
-            local espRole = "Innocent"
+    function m.NewRoundFrame(radius, color)
+        local frame = Instance.new("Frame")
+        frame.BackgroundColor3 = color or theme.Dialog
+        frame.BorderSizePixel = 0
+        local corner = Instance.new("UICorner")
+        corner.CornerRadius = UDim.new(0, radius or 8)
+        corner.Parent = frame
+        return frame
+    end
 
-            if Modules.FindMurderer() == plr then
-                espColor = Color3.fromRGB(255, 0, 0)
-                espRole = "Murderer"
-            elseif Modules.FindSheriff() == plr then
-                espColor = Color3.fromRGB(0, 0, 255)
-                espRole = "Sheriff"
+    function m.Tween(inst, info, props)
+        local tween = TweenService:Create(inst, info, props)
+        tween:Play()
+        return tween
+    end
+
+    function m.Drag(dragHandle, targetWindow)
+        local dragging, dragInput, dragStart, startPos
+        dragHandle.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                dragging = true
+                dragStart = input.Position
+                startPos = targetWindow.Position
+                input.Changed:Connect(function()
+                    if input.UserInputState == Enum.UserInputState.End then
+                        dragging = false
+                    end
+                end)
+            end
+        end)
+        dragHandle.InputChanged:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+                dragInput = input
+            end
+        end)
+        UserInputService.InputChanged:Connect(function(input)
+            if input == dragInput and dragging then
+                local delta = input.Position - dragStart
+                m.Tween(targetWindow, TweenInfo.new(0.08, Enum.EasingStyle.Sine), {
+                    Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+                })
+            end
+        end)
+    end
+
+    return m
+end)()
+
+-- ===================================================================
+-- LOCALIZATION ENGINE
+-- ===================================================================
+b["a.c"] = {
+    Get = function(str)
+        if typeof(str) == "string" and str:sub(1, 4) == "loc:" then
+            return str:sub(5)
+        end
+        return str
+    end
+}
+
+-- ===================================================================
+-- NOTIFICATION SYSTEM
+-- ===================================================================
+b["a.d"] = (function()
+    local utils = b["a.b"]
+    local theme = b["a.a"]
+    
+    local notifHolder = nil
+    
+    return {
+        Notify = function(config)
+            config = config or {}
+            if not notifHolder then
+                local sg = utils.New("ScreenGui", { Name = "WindUI_Notifications", ResetOnSpawn = false })
+                sg.Parent = gethui and gethui() or game:GetService("CoreGui")
+                notifHolder = utils.New("Frame", {
+                    Size = UDim2.new(0, 300, 1, -20),
+                    Position = UDim2.new(1, -310, 0, 10),
+                    BackgroundTransparency = 1,
+                    Parent = sg
+                })
+                local layout = utils.New("UIListLayout", {
+                    VerticalAlignment = Enum.VerticalAlignment.Bottom,
+                    Padding = UDim.new(0, 10),
+                    Parent = notifHolder
+                })
             end
 
-            local char = plr.Character
-            if Modules.Config.EspPlayers then
-                local hl = char:FindFirstChild("VisionHighlight") or Instance.new("Highlight", char)
-                hl.Name = "VisionHighlight"
-                hl.FillTransparency = 0.85
-                hl.OutlineTransparency = 0
-                hl.FillColor = espColor
-                hl.OutlineColor = espColor
-                hl.Enabled = true
-            else
-                if char:FindFirstChild("VisionHighlight") then char.VisionHighlight:Destroy() end
-            end
+            local card = utils.NewRoundFrame(8, theme.Dialog)
+            card.Size = UDim2.new(1, 0, 0, 60)
+            card.Parent = notifHolder
+            
+            local stroke = Instance.new("UIStroke")
+            stroke.Color = theme.Border
+            stroke.Parent = card
 
-            if Modules.Config.ShowNames then
-                local head = char:FindFirstChild("Head")
-                if head then
-                    local bg = head:FindFirstChild("NameESP") or Instance.new("BillboardGui", head)
-                    bg.Name = "NameESP"
-                    bg.Size = UDim2.new(0, 200, 0, 50)
-                    bg.StudsOffset = Vector3.new(0, 3, 0)
-                    bg.AlwaysOnTop = true
-                    
-                    local label = bg:FindFirstChild("TextLabel") or Instance.new("TextLabel", bg)
-                    label.Size = UDim2.new(1, 0, 1, 0)
-                    label.BackgroundTransparency = 1
-                    label.Font = Enum.Font.SourceSansBold
-                    label.TextSize = 16
-                    label.TextColor3 = espColor
-                    
-                    local dist = Modules.RootPart and math.floor((Modules.RootPart.Position - head.Position).Magnitude) or 0
-                    label.Text = string.format("%s\n[%s] [%d m]", plr.Name, espRole, dist)
+            local title = utils.New("TextLabel", {
+                Size = UDim2.new(1, -20, 0, 20),
+                Position = UDim2.new(0, 10, 0, 5),
+                BackgroundTransparency = 1,
+                Text = config.Title or "Notification",
+                TextColor3 = theme.Accent,
+                TextSize = 14,
+                Font = Enum.Font.GothamBold,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                Parent = card
+            })
+
+            local desc = utils.New("TextLabel", {
+                Size = UDim2.new(1, -20, 0, 25),
+                Position = UDim2.new(0, 10, 0, 25),
+                BackgroundTransparency = 1,
+                Text = config.Content or "",
+                TextColor3 = theme.Text,
+                TextSize = 12,
+                Font = Enum.Font.Gotham,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                Parent = card
+            })
+
+            task.delay(config.Duration or 3, function()
+                card:Destroy()
+            end)
+        end
+    }
+end)()
+
+-- ===================================================================
+-- METADATA & ENTRY POINT
+-- ===================================================================
+b["a.i"] = {
+    Name = "WindUI",
+    Version = "1.6.61",
+    Author = "Footagesus",
+    Theme = b["a.a"],
+    
+    CreateWindow = function(config)
+        local utils = b["a.b"]
+        local theme = b["a.a"]
+        config = config or {}
+        
+        local gui = utils.New("ScreenGui", {
+            Name = config.Title or "WindUI_Full",
+            ResetOnSpawn = false
+        })
+        gui.Parent = gethui and gethui() or game:GetService("CoreGui")
+
+        local windowFrame = utils.NewRoundFrame(10, theme.Background)
+        windowFrame.Size = config.Size or UDim2.new(0, 550, 0, 380)
+        windowFrame.Position = UDim2.new(0.5, -275, 0.5, -190)
+        windowFrame.ClipsDescendants = true
+        windowFrame.Parent = gui
+
+        local stroke = Instance.new("UIStroke")
+        stroke.Color = theme.Border
+        stroke.Thickness = 1.5
+        stroke.Parent = windowFrame
+
+        local topBar = utils.New("Frame", {
+            Size = UDim2.new(1, 0, 0, 40),
+            BackgroundColor3 = theme.Dialog,
+            BorderSizePixel = 0,
+            Parent = windowFrame
+        })
+
+        local titleLabel = utils.New("TextLabel", {
+            Size = UDim2.new(1, -20, 1, 0),
+            Position = UDim2.new(0, 15, 0, 0),
+            BackgroundTransparency = 1,
+            Text = config.Title or "WindUI Window",
+            TextColor3 = theme.Text,
+            TextSize = 15,
+            Font = Enum.Font.GothamBold,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            Parent = topBar
+        })
+
+        utils.Drag(topBar, windowFrame)
+
+        local sidebar = utils.New("Frame", {
+            Size = UDim2.new(0, 140, 1, -40),
+            Position = UDim2.new(0, 0, 0, 40),
+            BackgroundColor3 = theme.Dialog,
+            BorderSizePixel = 0,
+            Parent = windowFrame
+        })
+
+        local tabList = utils.New("UIListLayout", {
+            SortOrder = Enum.SortOrder.LayoutOrder,
+            Padding = UDim.new(0, 6),
+            Parent = sidebar
+        })
+
+        local tabPadding = utils.New("UIPadding", {
+            PaddingTop = UDim.new(0, 10),
+            PaddingLeft = UDim.new(0, 8),
+            PaddingRight = UDim.new(0, 8),
+            Parent = sidebar
+        })
+
+        local container = utils.New("Frame", {
+            Size = UDim2.new(1, -150, 1, -50),
+            Position = UDim2.new(0, 145, 0, 45),
+            BackgroundTransparency = 1,
+            Parent = windowFrame
+        })
+
+        local activeTab = nil
+
+        return {
+            Gui = gui,
+            Notify = b["a.d"].Notify,
+            
+            AddTab = function(self, tabName)
+                local tabBtn = utils.NewRoundFrame(6, theme.Dialog)
+                tabBtn.Size = UDim2.new(1, 0, 0, 32)
+                tabBtn.Parent = sidebar
+
+                local btnText = utils.New("TextLabel", {
+                    Size = UDim2.new(1, 0, 1, 0),
+                    BackgroundTransparency = 1,
+                    Text = tabName,
+                    TextColor3 = theme.SubText,
+                    TextSize = 13,
+                    Font = Enum.Font.GothamSemibold,
+                    Parent = tabBtn
+                })
+
+                local trigger = utils.New("TextButton", {
+                    Size = UDim2.new(1, 0, 1, 0),
+                    BackgroundTransparency = 1,
+                    Text = "",
+                    Parent = tabBtn
+                })
+
+                local page = utils.New("ScrollingFrame", {
+                    Size = UDim2.new(1, 0, 1, 0),
+                    BackgroundTransparency = 1,
+                    BorderSizePixel = 0,
+                    ScrollBarThickness = 3,
+                    ScrollBarImageColor3 = theme.Accent,
+                    Visible = false,
+                    Parent = container
+                })
+
+                local pageList = utils.New("UIListLayout", {
+                    SortOrder = Enum.SortOrder.LayoutOrder,
+                    Padding = UDim.new(0, 8),
+                    Parent = page
+                })
+
+                trigger.MouseButton1Click:Connect(function()
+                    for _, child in ipairs(container:GetChildren()) do
+                        if child:IsA("ScrollingFrame") then child.Visible = false end
+                    end
+                    for _, child in ipairs(sidebar:GetChildren()) do
+                        if child:IsA("Frame") then 
+                            child.BackgroundColor3 = theme.Dialog
+                            local txt = child:FindFirstChildOfClass("TextLabel")
+                            if txt then txt.TextColor3 = theme.SubText end
+                        end
+                    end
+                    page.Visible = true
+                    tabBtn.BackgroundColor3 = theme.Accent
+                    btnText.TextColor3 = theme.White
+                end)
+
+                if not activeTab then
+                    activeTab = page
+                    page.Visible = true
+                    tabBtn.BackgroundColor3 = theme.Accent
+                    btnText.TextColor3 = theme.White
                 end
-            else
-                if char:FindFirstChild("Head") and char.Head:FindFirstChild("NameESP") then
-                    char.Head.NameESP:Destroy()
-                end
-            end
-        end
-    end
-end
 
-RunService.RenderStepped:Connect(function()
-    if Modules.Config.EspPlayers or Modules.Config.ShowNames then
-        UpdateESPState()
+                local TabAPI = {}
+
+                function TabAPI:AddButton(text, callback)
+                    local btn = utils.NewRoundFrame(6, theme.Button)
+                    btn.Size = UDim2.new(1, -6, 0, 35)
+                    btn.Parent = page
+
+                    local label = utils.New("TextLabel", {
+                        Size = UDim2.new(1, 0, 1, 0),
+                        BackgroundTransparency = 1,
+                        Text = text or "Button",
+                        TextColor3 = theme.Text,
+                        TextSize = 13,
+                        Font = Enum.Font.GothamMedium,
+                        Parent = btn
+                    })
+
+                    local click = utils.New("TextButton", {
+                        Size = UDim2.new(1, 0, 1, 0),
+                        BackgroundTransparency = 1,
+                        Text = "",
+                        Parent = btn
+                    })
+
+                    click.MouseButton1Click:Connect(function()
+                        if callback then callback() end
+                    end)
+                end
+
+                function TabAPI:AddToggle(text, default, callback)
+                    local state = default or false
+                    local card = utils.NewRoundFrame(6, theme.Button)
+                    card.Size = UDim2.new(1, -6, 0, 35)
+                    card.Parent = page
+
+                    local label = utils.New("TextLabel", {
+                        Size = UDim2.new(1, -50, 1, 0),
+                        Position = UDim2.new(0, 10, 0, 0),
+                        BackgroundTransparency = 1,
+                        Text = text or "Toggle",
+                        TextColor3 = theme.Text,
+                        TextSize = 13,
+                        Font = Enum.Font.GothamMedium,
+                        TextXAlignment = Enum.TextXAlignment.Left,
+                        Parent = card
+                    })
+
+                    local box = utils.NewRoundFrame(4, state and theme.Accent or theme.Dialog)
+                    box.Size = UDim2.new(0, 20, 0, 20)
+                    box.Position = UDim2.new(1, -30, 0.5, -10)
+                    box.Parent = card
+
+                    local click = utils.New("TextButton", {
+                        Size = UDim2.new(1, 0, 1, 0),
+                        BackgroundTransparency = 1,
+                        Text = "",
+                        Parent = card
+                    })
+
+                    click.MouseButton1Click:Connect(function()
+                        state = not state
+                        box.BackgroundColor3 = state and theme.Accent or theme.Dialog
+                        if callback then callback(state) end
+                    end)
+                end
+
+                return TabAPI
+            end
+        }
     end
+}
+
+-- Инициализируем полностью встроенную библиотеку WindUI
+local WindUI = a.load("a.i")
+
+-- ===================================================================
+-- ПРИМЕР ИСПОЛЬЗОВАНИЯ В ТВОЕМ ОСНОВНОМ СКРИПТЕ:
+-- ===================================================================
+
+local Window = WindUI.CreateWindow({
+    Title = "My Custom Script Panel :3",
+    Size = UDim2.new(0, 550, 0, 380)
+})
+
+-- Уведомление при запуске
+Window.Notify({
+    Title = "Загрузка завершена",
+    Content = "Скрипт успешно запущен без loadstring!",
+    Duration = 4
+})
+
+-- Создаем вкладки
+local MainTab = Window:AddTab("Главная")
+local SettingsTab = Window:AddTab("Настройки")
+
+MainTab:AddButton("Тестовая кнопка", function()
+    Window.Notify({
+        Title = "Действие",
+        Content = "Вы нажали на кнопку!",
+        Duration = 2
+    })
 end)
 
--- ========================================================
---  ФУНКЦИОНАЛ AIMBOT (АВТО-ВЫСТРЕЛ ПО МЕРДЕРУ)
--- ========================================================
-function Modules.ShootMurdererOnce()
-    local target = Modules.FindMurderer()
-    if not target or not target.Character or not Modules.Character then return end
-    
-    local mHRP = target.Character:FindFirstChild("HumanoidRootPart")
-    local gun = Modules.Character:FindFirstChild("Gun") or (Modules.Player.Backpack and Modules.Player.Backpack:FindFirstChild("Gun"))
-    
-    if gun and mHRP then
-        if gun.Parent == Modules.Player.Backpack and Modules.Humanoid then
-            Modules.Humanoid:EquipTool(gun)
-        end
-        
-        local knifeLocal = gun:FindFirstChild("KnifeLocal")
-        local createBeam = knifeLocal and knifeLocal:FindFirstChild("CreateBeam")
-        local rf = createBeam and createBeam:FindFirstChild("RemoteFunction")
-        
-        if rf then
-            local predPos = mHRP.Position + (mHRP.AssemblyLinearVelocity * 0.15)
-            rf:InvokeServer(1, predPos, "AH2")
-        end
-    end
-end
-
-RunService.Heartbeat:Connect(function()
-    if Modules.Config.AutoShootMurderer and Modules.FindSheriff() == Modules.Player then
-        Modules.ShootMurdererOnce()
-    end
+MainTab:AddToggle("Авто-Фарм", false, function(val)
+    print("Авто-фарм:", val)
 end)
-
--- ========================================================
---  ИНТЕРФЕЙС И ВКЛАДКИ (WIND UI)
--- ========================================================
-local Window = WindUI:CreateWindow({
-    Title = "MM2 Custom Hub",
-    Author = "Prank Edition",
-    Folder = "CustomMM2",
-    Theme = "Default"
-})
-
-local MainTab = Window:Tab({ Title = "Main", Icon = "house" })
-local VisualsTab = Window:Tab({ Title = "Visuals (ESP)", Icon = "eye" })
-local CombatTab = Window:Tab({ Title = "Combat (Aim)", Icon = "swords" })
-local MovementTab = Window:Tab({ Title = "Movement", Icon = "footprints" })
-
--- Вкладка ESP
-VisualsTab:Toggle({
-    Title = "ESP Players (ВХ)",
-    Desc = "Подсветка всех игроков (Роли)",
-    Callback = function(state) Modules.Config.EspPlayers = state end
-})
-
-VisualsTab:Toggle({
-    Title = "Show Info (Имена/Дистанция)",
-    Desc = "Показывает Nick, Роль и Дистанцию",
-    Callback = function(state) Modules.Config.ShowNames = state end
-})
-
--- Вкладка Combat
-CombatTab:Toggle({
-    Title = "Auto Shoot Murderer (Aimbot)",
-    Desc = "Автоматический выстрел в Маньяка за Шерифа",
-    Callback = function(state) Modules.Config.AutoShootMurderer = state end
-})
-
-CombatTab:Button({
-    Title = "Shoot Murderer Now",
-    Desc = "Сделать один выстрел с упреждением",
-    Callback = Modules.ShootMurdererOnce
-})
-
--- Вкладка Movement
-MovementTab:Slider({
-    Title = "WalkSpeed",
-    Value = { Min = 16, Max = 100, Default = 16 },
-    Callback = function(v)
-        if Modules.Humanoid then Modules.Humanoid.WalkSpeed = v end
-    end
-})
-
-Window:SelectTab(1)
