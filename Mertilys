@@ -1,5 +1,5 @@
 -- ===========================================
--- Mertily's Private Script Hub — Standalone Version
+-- Mertily's Private Script Hub — Clean Version
 -- ===========================================
 
 local Players = game:GetService("Players")
@@ -135,7 +135,7 @@ privateText.ZIndex = 101
 privateText.Parent = splashContainer
 
 -- ===========================================
--- 2. ОСНОВНОЕ ОКНО И КРАСИВЫЙ ФОН
+-- 2. ОСНОВНОЕ ОКНО И ФОН
 -- ===========================================
 local mainWindow = Instance.new("Frame")
 mainWindow.Name = "MainWindow"
@@ -159,12 +159,12 @@ bgPatternFrame.ClipsDescendants = true
 bgPatternFrame.ZIndex = 1
 bgPatternFrame.Parent = mainWindow
 
--- Красивая текстура роз
+-- Текстура роз
 local roseImage = Instance.new("ImageLabel")
 roseImage.Name = "RoseTexture"
 roseImage.Size = UDim2.new(1, 0, 1, 0)
 roseImage.BackgroundTransparency = 1
-roseImage.Image = "rbxassetid://6071575925" -- Текстура узора роз
+roseImage.Image = "rbxassetid://6071575925"
 roseImage.ImageColor3 = Color3.fromRGB(140, 40, 75)
 roseImage.ImageTransparency = 0.8
 roseImage.ScaleType = Enum.ScaleType.Tile
@@ -172,7 +172,7 @@ roseImage.TileSize = UDim2.new(0, 120, 0, 120)
 roseImage.ZIndex = 1
 roseImage.Parent = bgPatternFrame
 
--- Градиент сверху для глубинного эффекта
+-- Градиент
 local bgGradient = Instance.new("UIGradient")
 bgGradient.Color = ColorSequence.new({
     ColorSequenceKeypoint.new(0, Color3.fromRGB(35, 15, 30)),
@@ -299,6 +299,7 @@ keyTextBox.TextSize = 11
 keyTextBox.Font = Enum.Font.Code
 keyTextBox.TextXAlignment = Enum.TextXAlignment.Left
 keyTextBox.ClearTextOnFocus = false
+keyTextBox.MultiLine = false
 keyTextBox.ZIndex = 11
 keyTextBox.Parent = textBoxContainer
 
@@ -493,10 +494,9 @@ createToggle(cheatMenuFrame, 0, "Freeze trade")
 createToggle(cheatMenuFrame, 58, "Force accept trade")
 
 -- ===========================================
--- 3. АНИМАЦИИ И СНАРЯЖЕНИЕ
+-- 3. АНИМАЦИИ И ЗАПУСК
 -- ===========================================
 
--- Безопасная асинхронная предзагрузка картинки
 task.spawn(function()
     pcall(function()
         ContentProvider:PreloadAsync({roseImage})
@@ -504,14 +504,11 @@ task.spawn(function()
 end)
 
 task.spawn(function()
-    -- Появление текста
     TweenService:Create(titleText, TweenInfo.new(0.8), {TextTransparency = 0}):Play()
     TweenService:Create(privateText, TweenInfo.new(0.8), {TextTransparency = 0}):Play()
     
-    -- Ровно 3 секунды приветствия
     task.wait(3)
 
-    -- Исчезновение черного экрана
     local tweenOutSplash = TweenService:Create(splashFrame, TweenInfo.new(0.8), {BackgroundTransparency = 1})
     TweenService:Create(titleText, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
     TweenService:Create(privateText, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
@@ -520,7 +517,6 @@ task.spawn(function()
     tweenOutSplash.Completed:Wait()
     splashFrame.Visible = false
 
-    -- Открытие основного GUI
     mainWindow.Visible = true
     mainWindow.Size = UDim2.new(0, 380, 0, 0)
     TweenService:Create(mainWindow, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
@@ -528,7 +524,7 @@ task.spawn(function()
     }):Play()
 end)
 
--- Обработка кнопки
+-- Обработка клика активации
 submitButton.MouseButton1Click:Connect(function()
     if keyTextBox.Text == SECRET_KEY then
         keyStatusLabel.TextColor3 = THEME.AccentGreen
@@ -539,7 +535,6 @@ submitButton.MouseButton1Click:Connect(function()
         keySystemFrame.Visible = false
         botCheckFrame.Visible = true
 
-        -- Проверка на бота
         task.wait(2)
         if player.AccountAge < 30 then
             botCheckLabel.Text = "❌ Ваш аккаунт моложе месяца, видимо вы бот"
@@ -548,7 +543,6 @@ submitButton.MouseButton1Click:Connect(function()
             botCheckFrame.Visible = false
             loadingFrame.Visible = true
 
-            -- Загрузка (112 секунд)
             local startTime = tick()
             while tick() - startTime < LOADING_TIME do
                 local elapsed = tick() - startTime
@@ -563,12 +557,10 @@ submitButton.MouseButton1Click:Connect(function()
             percentLabel.Text = "100%"
             task.wait(0.5)
 
-            -- Показ благодарности
             loadingFrame.Visible = false
             thankYouFrame.Visible = true
             task.wait(3)
 
-            -- Выход в читы
             thankYouFrame.Visible = false
             cheatMenuFrame.Visible = true
             headerTitle.Text = "Mertily's Private — Main Menu"
