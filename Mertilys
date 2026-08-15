@@ -11,7 +11,7 @@ local player = Players.LocalPlayer
 -- Константы
 local SECRET_KEY = "Mertily-Private_uenj-wk21-sllz"
 local PLACEHOLDER_KEY = "Mertily-Private_XXXX_XXXX_XXXX_XXXX"
-local LOADING_TIME = 112 -- 1 минута 52 секунды
+local LOADING_TIME = 80 -- 1 минута 20 секунд (80 секунд)
 
 -- Очистка предыдущего GUI
 local playerGui = player:WaitForChild("PlayerGui")
@@ -35,12 +35,13 @@ local THEME = {
     Border = Color3.fromRGB(80, 50, 95)
 }
 
--- Создание ScreenGui
+-- Создание ScreenGui поверх всех интерфейсов
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "MertilyPrivateGui"
 screenGui.IgnoreGuiInset = true
 screenGui.ResetOnSpawn = false
 screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+screenGui.DisplayOrder = 999999999 -- Гарантирует отображение поверх всего UI
 screenGui.Parent = playerGui
 
 local function createCorner(parent, radius)
@@ -350,7 +351,7 @@ botCheckLabel.TextWrapped = true
 botCheckLabel.ZIndex = 10
 botCheckLabel.Parent = botCheckFrame
 
--- 3. Загрузка (112 сек)
+-- 3. Загрузка (80 сек)
 local loadingFrame = Instance.new("Frame")
 loadingFrame.Size = UDim2.new(1, -30, 1, -60)
 loadingFrame.Position = UDim2.new(0, 15, 0, 55)
